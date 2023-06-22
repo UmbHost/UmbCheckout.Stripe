@@ -5,6 +5,7 @@
 	  <StaticWebAssetBasePath>App_Plugins</StaticWebAssetBasePath>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <Company>UmbHost Limited</Company>
 	  <Copyright>(c) 2023 UmbHost Limited</Copyright>
 	  <PackageProjectUrl>https://umbcheckout.net</PackageProjectUrl>
