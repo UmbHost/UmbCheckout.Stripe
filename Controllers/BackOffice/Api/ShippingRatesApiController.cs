@@ -14,11 +14,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     {
         private readonly ILogger<ShippingRatesApiController> _logger;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
+        private readonly IStripeShippingRateApiService _stripeShippingRateApiService;
 
-        public ShippingRatesApiController(ILogger<ShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService)
+        public ShippingRatesApiController(ILogger<ShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService)
         {
             _logger = logger;
             _stripeDatabaseService = stripeDatabaseService;
+            _stripeShippingRateApiService = stripeShippingRateApiService;
         }
 
         [HttpGet]
@@ -27,6 +29,22 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRates = await _stripeDatabaseService.GetShippingRates();
+
+                return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStripeShippingRates()
+        {
+            try
+            {
+                var shippingRates = await _stripeShippingRateApiService.GetShippingRates();
 
                 return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }

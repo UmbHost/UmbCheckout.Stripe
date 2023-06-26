@@ -24,6 +24,17 @@
                         </umb-property>
                     </umb-box-content>
                 </umb-box>
+                <umb-box>
+                    <umb-box-header title="Stripe Shipping Rates" description="The available Shipping Rates found in your Stripe account, click on a Shipping Rate to update the form above"></umb-box-header>
+                    <umb-box-content>
+                        <umb-table ng-if="vm.stripeShippingRates"
+                                   items="vm.stripeShippingRates"
+                                   on-select="vm.clickItem(item)"
+                                   on-click="vm.clickItem(item)"
+                                   item-properties="vm.options.includeProperties">
+                        </umb-table>
+                    </umb-box-content>
+                </umb-box>
             </umb-editor-container>
 
             <umb-editor-footer>
