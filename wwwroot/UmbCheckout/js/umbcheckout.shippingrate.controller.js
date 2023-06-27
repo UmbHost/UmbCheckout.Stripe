@@ -5,6 +5,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
     vm.properties = [];
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
+    vm.stripeShippingRate = {};
 
     vm.clickItem = clickItem;
 
@@ -12,7 +13,15 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
 
         vm.properties.forEach(function (v) {
             if (v.alias == "name") v.value = item.displayName;
-            if (v.alias == "value") v.value = item.id;
+            if (v.alias == "value") {
+                v.value = item.id
+
+                umbCheckoutResources.getStripeShippingRate(v.value)
+                    .then(function (response) {
+
+                        vm.stripeShippingRate = response.data
+                    })
+            };
         });
     }
 
@@ -29,6 +38,18 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
         .then(function (response) {
 
             vm.properties = response.data
+
+            response.data.forEach(function (v) {
+                if (v.alias == "value") {
+                    if (v.value) {
+                        umbCheckoutResources.getStripeShippingRate(v.value)
+                            .then(function (response) {
+
+                                vm.stripeShippingRate = response.data
+                            })
+                    }
+                };
+            });
         }
     );
 

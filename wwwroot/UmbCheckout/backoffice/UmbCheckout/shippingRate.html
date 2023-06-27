@@ -24,6 +24,82 @@
                         </umb-property>
                     </umb-box-content>
                 </umb-box>
+                <umb-box ng-if="vm.stripeShippingRate">
+                    <umb-box-header title="Stripe Shipping Rate Details" description="The details of the Shipping Rate as found in your Stripe account"></umb-box-header>
+                    <umb-box-content>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Name</label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.displayName}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Amount</label>
+                                    <small class="control-description ng-binding ng-scope">In Pence / Cents</small>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.fixedAmount.amount}} {{vm.stripeShippingRate.fixedAmount.currency}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Minimum</label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.deliveryEstimate.minimum.value}} {{vm.stripeShippingRate.deliveryEstimate.minimum.unit}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Maximum</label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.deliveryEstimate.maximum.value}} {{vm.stripeShippingRate.deliveryEstimate.maximum.unit}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Manage Shipping Rate</label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            <a href="https://dashboard.stripe.com/shipping-rates/{{vm.stripeShippingRate.id}}" target="_blank" class="btn umb-button__button btn-success umb-button-- umb-outline">Edit Shipping Rate</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
                 <umb-box>
                     <umb-box-header title="Stripe Shipping Rates" description="The available Shipping Rates found in your Stripe account, click on a Shipping Rate to update the form above"></umb-box-header>
                     <umb-box-content>
