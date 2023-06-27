@@ -71,6 +71,22 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetStripeShippingRate(string id)
+        {
+            try
+            {
+                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id);
+
+                return new JsonResult(shippingRate, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
         [HttpPatch]
         public async Task<IActionResult> UpdateShippingRate([FromBody] ShippingRate shippingRate)
         {

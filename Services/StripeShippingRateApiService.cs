@@ -23,5 +23,15 @@ namespace UmbCheckout.Stripe.Services
 
             return shippingRates;
         }
+
+        public async Task<ShippingRate> GetShippingRate(string id)
+        {
+            var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+            var service = new ShippingRateService(stripeClient);
+
+            var shippingRate = await service.GetAsync(id);
+
+            return shippingRate;
+        }
     }
 }
