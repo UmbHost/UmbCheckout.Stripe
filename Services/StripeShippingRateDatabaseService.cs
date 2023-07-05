@@ -1,5 +1,6 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
+using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Pocos;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Infrastructure.Scoping;
@@ -73,7 +74,11 @@ namespace UmbCheckout.Stripe.Services
                     result = await scope.Database.UpdateAsync(shippingRatePoco);
                 }
 
-                return await GetShippingRate(result);
+                var updatedShippingRate = await GetShippingRate(shippingRate.Id);
+
+                scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
+
+                return updatedShippingRate;
             }
             catch (Exception ex)
             {
