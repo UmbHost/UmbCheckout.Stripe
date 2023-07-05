@@ -4,6 +4,26 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
     vm.saveButtonState = "init";
     vm.properties = [];
     vm.LicenseState = {};
+    vm.stripeShippingRates = [];
+    vm.stripeShippingRate = {};
+
+    vm.clickItem = clickItem;
+
+    function clickItem(item) {
+
+        vm.properties.forEach(function (v) {
+            if (v.alias == "name") v.value = item.displayName;
+            if (v.alias == "value") {
+                v.value = item.id
+
+                umbCheckoutResources.getStripeShippingRate(v.value)
+                    .then(function (response) {
+
+                        vm.stripeShippingRate = response.data
+                    })
+            };
+        });
+    }
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
@@ -18,8 +38,37 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
         .then(function (response) {
 
             vm.properties = response.data
+
+            response.data.forEach(function (v) {
+                if (v.alias == "value") {
+                    if (v.value) {
+                        umbCheckoutResources.getStripeShippingRate(v.value)
+                            .then(function (response) {
+
+                                vm.stripeShippingRate = response.data
+                            })
+                    }
+                };
+            });
+        }
+    );
+
+    umbCheckoutResources.getStripeShippingRates()
+        .then(function (response) {
+            angular.forEach(response.data, function (value, key) {
+
+                value.name = value.displayName
+            });
+
+            vm.stripeShippingRates = response.data
         }
         );
+
+    vm.options = {
+        includeProperties: [
+            { alias: "id", header: "ID" }
+        ]
+    };
 
     function saveShippingRate() {
         vm.saveButtonState = "busy";
