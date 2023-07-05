@@ -25,6 +25,7 @@ namespace UmbCheckout.Stripe.Composers
 
         private static void Map(ShippingRate source, UmbCheckoutStripeShipping target, MapperContext context)
         {
+            target.Key = source.Key;
             target.Id = source.Id;
             target.Name = source.Name;
             target.Value = source.Value;
@@ -32,6 +33,7 @@ namespace UmbCheckout.Stripe.Composers
 
         private static void Map(UmbCheckoutStripeShipping source, ShippingRate target, MapperContext context)
         {
+            target.Key = source.Key;
             target.Id = source.Id;
             target.Name = source.Name;
             target.Value = source.Value;

@@ -9,6 +9,10 @@ namespace UmbCheckout.Stripe.Models
         [Required]
         public long Id { get; set; }
 
+        [JsonPropertyName("key")]
+        [Required]
+        public Guid Key { get; set; } = Guid.NewGuid();
+
         [JsonPropertyName("name")]
         [Required]
         public string Name { get; set; } = string.Empty;

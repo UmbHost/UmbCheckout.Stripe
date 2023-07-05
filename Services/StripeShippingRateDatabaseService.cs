@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Pocos;
 using Umbraco.Cms.Core.Mapping;
@@ -61,6 +61,7 @@ namespace UmbCheckout.Stripe.Services
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
                 var existingShippingRate = await GetShippingRate(shippingRate.Id);
+                shippingRatePoco.Key = existingShippingRate.Key;
 
                 long result;
                 if (existingShippingRate == null)

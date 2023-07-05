@@ -12,6 +12,10 @@ namespace UmbCheckout.Stripe.Pocos
         [Column("Id")]
         public long Id { get; set; }
 
+        [Column("Key")]
+        [NullSetting(NullSetting = NullSettings.Null)]
+        public Guid Key { get; set; } = Guid.NewGuid();
+
         [Column("Name")]
         [NullSetting(NullSetting = NullSettings.NotNull)]
         public string Name { get; set; } = string.Empty;
