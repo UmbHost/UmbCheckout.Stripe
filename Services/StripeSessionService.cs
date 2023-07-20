@@ -3,14 +3,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
-using System.ComponentModel;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Shared;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
-using UmbHost.Licensing;
+using UmbHost.Licensing.Models;
+using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Scoping;
@@ -18,7 +18,6 @@ using Umbraco.Extensions;
 
 namespace UmbCheckout.Stripe.Services
 {
-    [LicenseProvider(typeof(UmbLicensingProvider))]
     internal class StripeSessionService : IStripeSessionService
     {
         private readonly IPublishedSnapshotAccessor _snapshotAccessor;
@@ -29,9 +28,8 @@ namespace UmbCheckout.Stripe.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
         private readonly StripeSettings _stripeSettings;
-        private readonly bool _licenseIsValid;
 
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings)
+        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService)
         {
             _snapshotAccessor = snapshotAccessor;
             _coreScopeProvider = coreScopeProvider;
@@ -41,7 +39,7 @@ namespace UmbCheckout.Stripe.Services
             _httpContextAccessor = httpContextAccessor;
             _stripeDatabaseService = stripeDatabaseService;
             _stripeSettings = stripeSettings.CurrentValue;
-            _licenseIsValid = LicenseManager.IsValid(typeof(StripeSessionService));
+            licenseService.RunLicenseCheck();
         }
 
         public Session GetSession(string id)
@@ -263,7 +261,7 @@ namespace UmbCheckout.Stripe.Services
                                 stripeLineItem.PriceData.ProductData.Metadata = metaData;
                             }
 
-                            if (_licenseIsValid)
+                            if (UmbCheckoutSettings.IsLicensed)
                             {
                                 if (product.HasValue(Consts.PropertyAlias.TaxRatesAlias))
                                 {
