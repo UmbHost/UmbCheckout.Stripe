@@ -5,9 +5,11 @@ function UmbCheckout(umbCheckoutResources, $location) {
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
-            if (response.data == "Invalid") {
+            if (response.data.status == "Invalid" || response.data.status == "Unlicensed") {
                 vm.LicenseState.Valid = false;
                 vm.LicenseState.Message = "UmbCheckout is running in unlicensed mode, please <a href=\"#\" target=\"_blank\"  class=\"red bold underline\">purchase a license</a> to support development"
+            } else if (response.data.status == "Active") {
+                vm.LicenseState.Valid = true;
             }
         }
         );
