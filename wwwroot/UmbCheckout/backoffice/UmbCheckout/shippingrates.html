@@ -1,12 +1,17 @@
 ﻿<div ng-controller="UmbCheckout.ShippingRates.Controller as vm" class="umbcheckout">
-    <umb-editor-view header="false" class="form-horizontal">
-        <umb-editor-container class="dashboard">
+    <umb-editor-view class="form-horizontal">
+        <umb-editor-header name="'Stripe Shipping Rates'"
+                           name-locked="true"
+                           hide-alias="true"
+                           show-back-button="false"
+                           hide-description="true"
+                           hide-icon="true">
+        </umb-editor-header>
+        <umb-editor-container>
             <umb-box>
                 <umb-box-content>
-                    <h1><span ng-if="!vm.LicenseState.Valid">UmbCheckout - </span>Stripe Shipping Rates</h1>
-
                     <p class="muted">
-                        You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them.
+                        <umb-icon icon="icon-info"></umb-icon> You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them.
                     </p>
 
                     <p class="red bold" ng-if="!vm.LicenseState.Valid" ng-bind-html="vm.LicenseState.Message">
