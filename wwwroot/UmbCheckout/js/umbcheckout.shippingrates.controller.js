@@ -18,7 +18,7 @@ function UmbCheckout(umbCheckoutResources, $location) {
         .then(function (response) {
             angular.forEach(response.data, function (value, key) {
 
-                value.editPath = "/settings/umbCheckout/shippingRate/" + value.id
+                value.editPath = "/settings/UmbCheckout/shippingRate/" + value.id
             });
 
             vm.shippingRates = response.data
@@ -40,7 +40,7 @@ function UmbCheckout(umbCheckoutResources, $location) {
     vm.clickCreateButton = clickCreateButton;
 
     function clickCreateButton() {
-        $location.path("/settings/umbCheckout/shippingRate");
+        $location.path("/settings/UmbCheckout/shippingRate");
     }
 }
 angular.module("umbraco").controller("UmbCheckout.ShippingRates.Controller", UmbCheckout);

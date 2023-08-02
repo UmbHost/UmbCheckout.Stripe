@@ -113,7 +113,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
                 vm.properties = response.data
                 notificationsService.success("Shipping Rate deleted", "The Shipping Rate has been deleted successfully");
                 vm.saveButtonState = "success";
-                $location.path("/settings/umbCheckout/shippingrates");
+                $location.path("/settings/UmbCheckout/shippingrates");
             })
             .catch(
                 function (response) {

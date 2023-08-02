@@ -27,7 +27,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         {
             if (notification.TreeAlias.Equals("umbCheckout"))
             {
-                var menuItem = CreateTreeNode("3", "-1", notification.QueryString, "Stripe Shipping Rates", "icon-truck", $"{Constants.Applications.Settings}/umbCheckout/shippingrates");
+                var menuItem = CreateTreeNode("3", "-1", notification.QueryString, "Stripe Shipping Rates", "icon-truck", $"{Constants.Applications.Settings}/UmbCheckout/shippingrates");
 
                 notification.Nodes.Add(menuItem);
             }
