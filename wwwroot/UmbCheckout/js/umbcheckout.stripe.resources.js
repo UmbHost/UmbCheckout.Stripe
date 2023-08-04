@@ -32,8 +32,8 @@
                 }
                 );
         },
-        updateShippingRate: function (configurationValues, id) {
-            configurationValues.id = id
+        updateShippingRate: function (configurationValues, key) {
+            configurationValues.key = key
             return $http.patch("backoffice/UmbCheckout/StripeShippingRatesApi/UpdateShippingRate", configurationValues)
                 .then(function (response) {
                     return response;
