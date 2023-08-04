@@ -10,13 +10,13 @@ using Umbraco.Cms.Web.BackOffice.Trees;
 
 namespace UmbCheckout.Stripe.NotificationHandlers
 {
-    public class StripeShippingTreeNotificationHandler : INotificationHandler<TreeNodesRenderingNotification>
+    public class StripeTreeNotificationHandler : INotificationHandler<TreeNodesRenderingNotification>
     {
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly UmbracoApiControllerTypeCollection _apiControllers;
 
-        public StripeShippingTreeNotificationHandler(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor, UmbracoApiControllerTypeCollection apiControllers)
+        public StripeTreeNotificationHandler(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor, UmbracoApiControllerTypeCollection apiControllers)
         {
             _urlHelperFactory = urlHelperFactory;
             _actionContextAccessor = actionContextAccessor;
@@ -25,11 +25,9 @@ namespace UmbCheckout.Stripe.NotificationHandlers
 
         public void Handle(TreeNodesRenderingNotification notification)
         {
-            if (notification.TreeAlias.Equals("umbCheckout") && notification.Id == "2")
+            if (notification.TreeAlias.Equals("umbCheckout") && notification.Id == "-1")
             {
-                var menuItem = CreateTreeNode("3", "2", notification.QueryString, "Stripe Shipping Rates", "icon-truck", false, $"{Constants.Applications.Settings}/UmbCheckout/StripeShippingRates");
-
-                notification.Nodes.Add(menuItem);
+                notification.Nodes.Add(CreateTreeNode("2", "1", notification.QueryString, "Stripe", "icon-credit-card", true, $"{Constants.Applications.Settings}/{"UmbCheckout"}/{"dashboard"}"));
             }
         }
 
