@@ -118,6 +118,9 @@ namespace UmbCheckout.Stripe.Services
                 }
 
                 _ = await scope.Database.DeleteAsync(shippingRatePoco);
+
+                scope.Notifications.Publish(new OnShippingRateDeletedNotification(shippingRate));
+
                 return true;
             }
             catch (Exception ex)
