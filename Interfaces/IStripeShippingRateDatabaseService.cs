@@ -6,10 +6,10 @@ namespace UmbCheckout.Stripe.Interfaces
     {
         Task<IEnumerable<ShippingRate>> GetShippingRates();
 
-        Task<ShippingRate?> GetShippingRate(long id);
+        Task<ShippingRate?> GetShippingRate(Guid key);
 
         Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate);
 
-        Task<bool> DeleteShippingRate(long id);
+        Task<bool> DeleteShippingRate(Guid key);
     }
 }

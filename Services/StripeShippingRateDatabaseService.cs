@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Pocos;
@@ -37,12 +37,28 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
-        public async Task<ShippingRate?> GetShippingRate(long id)
+        private async Task<ShippingRate?> GetShippingRate(long id)
         {
             try
             {
                 using var scope = _scopeProvider.CreateScope(autoComplete: true);
                 var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Id == id);
+
+                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<ShippingRate?> GetShippingRate(Guid key)
+        {
+            try
+            {
+                using var scope = _scopeProvider.CreateScope(autoComplete: true);
+                var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Key == key);
 
                 return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
             }
@@ -61,7 +77,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
-                var existingShippingRate = await GetShippingRate(shippingRate.Id);
+                var existingShippingRate = await GetShippingRate(shippingRate.Key);
 
                 long result;
                 if (existingShippingRate == null)
@@ -87,13 +103,13 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
-        public async Task<bool> DeleteShippingRate(long id)
+        public async Task<bool> DeleteShippingRate(Guid key)
         {
             try
             {
                 using var scope = _scopeProvider.CreateScope(autoComplete: true);
 
-                var shippingRate = await GetShippingRate(id);
+                var shippingRate = await GetShippingRate(key);
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
                 if (shippingRatePoco == null)

@@ -18,7 +18,7 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
         .then(function (response) {
             angular.forEach(response.data, function (value, key) {
 
-                value.editPath = "/settings/UmbCheckout/StripeShippingRate/" + value.id
+                value.editPath = "/settings/UmbCheckout/StripeShippingRate/" + value.key
             });
 
             vm.shippingRates = response.data

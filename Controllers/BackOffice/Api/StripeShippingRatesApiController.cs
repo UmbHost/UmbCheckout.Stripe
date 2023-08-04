@@ -56,11 +56,11 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetShippingRate(long? id)
+        public async Task<IActionResult> GetShippingRate(Guid? key)
         {
             try
             { 
-                var shippingRateProperties = await GetShippingRateProperties(id);
+                var shippingRateProperties = await GetShippingRateProperties(key);
 
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
@@ -93,7 +93,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             if (ModelState.IsValid)
             {
                 var updatedShippingRate = await _stripeDatabaseService.UpdateShippingRate(shippingRate);
-                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate?.Id);
+                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate?.Key);
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
 
@@ -101,11 +101,11 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteShippingRate([FromQuery] long id)
+        public async Task<IActionResult> DeleteShippingRate([FromQuery] Guid key)
         {
             if (ModelState.IsValid)
             {
-                var deletedShippingRate = await _stripeDatabaseService.DeleteShippingRate(id);
+                var deletedShippingRate = await _stripeDatabaseService.DeleteShippingRate(key);
 
                 if (deletedShippingRate == false)
                 {
@@ -118,14 +118,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        private async Task<List<Property>> GetShippingRateProperties(long? id)
+        private async Task<List<Property>> GetShippingRateProperties(Guid? key)
         {
             try
             {
                 var shippingRate = new ShippingRate();
-                if (id.HasValue)
+                if (key != null)
                 {
-                    shippingRate = await _stripeDatabaseService.GetShippingRate(id.Value);
+                    shippingRate = await _stripeDatabaseService.GetShippingRate(key.Value);
                 }
                 var backOfficeProperties = new List<Property>
                 {

@@ -16,9 +16,9 @@
                 }
                 );
         },
-        getShippingRate: function (id) {
+        getShippingRate: function (key) {
 
-            return $http.get("backoffice/UmbCheckout/StripeShippingRatesApi/GetShippingRate?id=" + id)
+            return $http.get("backoffice/UmbCheckout/StripeShippingRatesApi/GetShippingRate?key=" + key)
                 .then(function (response) {
                     return response;
                 }
@@ -40,9 +40,9 @@
                 }
                 );
         },
-        deleteShippingRate: function (id) {
+        deleteShippingRate: function (key) {
 
-            return $http.delete("backoffice/UmbCheckout/StripeShippingRatesApi/DeleteShippingRate?id=" + id)
+            return $http.delete("backoffice/UmbCheckout/StripeShippingRatesApi/DeleteShippingRate?key=" + key)
                 .then(function (response) {
                     return response;
                 }

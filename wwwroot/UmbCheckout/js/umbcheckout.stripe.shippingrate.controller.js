@@ -16,7 +16,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
             if (v.alias == "value") {
                 v.value = item.id
 
-                umbCheckoutResources.getStripeShippingRate(v.value)
+                umbCheckoutStripeResources.getStripeShippingRate(v.value)
                     .then(function (response) {
 
                         vm.stripeShippingRate = response.data
@@ -44,7 +44,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
             response.data.forEach(function (v) {
                 if (v.alias == "value") {
                     if (v.value) {
-                        umbCheckoutResources.getStripeShippingRate(v.value)
+                        umbCheckoutStripeResources.getStripeShippingRate(v.value)
                             .then(function (response) {
 
                                 vm.stripeShippingRate = response.data
@@ -113,7 +113,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                 vm.properties = response.data
                 notificationsService.success("Shipping Rate deleted", "The Shipping Rate has been deleted successfully");
                 vm.saveButtonState = "success";
-                $location.path("/settings/UmbCheckout/shippingrates");
+                $location.path("/settings/UmbCheckout/StripeShippingRates");
             })
             .catch(
                 function (response) {
