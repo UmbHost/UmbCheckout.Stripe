@@ -13,6 +13,7 @@ namespace UmbCheckout.Stripe.Pocos
         public long Id { get; set; }
 
         [Column("Key")]
+        [Index(IndexTypes.UniqueNonClustered, Name = "IX_shippingKey")]
         [NullSetting(NullSetting = NullSettings.Null)]
         public Guid Key { get; set; } = Guid.NewGuid();
 
