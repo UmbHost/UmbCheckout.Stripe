@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Pocos;
@@ -62,7 +62,6 @@ namespace UmbCheckout.Stripe.Services
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
                 var existingShippingRate = await GetShippingRate(shippingRate.Id);
-                shippingRatePoco.Key = existingShippingRate.Key;
 
                 long result;
                 if (existingShippingRate == null)
@@ -71,10 +70,11 @@ namespace UmbCheckout.Stripe.Services
                 }
                 else
                 {
+                    shippingRatePoco.Key = existingShippingRate.Key;
                     result = await scope.Database.UpdateAsync(shippingRatePoco);
                 }
 
-                var updatedShippingRate = await GetShippingRate(shippingRate.Id);
+                var updatedShippingRate = await GetShippingRate(result);
 
                 scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
 
@@ -93,14 +93,15 @@ namespace UmbCheckout.Stripe.Services
             {
                 using var scope = _scopeProvider.CreateScope(autoComplete: true);
 
-                var existingShippingRate = await GetShippingRate(id);
+                var shippingRate = await GetShippingRate(id);
+                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
-                if (existingShippingRate == null)
+                if (shippingRatePoco == null)
                 {
                     return false;
                 }
 
-                _ = await scope.Database.DeleteAsync(existingShippingRate);
+                _ = await scope.Database.DeleteAsync(shippingRatePoco);
                 return true;
             }
             catch (Exception ex)
