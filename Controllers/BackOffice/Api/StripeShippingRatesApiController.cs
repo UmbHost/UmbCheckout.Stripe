@@ -10,13 +10,13 @@ using Umbraco.Cms.Web.Common.Attributes;
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [PluginController(Consts.PackageName)]
-    public class ShippingRatesApiController : UmbracoAuthorizedApiController
+    public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
     {
-        private readonly ILogger<ShippingRatesApiController> _logger;
+        private readonly ILogger<StripeShippingRatesApiController> _logger;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
         private readonly IStripeShippingRateApiService _stripeShippingRateApiService;
 
-        public ShippingRatesApiController(ILogger<ShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService)
+        public StripeShippingRatesApiController(ILogger<StripeShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService)
         {
             _logger = logger;
             _stripeDatabaseService = stripeDatabaseService;

@@ -1,4 +1,4 @@
-function UmbCheckout(umbCheckoutResources, $location) {
+function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location) {
     var vm = this;
     vm.shippingRates = [];
     vm.LicenseState = {}
@@ -14,11 +14,11 @@ function UmbCheckout(umbCheckoutResources, $location) {
         }
         );
 
-    umbCheckoutResources.getShippingRates()
+    umbCheckoutStripeResources.getShippingRates()
         .then(function (response) {
             angular.forEach(response.data, function (value, key) {
 
-                value.editPath = "/settings/UmbCheckout/shippingRate/" + value.id
+                value.editPath = "/settings/UmbCheckout/StripeShippingRate/" + value.id
             });
 
             vm.shippingRates = response.data
@@ -40,7 +40,7 @@ function UmbCheckout(umbCheckoutResources, $location) {
     vm.clickCreateButton = clickCreateButton;
 
     function clickCreateButton() {
-        $location.path("/settings/UmbCheckout/shippingRate");
+        $location.path("/settings/UmbCheckout/StripeShippingRate");
     }
 }
-angular.module("umbraco").controller("UmbCheckout.ShippingRates.Controller", UmbCheckout);
+angular.module("umbraco").controller("UmbCheckout.Stripe.ShippingRates.Controller", UmbCheckout);

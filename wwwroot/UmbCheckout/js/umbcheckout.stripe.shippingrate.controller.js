@@ -1,4 +1,4 @@
-function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsService, formHelper, $location) {
+function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location) {
     var vm = this;
     vm.deleteButtonState = "init";
     vm.saveButtonState = "init";
@@ -36,7 +36,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
         }
         );
 
-    umbCheckoutResources.getShippingRate($routeParams.id)
+    umbCheckoutStripeResources.getShippingRate($routeParams.id)
         .then(function (response) {
 
             vm.properties = response.data
@@ -55,7 +55,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
         }
     );
 
-    umbCheckoutResources.getStripeShippingRates()
+    umbCheckoutStripeResources.getStripeShippingRates()
         .then(function (response) {
             angular.forEach(response.data, function (value, key) {
 
@@ -84,7 +84,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
                 configurationValues[newKey] = value.value
             });
 
-            umbCheckoutResources.updateShippingRate(configurationValues, $routeParams.id)
+            umbCheckoutStripeResources.updateShippingRate(configurationValues, $routeParams.id)
                 .then(function (response) {
                     vm.properties = response.data
                     notificationsService.success("Shipping Rate saved", "The Shipping Rate has been saved successfully");
@@ -108,7 +108,7 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
     function deleteShippingRate() {
         vm.deleteButtonState = "busy";
 
-        umbCheckoutResources.deleteShippingRate($routeParams.id)
+        umbCheckoutStripeResources.deleteShippingRate($routeParams.id)
             .then(function (response) {
                 vm.properties = response.data
                 notificationsService.success("Shipping Rate deleted", "The Shipping Rate has been deleted successfully");
@@ -125,4 +125,4 @@ function UmbCheckout($scope, umbCheckoutResources, $routeParams, notificationsSe
 
     vm.deleteShippingRate = deleteShippingRate;
 }
-angular.module("umbraco").controller("UmbCheckout.ShippingRate.Controller", UmbCheckout);
+angular.module("umbraco").controller("UmbCheckout.Stripe.ShippingRate.Controller", UmbCheckout);
