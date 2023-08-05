@@ -32,6 +32,13 @@
                 }
                 );
         },
+        createShippingRate: function (configurationValues) {
+            return $http.put("backoffice/UmbCheckout/StripeShippingRatesApi/CreateShippingRate", configurationValues)
+                .then(function (response) {
+                    return response;
+                }
+                );
+        },
         updateShippingRate: function (configurationValues, key) {
             configurationValues.key = key
             return $http.patch("backoffice/UmbCheckout/StripeShippingRatesApi/UpdateShippingRate", configurationValues)

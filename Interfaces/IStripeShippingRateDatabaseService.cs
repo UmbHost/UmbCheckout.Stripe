@@ -8,6 +8,10 @@ namespace UmbCheckout.Stripe.Interfaces
 
         Task<ShippingRate?> GetShippingRate(Guid key);
 
+        Task<ShippingRate?> GetShippingRate(string value);
+
+        Task<ShippingRate?> CreateShippingRate(ShippingRate shippingRate);
+
         Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate);
 
         Task<bool> DeleteShippingRate(Guid key);

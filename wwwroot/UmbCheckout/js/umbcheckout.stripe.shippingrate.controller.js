@@ -39,9 +39,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     umbCheckoutStripeResources.getShippingRate($routeParams.id)
         .then(function (response) {
 
-            vm.properties = response.data
+            vm.properties = response.data.properties
 
-            response.data.forEach(function (v) {
+            response.data.properties.forEach(function (v) {
                 if (v.alias == "value") {
                     if (v.value) {
                         umbCheckoutStripeResources.getStripeShippingRate(v.value)
@@ -84,19 +84,36 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                 configurationValues[newKey] = value.value
             });
 
-            umbCheckoutStripeResources.updateShippingRate(configurationValues, $routeParams.id)
-                .then(function (response) {
-                    vm.properties = response.data
-                    notificationsService.success("Shipping Rate saved", "The Shipping Rate has been saved successfully");
-                    vm.saveButtonState = "success";
-                    $scope.shippingRateForm.$dirty = false;
-                })
-                .catch(
-                    function (response) {
-                        notificationsService.error("Shipping Rate failed to save", "There was an issue trying to save the Shipping Rate");
-                        vm.saveButtonState = "error";
-                    }
-                );
+            if ($routeParams.id) {
+                umbCheckoutStripeResources.updateShippingRate(configurationValues, $routeParams.id)
+                    .then(function (response) {
+                        vm.properties = response.data.properties
+                        notificationsService.success("Shipping Rate updated", "The Shipping Rate has been updated successfully");
+                        vm.saveButtonState = "success";
+                        $scope.shippingRateForm.$dirty = false;
+                    })
+                    .catch(
+                        function (response) {
+                            notificationsService.error("Shipping Rate failed to update", "There was an issue trying to update the Shipping Rate");
+                            vm.saveButtonState = "error";
+                        }
+                    );
+            } else {
+                umbCheckoutStripeResources.createShippingRate(configurationValues)
+                    .then(function (response) {
+                        vm.properties = response.data.properties
+                        notificationsService.success("Shipping Rate created", "The Shipping Rate has been created successfully");
+                        vm.saveButtonState = "success";
+                        $scope.shippingRateForm.$dirty = false;
+                        $location.path("/settings/UmbCheckout/StripeShippingRate/" + response.data.key);
+                    })
+                    .catch(
+                        function (response) {
+                            notificationsService.error("Shipping Rate failed to create", "There was an issue trying to create the Shipping Rate");
+                            vm.saveButtonState = "error";
+                        }
+                    );
+            }
         }
         else {
             vm.saveButtonState = "error";

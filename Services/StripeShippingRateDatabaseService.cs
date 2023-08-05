@@ -69,6 +69,50 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        public async Task<ShippingRate?> GetShippingRate(string value)
+        {
+            try
+            {
+                using var scope = _scopeProvider.CreateScope(autoComplete: true);
+                var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Value == value);
+
+                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<ShippingRate?> CreateShippingRate(ShippingRate shippingRate)
+        {
+            try
+            {
+                using var scope = _scopeProvider.CreateScope(autoComplete: true);
+
+                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
+
+                var existingShippingRate = await GetShippingRate(shippingRate.Value);
+
+                if (existingShippingRate == null)
+                {
+                    var result = (long)await scope.Database.InsertAsync(shippingRatePoco);
+                    var updatedShippingRate = await GetShippingRate(result);
+                    scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
+
+                    return updatedShippingRate;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
         public async Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate)
         {
             try
@@ -77,20 +121,12 @@ namespace UmbCheckout.Stripe.Services
 
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
-                var existingShippingRate = await GetShippingRate(shippingRate.Key);
+                var existingShippingRate = await GetShippingRate(shippingRate.Value);
 
-                ShippingRate updatedShippingRate;
-                if (existingShippingRate == null)
-                {
-                    var result = (long)await scope.Database.InsertAsync(shippingRatePoco);
-                    updatedShippingRate = await GetShippingRate(result);
-                }
-                else
-                {
-                    shippingRatePoco.Key = existingShippingRate.Key;
-                    await scope.Database.UpdateAsync(shippingRatePoco);
-                    updatedShippingRate = await GetShippingRate(shippingRate.Key);
-                }
+                shippingRatePoco.Id = existingShippingRate.Id;
+                shippingRatePoco.Key = existingShippingRate.Key;
+                var result = await scope.Database.UpdateAsync(shippingRatePoco);
+                var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);
 
                 scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
 
