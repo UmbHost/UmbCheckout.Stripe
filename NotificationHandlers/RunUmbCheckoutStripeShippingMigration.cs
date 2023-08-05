@@ -39,6 +39,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 .To<AddStripeShippingKey>("DD66EDFF-44F4-4B03-B9E5-8FA276B709A3");
             migrationPlan.From("DD66EDFF-44F4-4B03-B9E5-8FA276B709A3")
                 .To<AddKeyUniqueConstraint>("cc5862ca-619a-49b4-804b-23e6e7145c0e");
+            migrationPlan.From("cc5862ca-619a-49b4-804b-23e6e7145c0e")
+                .To<AddStripeIdUniqueConstraint>("9219beca-8c25-4397-8394-ae9dd51ffbee");
 
             var upgrader = new Upgrader(migrationPlan);
             upgrader.Execute(

@@ -23,6 +23,7 @@ namespace UmbCheckout.Stripe.Pocos
 
         [Column("Value")]
         [NullSetting(NullSetting = NullSettings.NotNull)]
+        [Index(IndexTypes.UniqueNonClustered, Name = "IX_stripeId")]
         public string Value { get; set; } = string.Empty;
     }
 }
