@@ -136,14 +136,19 @@ namespace UmbCheckout.Stripe.Services
 
                 var existingShippingRate = await GetShippingRate(shippingRate.Value);
 
-                shippingRatePoco.Id = existingShippingRate.Id;
-                shippingRatePoco.Key = existingShippingRate.Key;
-                var result = await scope.Database.UpdateAsync(shippingRatePoco);
-                var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);
+                if (existingShippingRate != null)
+                {
+                    shippingRatePoco.Id = existingShippingRate.Id;
+                    shippingRatePoco.Key = existingShippingRate.Key;
+                    var result = await scope.Database.UpdateAsync(shippingRatePoco);
+                    var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);
 
-                scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
+                    scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
 
-                return updatedShippingRate;
+                    return updatedShippingRate;
+                }
+
+                return await CreateShippingRate(shippingRate);
             }
             catch (Exception ex)
             {
