@@ -11,12 +11,12 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <summary>
         /// Gets a Stripe Session
         /// </summary>
-        /// <param name="id">Key of the Stripe Session</param>
+        /// <param name="id">Id of the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
         Session GetSession(string id);
 
         /// <summary>
-        /// Gets a Stripe Session
+        /// Gets a Stripe Session asynchronously
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
@@ -30,7 +30,7 @@ namespace UmbCheckout.Stripe.Interfaces
         Session CreateSession(Basket basket);
 
         /// <summary>
-        /// Creates a Stripe Session
+        /// Creates a Stripe Session asynchronously
         /// </summary>
         /// <param name="basket">The basket to be stored in the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
@@ -43,7 +43,7 @@ namespace UmbCheckout.Stripe.Interfaces
         void ClearSession(string id);
 
         /// <summary>
-        /// Clears a Stripe Session
+        /// Clears a Stripe Session asynchronously
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
         Task ClearSessionAsync(string id);
