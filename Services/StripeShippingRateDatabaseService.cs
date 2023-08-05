@@ -8,6 +8,9 @@ using ShippingRate = UmbCheckout.Stripe.Models.ShippingRate;
 
 namespace UmbCheckout.Stripe.Services
 {
+    /// <summary>
+    /// A service which handles getting the Stripe Shipping Rates from the database
+    /// </summary>
     internal class StripeShippingRateDatabaseService : IStripeShippingRateDatabaseService
     {
         private readonly IScopeProvider _scopeProvider;
@@ -20,7 +23,8 @@ namespace UmbCheckout.Stripe.Services
             _mapper = mapper;
             _logger = logger;
         }
-
+        
+        /// <inheritdoc />
         public async Task<IEnumerable<ShippingRate>> GetShippingRates()
         {
             try
@@ -37,6 +41,11 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <summary>
+        /// Gets a Shipping Rate by id
+        /// </summary>
+        /// <param name="id">Id of the Stripe Shipping Rate</param>
+        /// <returns>The Stripe Shipping Rate</returns>
         private async Task<ShippingRate?> GetShippingRate(long id)
         {
             try
@@ -53,6 +62,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ShippingRate?> GetShippingRate(Guid key)
         {
             try
@@ -69,6 +79,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ShippingRate?> GetShippingRate(string value)
         {
             try
@@ -85,6 +96,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ShippingRate?> CreateShippingRate(ShippingRate shippingRate)
         {
             try
@@ -113,6 +125,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate)
         {
             try
@@ -139,6 +152,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<bool> DeleteShippingRate(Guid key)
         {
             try

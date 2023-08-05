@@ -18,6 +18,9 @@ using Umbraco.Extensions;
 
 namespace UmbCheckout.Stripe.Services
 {
+    /// <summary>
+    /// A service which handles all things around the Stripe Session
+    /// </summary>
     internal class StripeSessionService : IStripeSessionService
     {
         private readonly IPublishedSnapshotAccessor _snapshotAccessor;
@@ -42,6 +45,7 @@ namespace UmbCheckout.Stripe.Services
             licenseService.RunLicenseCheck();
         }
 
+        /// <inheritdoc />
         public Session GetSession(string id)
         {
             try
@@ -66,6 +70,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<Session> GetSessionAsync(string id)
         {
             try
@@ -89,6 +94,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public Session CreateSession(Basket basket)
         {
             try
@@ -112,6 +118,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<Session> CreateSessionAsync(Basket basket)
         {
             try
@@ -135,6 +142,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public void ClearSession(string id)
         {
             try
@@ -156,6 +164,7 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task ClearSessionAsync(string id)
         {
             try
@@ -175,6 +184,11 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <summary>
+        /// Converts the Basket into the Stripe SessionCreateOptions
+        /// </summary>
+        /// <param name="basket">The Basket to the converted</param>
+        /// <returns>The Stripe SessionCreateOptions</returns>
         private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket)
         {
             try

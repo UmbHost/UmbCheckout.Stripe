@@ -6,6 +6,9 @@ using ShippingRate = Stripe.ShippingRate;
 
 namespace UmbCheckout.Stripe.Services
 {
+    /// <summary>
+    /// A service which handles getting the Stripe Shipping Rates from the Stripe API
+    /// </summary>
     internal class StripeShippingRateApiService : IStripeShippingRateApiService
     {
         private readonly StripeSettings _stripeSettings;
@@ -14,6 +17,8 @@ namespace UmbCheckout.Stripe.Services
         {
             _stripeSettings = _stripeSettings = stripeSettings.CurrentValue;
         }
+
+        /// <inheritdoc />
         public async Task<StripeList<ShippingRate>> GetShippingRates()
         {
             var stripeClient = new StripeClient(_stripeSettings.ApiKey);
@@ -24,6 +29,7 @@ namespace UmbCheckout.Stripe.Services
             return shippingRates;
         }
 
+        /// <inheritdoc />
         public async Task<ShippingRate> GetShippingRate(string id)
         {
             var stripeClient = new StripeClient(_stripeSettings.ApiKey);
