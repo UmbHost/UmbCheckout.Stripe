@@ -11,16 +11,16 @@ namespace UmbCheckout.Stripe.Migrations
 
         protected override void Migrate()
         {
-            Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddKeyUniqueConstraint");
+            Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeIdShippingRateUniqueConstraint");
 
-            if (!IndexExists("IX_stripeId"))
+            if (!IndexExists("IX_stripeIdShippingRate"))
             {
-                Create.Index("IX_stripeId").OnTable("UmbCheckoutStripeShipping").WithOptions().NonClustered()
+                Create.Index("IX_stripeIdShippingRate").OnTable("UmbCheckoutStripeShipping").WithOptions().NonClustered()
                     .OnColumn("Value").Unique().Do();
             }
             else
             {
-                Logger.LogDebug("The index {DbTable} already exists, skipping", "IX_shippingKey");
+                Logger.LogDebug("The index {DbTable} already exists, skipping", "IX_stripeIdShippingRate");
             }
         }
     }
