@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using UmbCheckout.Shared;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 
@@ -15,12 +17,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         private readonly ILogger<StripeShippingRatesApiController> _logger;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
         private readonly IStripeShippingRateApiService _stripeShippingRateApiService;
+        private readonly ILocalizedTextService _localizedTextService;
 
-        public StripeShippingRatesApiController(ILogger<StripeShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService)
+        public StripeShippingRatesApiController(ILogger<StripeShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService, ILocalizedTextService localizedTextService)
         {
             _logger = logger;
             _stripeDatabaseService = stripeDatabaseService;
             _stripeShippingRateApiService = stripeShippingRateApiService;
+            _localizedTextService = localizedTextService;
         }
 
         [HttpGet]
@@ -144,8 +148,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     new()
                     {
                         Alias = "name",
-                        Description = "The Shipping Rate Name",
-                        Label = "Shipping Rate Name",
+                        Description = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_description", CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_label", CultureInfo.CurrentUICulture),
                         Value = shippingRate != null ? shippingRate.Name : string.Empty,
                         View = "textbox",
                         Validation = new Validation
@@ -156,8 +160,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     new()
                     {
                         Alias = "value",
-                        Description = "The Shipping Rate ID set in Stripe",
-                        Label = "Shipping Rate ID",
+                        Description = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_id_description", CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_id_label", CultureInfo.CurrentUICulture),
                         Value = shippingRate != null ? shippingRate.Value : string.Empty,
                         View = "textbox",
                         Validation = new Validation

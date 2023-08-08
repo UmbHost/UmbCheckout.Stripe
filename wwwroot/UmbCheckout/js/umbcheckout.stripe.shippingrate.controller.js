@@ -1,11 +1,16 @@
-function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location) {
+function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService) {
     var vm = this;
+    vm.shippingRateName;
     vm.deleteButtonState = "init";
     vm.saveButtonState = "init";
     vm.properties = [];
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
     vm.stripeShippingRate = {};
+
+    localizationService.localize("umbcheckoutstripe_shipping_rate").then(function (value) {
+        vm.shippingRateName = value;
+    });
 
     vm.clickItem = clickItem;
 

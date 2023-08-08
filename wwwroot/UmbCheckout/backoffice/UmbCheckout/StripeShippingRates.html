@@ -1,6 +1,7 @@
 ﻿<div ng-controller="UmbCheckout.Stripe.ShippingRates.Controller as vm" class="umbcheckout">
     <umb-editor-view class="form-horizontal">
-        <umb-editor-header name="'Stripe Shipping Rates'"
+        <umb-editor-header
+                           name="vm.shippingRatesName"
                            name-locked="true"
                            hide-alias="true"
                            show-back-button="false"
@@ -9,12 +10,14 @@
         </umb-editor-header>
         <umb-editor-container>
             <umb-box>
+                <umb-box-header title-key="umbcheckout_help_support"></umb-box-header>
                 <umb-box-content>
                     <p class="muted">
-                        <umb-icon icon="icon-info"></umb-icon> You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them.
+                        <umb-icon icon="icon-info"></umb-icon> <localize key="umbcheckoutstripe_shipping_help"></localize>
                     </p>
 
-                    <p class="red bold" ng-if="!vm.LicenseState.Valid" ng-bind-html="vm.LicenseState.Message">
+                    <p class="red bold" ng-if="!vm.LicenseState.Valid">
+                        <localize key="umbcheckout_unlicensed_warning"></localize>
                     </p>
 
                 </umb-box-content>
@@ -23,11 +26,11 @@
                 <umb-button action="vm.clickCreateButton()"
                             type="button"
                             button-style="outline"
-                            label="Create Shipping Rate">
+                            label-key="umbcheckoutstripe_create_shipping_rate">
                 </umb-button>
             </umb-editor-sub-header>
             <umb-box>
-                <umb-box-header title="Shipping Rates"></umb-box-header>
+                <umb-box-header title-key="umbcheckout_shipping_rates"></umb-box-header>
                 <umb-box-content>
                     <umb-table ng-if="vm.shippingRates"
                                items="vm.shippingRates"
@@ -40,9 +43,7 @@
 
         <umb-editor-footer>
             <umb-editor-footer-content-left>
-                <a href="https://umbhost.net" class="btn umb-button__button btn-link umb-button-- umb-outline" ng-if="!vm.LicenseState.Valid">
-                    Made with <span class="color-pink icon icon-hearts"></span> by UmbHost Limited
-                </a>
+                <localize ng-if="!vm.LicenseState.Valid" key="umbcheckout_made_by"></localize>
             </umb-editor-footer-content-left>
 
             <umb-editor-footer-content-right>
