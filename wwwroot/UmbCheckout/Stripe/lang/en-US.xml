@@ -19,5 +19,17 @@
 		<key alias="shipping_rate_detail_maximum">Shipping Rate Maximum</key>
 		<key alias="shipping_rate_detail_edit">Manage Shipping Rate</key>
 		<key alias="shipping_rate_detail_edit_button">Edit Shipping Rate</key>
+		<key alias="shipping_rate_notification_created_title">Shipping Rate created</key>
+		<key alias="shipping_rate_notification_created_message">The Shipping Rate has been created successfully</key>
+		<key alias="shipping_rate_notification_create_failed_title">Shipping Rate failed to create</key>
+		<key alias="shipping_rate_notification_create_failed_message">There was an issue trying to create the Shipping Rate</key>
+		<key alias="shipping_rate_notification_updated_title">Shipping Rate updated</key>
+		<key alias="shipping_rate_notification_updated_message">The Shipping Rate has been updated successfully</key>
+		<key alias="shipping_rate_notification_update_failed_title">Shipping Rate failed to update</key>
+		<key alias="shipping_rate_notification_update_failed_message">There was an issue trying to update the Shipping Rate</key>
+		<key alias="shipping_rate_notification_deleted_title">There was an issue trying to update the Shipping Rate</key>
+		<key alias="shipping_rate_notification_deleted_message">There was an issue trying to update the Shipping Rate</key>
+		<key alias="shipping_rate_notification_delete_failed_title">There was an issue trying to update the Shipping Rate</key>
+		<key alias="shipping_rate_notification_delete_failed_message">There was an issue trying to update the Shipping Rate</key>
 	</area>
 </language>

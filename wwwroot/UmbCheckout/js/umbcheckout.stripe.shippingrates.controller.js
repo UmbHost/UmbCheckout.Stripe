@@ -12,6 +12,11 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
         .then(function (response) {
             if (response.data.status == "Invalid" || response.data.status == "Unlicensed") {
                 vm.LicenseState.Valid = false;
+
+                localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
+                    vm.LicenseState.Message = value;
+                });
+
             } else if (response.data.status == "Active") {
                 vm.LicenseState.Valid = true;
             }

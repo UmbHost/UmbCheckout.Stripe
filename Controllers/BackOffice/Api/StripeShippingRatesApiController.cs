@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using UmbCheckout.Shared;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using Umbraco.Cms.Core.Services;
@@ -11,7 +10,7 @@ using Umbraco.Cms.Web.Common.Attributes;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
-    [PluginController(Consts.PackageName)]
+    [PluginController(Shared.Consts.PackageName)]
     public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using UmbCheckout.Core;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Core.Models;
-using UmbCheckout.Shared;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
 using Umbraco.Cms.Core.Cache;
@@ -17,7 +15,7 @@ using Umbraco.Cms.Web.Website.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Surface
 {
-    [PluginController(Consts.PackageName)]
+    [PluginController(Shared.Consts.PackageName)]
     public class StripeBasketController : SurfaceController
     {
         private readonly IBasketService _basketService;
@@ -45,7 +43,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 {
                     lineItem.Id = product.Key;
                     lineItem.Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty;
-                    lineItem.Price = Convert.ToDecimal(product.GetProperty(Consts.PropertyAlias.PriceAlias)?.GetValue());
+                    lineItem.Price = Convert.ToDecimal(product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias)?.GetValue());
                     lineItem.CurrencyCode = basketAdd.CurrencyCode;
                     lineItem.Quantity = basketAdd.Quantity;
                 }
