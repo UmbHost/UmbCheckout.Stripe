@@ -27,8 +27,8 @@
 		<key alias="shipping_rate_notification_updated_message">The Shipping Rate has been updated successfully</key>
 		<key alias="shipping_rate_notification_update_failed_title">Shipping Rate failed to update</key>
 		<key alias="shipping_rate_notification_update_failed_message">There was an issue trying to update the Shipping Rate</key>
-		<key alias="shipping_rate_notification_deleted_title">There was an issue trying to update the Shipping Rate</key>
-		<key alias="shipping_rate_notification_deleted_message">There was an issue trying to update the Shipping Rate</key>
+		<key alias="shipping_rate_notification_deleted_title">Shipping Rate deleted</key>
+		<key alias="shipping_rate_notification_deleted_message">The Shipping Rate has been deleted successfully</key>
 		<key alias="shipping_rate_notification_delete_failed_title">There was an issue trying to update the Shipping Rate</key>
 		<key alias="shipping_rate_notification_delete_failed_message">There was an issue trying to update the Shipping Rate</key>
 	</area>
