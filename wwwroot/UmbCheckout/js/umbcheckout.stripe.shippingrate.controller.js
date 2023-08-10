@@ -75,11 +75,14 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
         }
         );
 
-    vm.options = {
-        includeProperties: [
-            { alias: "id", header: "ID" }
-        ]
-    };
+    localizationService.localize("umbcheckoutstripe_shipping_id").then(function (value) {
+        vm.options = {
+            includeProperties: [
+                { alias: "id", header: value }
+            ]
+        };
+
+    });
 
     function saveShippingRate() {
         vm.saveButtonState = "busy";
@@ -98,11 +101,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                     .then(function (response) {
                         vm.properties = response.data.properties
 
-                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_title").then(function (value) {
-                            vm.notificationTitle = value;
-                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_message").then(function (value) {
-                                vm.notificationMessage = value;
-                                notificationsService.success(vm.notificationTitle, vm.notificationMessage);
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_title").then(function (title) {
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_message").then(function (message) {
+                                notificationsService.success(title, message);
                             });
 
                         });
@@ -113,11 +114,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                     .catch(
                         function (response) {
 
-                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_title").then(function (value) {
-                                vm.notificationTitle = value;
-                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_message").then(function (value) {
-                                    vm.notificationMessage = value;
-                                    notificationsService.error(vm.notificationTitle, vm.notificationMessage);
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_title").then(function (title) {
+                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_message").then(function (message) {
+                                    notificationsService.error(title, message);
                                 });
                             });
 
@@ -129,11 +128,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                     .then(function (response) {
                         vm.properties = response.data.properties
 
-                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_title").then(function (value) {
-                            vm.notificationTitle = value;
-                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_message").then(function (value) {
-                                vm.notificationMessage = value;
-                                notificationsService.success(vm.notificationTitle, vm.notificationMessage);
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_title").then(function (title) {
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_message").then(function (message) {
+                                notificationsService.success(title, message);
                             });
                         });
 
@@ -144,11 +141,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                     .catch(
                         function (response) {
 
-                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_title").then(function (value) {
-                                vm.notificationTitle = value;
-                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_message").then(function (value) {
-                                    vm.notificationMessage = value;
-                                    notificationsService.error(vm.notificationTitle, vm.notificationMessage);
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_title").then(function (title) {
+                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_message").then(function (message) {
+                                    notificationsService.error(title, message);
                                 });
                             });
 
@@ -171,11 +166,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
             .then(function (response) {
                 vm.properties = response.data
 
-                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_title").then(function (value) {
-                    vm.notificationTitle = value;
-                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_message").then(function (value) {
-                        vm.notificationMessage = value;
-                        notificationsService.success(vm.notificationTitle, vm.notificationMessage);
+                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_title").then(function (title) {
+                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_message").then(function (message) {
+                        notificationsService.success(title, message);
                     });
                 });
 
@@ -184,11 +177,9 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
             })
             .catch(
                 function (response) {
-                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_title").then(function (value) {
-                        vm.notificationTitle = value;
-                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_message").then(function (value) {
-                            vm.notificationMessage = value;
-                            notificationsService.error(vm.notificationTitle, vm.notificationMessage);
+                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_title").then(function (title) {
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_message").then(function (message) {
+                            notificationsService.error(title, message);
                         });
                     });
 

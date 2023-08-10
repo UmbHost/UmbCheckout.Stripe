@@ -34,11 +34,13 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
         }
     );
 
-    vm.options = {
-        includeProperties: [
-            { alias: "value", header: "Value" }
-        ]
-    };
+    localizationService.localize("general_value").then(function (v) {
+        vm.options = {
+            includeProperties: [
+                { alias: "value", header: v }
+            ]
+        };
+    });
 
     vm.clickItem = clickItem;
 
