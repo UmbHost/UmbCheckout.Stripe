@@ -147,8 +147,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     new()
                     {
                         Alias = "name",
-                        Description = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_description", CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_label", CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateDescription, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateLabel, CultureInfo.CurrentUICulture),
                         Value = shippingRate != null ? shippingRate.Name : string.Empty,
                         View = "textbox",
                         Validation = new Validation
@@ -159,8 +159,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     new()
                     {
                         Alias = "value",
-                        Description = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_id_description", CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize("umbcheckoutstripe", "shipping_rate_id_label", CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdDescription, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdLabel, CultureInfo.CurrentUICulture),
                         Value = shippingRate != null ? shippingRate.Value : string.Empty,
                         View = "textbox",
                         Validation = new Validation

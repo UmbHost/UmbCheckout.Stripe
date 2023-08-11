@@ -8,6 +8,7 @@
         public const string AppSettingsSectionName = "Stripe";
         public static class LocalizationKeys
         {
+            public const string Stripe = "stripe";
             public const string Area = "umbcheckoutstripe";
             public const string ShippingHelp = "shipping_help";
             public const string ShippingRates = "shipping_rates";
