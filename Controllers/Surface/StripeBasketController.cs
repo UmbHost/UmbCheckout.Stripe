@@ -32,7 +32,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(BasketAdd basketAdd)
+        public IActionResult Add(BasketAdd basketAdd, Guid? redirectGuid = null)
         {
             try
             {
@@ -52,6 +52,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Id;
 
+                if (redirectGuid.HasValue)
+                {
+                    return RedirectToUmbracoPage(redirectGuid.Value);
+                }
+
                 return RedirectToCurrentUmbracoPage();
             }
             catch (Exception ex)
@@ -63,7 +68,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Reduce(Guid id)
+        public IActionResult Reduce(Guid id, Guid? redirectGuid = null)
         {
             try
             {
@@ -71,6 +76,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 TempData["UmbCheckout_Basket_Reduced"] = id;
 
+                if (redirectGuid.HasValue)
+                {
+                    return RedirectToUmbracoPage(redirectGuid.Value);
+                }
+
                 return RedirectToCurrentUmbracoPage();
             }
             catch (Exception ex)
@@ -82,13 +92,18 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(Guid id)
+        public IActionResult Remove(Guid id, Guid? redirectGuid = null)
         {
             try
             {
                 _basketService.Remove(id);
 
                 TempData["UmbCheckout_Basket_Removed"] = id;
+
+                if (redirectGuid.HasValue)
+                {
+                    return RedirectToUmbracoPage(redirectGuid.Value);
+                }
 
                 return RedirectToCurrentUmbracoPage();
             }
