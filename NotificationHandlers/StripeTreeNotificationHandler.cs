@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Trees;
 using Umbraco.Cms.Web.BackOffice.Trees;
 
@@ -15,19 +17,21 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly UmbracoApiControllerTypeCollection _apiControllers;
+        private readonly ILocalizedTextService _localizedTextService;
 
-        public StripeTreeNotificationHandler(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor, UmbracoApiControllerTypeCollection apiControllers)
+        public StripeTreeNotificationHandler(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor, UmbracoApiControllerTypeCollection apiControllers, ILocalizedTextService localizedTextService)
         {
             _urlHelperFactory = urlHelperFactory;
             _actionContextAccessor = actionContextAccessor;
             _apiControllers = apiControllers;
+            _localizedTextService = localizedTextService;
         }
 
         public void Handle(TreeNodesRenderingNotification notification)
         {
-            if (notification.TreeAlias.Equals("umbCheckout") && notification.Id == "-1")
+            if (notification.TreeAlias.Equals(Shared.Consts.TreeAlias) && notification.Id == "-1")
             {
-                notification.Nodes.Add(CreateTreeNode("2", "1", notification.QueryString, "Stripe", "icon-credit-card", true, $"{Constants.Applications.Settings}/{"UmbCheckout"}/{"dashboard"}"));
+                notification.Nodes.Add(CreateTreeNode("2", "1", notification.QueryString, _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.Stripe, CultureInfo.CurrentUICulture), "icon-credit-card", true, $"{Constants.Applications.Settings}/{"UmbCheckout"}/{"dashboard"}"));
             }
         }
 

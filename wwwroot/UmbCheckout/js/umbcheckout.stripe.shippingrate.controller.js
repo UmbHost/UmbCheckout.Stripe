@@ -1,11 +1,16 @@
-function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location) {
+function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService) {
     var vm = this;
+    vm.shippingRateName;
     vm.deleteButtonState = "init";
     vm.saveButtonState = "init";
     vm.properties = [];
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
     vm.stripeShippingRate = {};
+
+    localizationService.localize("umbcheckoutstripe_shipping_rate").then(function (value) {
+        vm.shippingRateName = value;
+    });
 
     vm.clickItem = clickItem;
 
@@ -29,7 +34,11 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
         .then(function (response) {
             if (response.data.status == "Invalid" || response.data.status == "Unlicensed") {
                 vm.LicenseState.Valid = false;
-                vm.LicenseState.Message = "UmbCheckout is running in unlicensed mode, please <a href=\"#\" target=\"_blank\"  class=\"red bold underline\">purchase a license</a> to support development"
+
+                localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
+                    vm.LicenseState.Message = value;
+                });
+
             } else if (response.data.status == "Active") {
                 vm.LicenseState.Valid = true;
             }
@@ -66,11 +75,14 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
         }
         );
 
-    vm.options = {
-        includeProperties: [
-            { alias: "id", header: "ID" }
-        ]
-    };
+    localizationService.localize("umbcheckoutstripe_shipping_id").then(function (value) {
+        vm.options = {
+            includeProperties: [
+                { alias: "id", header: value }
+            ]
+        };
+
+    });
 
     function saveShippingRate() {
         vm.saveButtonState = "busy";
@@ -88,13 +100,26 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                 umbCheckoutStripeResources.updateShippingRate(configurationValues, $routeParams.id)
                     .then(function (response) {
                         vm.properties = response.data.properties
-                        notificationsService.success("Shipping Rate updated", "The Shipping Rate has been updated successfully");
+
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_title").then(function (title) {
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_updated_message").then(function (message) {
+                                notificationsService.success(title, message);
+                            });
+
+                        });
+
                         vm.saveButtonState = "success";
                         $scope.shippingRateForm.$dirty = false;
                     })
                     .catch(
                         function (response) {
-                            notificationsService.error("Shipping Rate failed to update", "There was an issue trying to update the Shipping Rate");
+
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_title").then(function (title) {
+                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_update_failed_message").then(function (message) {
+                                    notificationsService.error(title, message);
+                                });
+                            });
+
                             vm.saveButtonState = "error";
                         }
                     );
@@ -102,14 +127,26 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                 umbCheckoutStripeResources.createShippingRate(configurationValues)
                     .then(function (response) {
                         vm.properties = response.data.properties
-                        notificationsService.success("Shipping Rate created", "The Shipping Rate has been created successfully");
+
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_title").then(function (title) {
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_created_message").then(function (message) {
+                                notificationsService.success(title, message);
+                            });
+                        });
+
                         vm.saveButtonState = "success";
                         $scope.shippingRateForm.$dirty = false;
                         $location.path("/settings/UmbCheckout/StripeShippingRate/" + response.data.key);
                     })
                     .catch(
                         function (response) {
-                            notificationsService.error("Shipping Rate failed to create", "There was an issue trying to create the Shipping Rate");
+
+                            localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_title").then(function (title) {
+                                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_create_failed_message").then(function (message) {
+                                    notificationsService.error(title, message);
+                                });
+                            });
+
                             vm.saveButtonState = "error";
                         }
                     );
@@ -128,13 +165,24 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
         umbCheckoutStripeResources.deleteShippingRate($routeParams.id)
             .then(function (response) {
                 vm.properties = response.data
-                notificationsService.success("Shipping Rate deleted", "The Shipping Rate has been deleted successfully");
+
+                localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_title").then(function (title) {
+                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_deleted_message").then(function (message) {
+                        notificationsService.success(title, message);
+                    });
+                });
+
                 vm.saveButtonState = "success";
                 $location.path("/settings/UmbCheckout/StripeShippingRates");
             })
             .catch(
                 function (response) {
-                    notificationsService.error("Shipping Rate failed to delete", "There was an issue trying to delete the Shipping Rate");
+                    localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_title").then(function (title) {
+                        localizationService.localize("umbcheckoutstripe_shipping_rate_notification_delete_failed_message").then(function (message) {
+                            notificationsService.error(title, message);
+                        });
+                    });
+
                     vm.saveButtonState = "error";
                 }
             );

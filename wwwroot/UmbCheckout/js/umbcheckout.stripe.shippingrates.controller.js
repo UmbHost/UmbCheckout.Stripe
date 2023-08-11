@@ -1,13 +1,22 @@
-function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location) {
+function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location, localizationService) {
     var vm = this;
+    vm.shippingRatesName;
     vm.shippingRates = [];
     vm.LicenseState = {}
+
+    localizationService.localize("umbcheckoutstripe_shipping_rates").then(function (value) {
+        vm.shippingRatesName = value;
+    });
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
             if (response.data.status == "Invalid" || response.data.status == "Unlicensed") {
                 vm.LicenseState.Valid = false;
-                vm.LicenseState.Message = "UmbCheckout is running in unlicensed mode, please <a href=\"#\" target=\"_blank\"  class=\"red bold underline\">purchase a license</a> to support development"
+
+                localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
+                    vm.LicenseState.Message = value;
+                });
+
             } else if (response.data.status == "Active") {
                 vm.LicenseState.Valid = true;
             }
@@ -25,11 +34,13 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
         }
     );
 
-    vm.options = {
-        includeProperties: [
-            { alias: "value", header: "Value" }
-        ]
-    };
+    localizationService.localize("general_value").then(function (v) {
+        vm.options = {
+            includeProperties: [
+                { alias: "value", header: v }
+            ]
+        };
+    });
 
     vm.clickItem = clickItem;
 

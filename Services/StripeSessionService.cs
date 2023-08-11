@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using UmbCheckout.Core.Interfaces;
-using UmbCheckout.Shared;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
@@ -260,26 +259,26 @@ namespace UmbCheckout.Stripe.Services
                                 Quantity = lineItem.Quantity
                             };
 
-                            if (product.HasValue(Consts.PropertyAlias.DescriptionAlias))
+                            if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
                             {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Consts.PropertyAlias.DescriptionAlias);
+                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
                             }
-                            else if (product.HasValue(Consts.PropertyAlias.DescriptionAlias))
+                            else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
                             {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Consts.PropertyAlias.FallbackDescriptionAlias);
+                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                             }
 
-                            if (product.HasValue(Consts.PropertyAlias.MetaDataAlias))
+                            if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
                             {
-                                var metaData = product.Value<Dictionary<string, string>>(Consts.PropertyAlias.MetaDataAlias);
+                                var metaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
                                 stripeLineItem.PriceData.ProductData.Metadata = metaData;
                             }
 
                             if (UmbCheckoutSettings.IsLicensed)
                             {
-                                if (product.HasValue(Consts.PropertyAlias.TaxRatesAlias))
+                                if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
                                 {
-                                    var taxRates = product.Value<IEnumerable<string>>(Consts.PropertyAlias.TaxRatesAlias)?.ToList();
+                                    var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
                                     stripeLineItem.DynamicTaxRates = taxRates;
                                 }
                             }
@@ -295,7 +294,7 @@ namespace UmbCheckout.Stripe.Services
                         {
                             Enabled = true,
                         },
-                        Mode = Consts.SessionMode,
+                        Mode = Shared.Consts.SessionMode,
                         SuccessUrl = successUri != null ? successUri.ToString() : string.Empty,
                         CancelUrl = cancelUri != null ? cancelUri.ToString() : string.Empty
                     };

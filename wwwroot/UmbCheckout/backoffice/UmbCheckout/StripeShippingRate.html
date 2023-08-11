@@ -2,7 +2,7 @@
     <form></form>
     <form name="shippingRateForm" novalidate val-form-manager ng-submit="vm.saveShippingRate()">
         <umb-editor-view class="form-horizontal">
-            <umb-editor-header name="'Stripe Shipping Rate'"
+            <umb-editor-header name="vm.shippingRateName"
                                name-locked="true"
                                hide-alias="true"
                                show-back-button="false"
@@ -11,18 +11,20 @@
             </umb-editor-header>
             <umb-editor-container>
                 <umb-box>
+                    <umb-box-header title-key="umbcheckout_help_support"></umb-box-header>
                     <umb-box-content>
                         <p class="muted">
-                            <umb-icon icon="icon-info"></umb-icon> You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them below.
+                            <umb-icon icon="icon-info"></umb-icon> <localize key="umbcheckoutstripe_shipping_help"></localize>
                         </p>
 
-                        <p class="red bold" ng-if="!vm.LicenseState.Valid" ng-bind-html="vm.LicenseState.Message">
+                        <p class="red bold" ng-if="!vm.LicenseState.Valid">
+                            <localize key="umbcheckout_unlicensed_warning"></localize>
                         </p>
 
                     </umb-box-content>
                 </umb-box>
                 <umb-box>
-                    <umb-box-header title="Shipping Rate"></umb-box-header>
+                    <umb-box-header title-key="umbcheckout_shipping_rate"></umb-box-header>
                     <umb-box-content>
                         <umb-property property="property" ng-repeat="property in vm.properties">
                             <umb-property-editor model="property"></umb-property-editor>
@@ -30,12 +32,12 @@
                     </umb-box-content>
                 </umb-box>
                 <umb-box ng-if="vm.stripeShippingRate">
-                    <umb-box-header title="Stripe Shipping Rate Details" description="The details of the Shipping Rate as found in your Stripe account"></umb-box-header>
+                    <umb-box-header title-key="umbcheckoutstripe_shipping_rate_details" description-key="umbcheckoutstripe_shipping_rate_details_description"></umb-box-header>
                     <umb-box-content>
                         <div class="control-group umb-control-group">
                             <div class="umb-el-wrap">
                                 <div class="control-header" aria-hidden="false">
-                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Name</label>
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_name"></localize></label>
                                 </div>
                                 <div class="controls">
                                     <div class="umb-property ng-scope">
@@ -49,8 +51,8 @@
                         <div class="control-group umb-control-group">
                             <div class="umb-el-wrap">
                                 <div class="control-header" aria-hidden="false">
-                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Amount</label>
-                                    <small class="control-description ng-binding ng-scope">In Pence / Cents</small>
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_amount"></localize></label>
+                                    <small class="control-description ng-binding ng-scope"><localize key="umbcheckoutstripe_shipping_rate_detail_amount_description"></localize></small>
                                 </div>
                                 <div class="controls">
                                     <div class="umb-property ng-scope">
@@ -64,7 +66,7 @@
                         <div class="control-group umb-control-group">
                             <div class="umb-el-wrap">
                                 <div class="control-header" aria-hidden="false">
-                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Minimum</label>
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_minimum"></localize></label>
                                 </div>
                                 <div class="controls">
                                     <div class="umb-property ng-scope">
@@ -78,7 +80,7 @@
                         <div class="control-group umb-control-group">
                             <div class="umb-el-wrap">
                                 <div class="control-header" aria-hidden="false">
-                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Shipping Rate Maximum</label>
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_maximum"></localize></label>
                                 </div>
                                 <div class="controls">
                                     <div class="umb-property ng-scope">
@@ -92,12 +94,12 @@
                         <div class="control-group umb-control-group">
                             <div class="umb-el-wrap">
                                 <div class="control-header" aria-hidden="false">
-                                    <label data-element="property-label-name" class="control-label ng-binding" title="name">Manage Shipping Rate</label>
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_edit"></localize></label>
                                 </div>
                                 <div class="controls">
                                     <div class="umb-property ng-scope">
                                         <div class="umb-el-wrap ng-binding">
-                                            <a href="https://dashboard.stripe.com/shipping-rates/{{vm.stripeShippingRate.id}}" target="_blank" class="btn umb-button__button btn-success umb-button-- umb-outline">Edit Shipping Rate</a>
+                                            <a href="https://dashboard.stripe.com/shipping-rates/{{vm.stripeShippingRate.id}}" target="_blank" class="btn umb-button__button btn-success umb-button-- umb-outline"><localize key="umbcheckoutstripe_shipping_rate_detail_edit_button"></localize></a>
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +108,7 @@
                     </umb-box-content>
                 </umb-box>
                 <umb-box>
-                    <umb-box-header title="Stripe Shipping Rates" description="The available Shipping Rates found in your Stripe account, click on a Shipping Rate to update the form above"></umb-box-header>
+                    <umb-box-header title-key="umbcheckoutstripe_shipping_rates" description-key="umbcheckoutstripe_shipping_rates_description"></umb-box-header>
                     <umb-box-content>
                         <umb-table ng-if="vm.stripeShippingRates"
                                    items="vm.stripeShippingRates"
@@ -120,9 +122,7 @@
 
             <umb-editor-footer>
                 <umb-editor-footer-content-left>
-                    <a href="https://umbhost.net" class="btn umb-button__button btn-link umb-button-- umb-outline" ng-if="!vm.LicenseState.Valid">
-                        Made with <span class="color-pink icon icon-hearts"></span> by UmbHost Limited
-                    </a>
+<localize ng-if="!vm.LicenseState.Valid" key="umbcheckout_made_by"></localize>
                 </umb-editor-footer-content-left>
 
                 <umb-editor-footer-content-right>
