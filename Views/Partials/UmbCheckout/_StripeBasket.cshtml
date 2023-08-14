@@ -2,17 +2,16 @@
 @using UmbCheckout.Stripe.Controllers.Surface
 @using Umbraco.Extensions
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<UmbCheckout.Stripe.ViewModels.StripeBasketViewModel>
+
 <table class="@Model.TableCssClass">
     <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Price</th>
-            <th scope="col">Currency Price</th>
-            <th scope="col">Currency Code</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Reduce</th>
-            <th scope="col">Increase</th>
-            <th scope="col">Remove</th>
+            <th scope="col">@Model.ProductNameColumnText</th>
+            <th scope="col">@Model.ProductPriceColumnText</th>
+            <th scope="col">@Model.QuantityColumnText</th>
+            <th scope="col">@Model.ReduceColumnText</th>
+            <th scope="col">@Model.IncreaseColumnText</th>
+            <th scope="col">@Model.RemoveColumnText</th>
         </tr>
     </thead>
     <tbody>
@@ -22,29 +21,27 @@
             {
                 <tr>
                     <th scope="row"><a href="@Umbraco.Content(lineItem.Id)?.Url()">@lineItem.Name</a></th>
-                    <td>@lineItem.Price</td>
                     <td>@lineItem.CurrencyPrice</td>
-                    <td>@lineItem.CurrencyCode</td>
                     <td>@lineItem.Quantity</td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Reduce), FormMethod.Post))
                         {
                             <input type="hidden" name="id" value="@lineItem.Id" />
-                            <button class="button button--border--solid" type="submit">-</button>
+                            <button class="@Model.ReduceButtonCssClass" type="submit">@Model.ReduceButtonText</button>
                         }
                     </td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
                         {
                             <input type="hidden" name="id" value="@lineItem.Id" />
-                            <button class="button button--border--solid" type="submit">+</button>
+                            <button class="@Model.IncreaseButtonCssClass" type="submit">@Model.IncreaseButtonText</button>
                         }
                     </td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Remove), FormMethod.Post))
                         {
                             <input type="hidden" name="id" value="@lineItem.Id" />
-                            <button class="button button--border--solid" type="submit">Remove</button>
+                            <button class="@Model.RemoveButtonCssClass" type="submit">@Model.RemoveButtonText</button>
                         }
                     </td>
                 </tr>
@@ -53,16 +50,16 @@
         else
         {
             <tr>
-                <td colspan="8" style="text-align: center;">Your basket is empty!</td>
+                <td colspan="8" style="text-align: center;">@Model.EmptyBasketText</td>
             </tr>
         }
     </tbody>
 </table>
-<p><strong>Sub Total:</strong> @Model.SubTotal.FormatCurrency("GBP")</p>
-<p><i><strong>Coupons, Shipping and Tax are calculated on the next checkout step</strong></i></p>
+<p><strong>@Model.SubTotalText</strong> @Model.SubTotal.FormatCurrency(Model.FormatCurrency)</p>
+<p><i><strong>@Model.SubtotalInformationText</strong></i></p>
 <p>
     @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Checkout), FormMethod.Post))
     {
-        <button class="button button--border--solid" type="submit">Checkout</button>
+        <button class="@Model.CheckoutButtonCssClass" type="submit">@Model.CheckoutButtonText</button>
     }
 </p>
