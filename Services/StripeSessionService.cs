@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -252,7 +252,7 @@ namespace UmbCheckout.Stripe.Services
                                     Currency = lineItem.CurrencyCode,
                                     ProductData = new SessionLineItemPriceDataProductDataOptions
                                     {
-                                        Name = product.Name
+                                        Name = !string.IsNullOrEmpty(lineItem.Name) ? lineItem.Name : product.Name
                                     },
                                     UnitAmountDecimal = lineItem.Price * 100
                                 },
