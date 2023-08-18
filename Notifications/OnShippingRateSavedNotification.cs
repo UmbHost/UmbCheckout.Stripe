@@ -5,9 +5,9 @@ namespace UmbCheckout.Stripe.Notifications
 {
     public class OnShippingRateSavedNotification : INotification
     {
-        public ShippingRate ShippingRate { get; set; }
+        public ShippingRate? ShippingRate { get; set; }
 
-        public OnShippingRateSavedNotification(ShippingRate shippingRate)
+        public OnShippingRateSavedNotification(ShippingRate? shippingRate)
         {
             ShippingRate = shippingRate;
         }

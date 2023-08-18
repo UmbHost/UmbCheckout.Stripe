@@ -138,7 +138,7 @@ namespace UmbCheckout.Stripe.Services
 
                 if (existingShippingRate != null)
                 {
-                    shippingRatePoco.Id = existingShippingRate.Id;
+                    shippingRatePoco!.Id = existingShippingRate.Id;
                     shippingRatePoco.Key = existingShippingRate.Key;
                     var result = await scope.Database.UpdateAsync(shippingRatePoco);
                     var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);

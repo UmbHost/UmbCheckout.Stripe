@@ -64,7 +64,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRate = key.HasValue ? await _stripeDatabaseService.GetShippingRate(key.Value) : new ShippingRate();
-                var shippingRateProperties = await GetShippingRateProperties(shippingRate);
+                var shippingRateProperties = await GetShippingRateProperties(shippingRate!);
 
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
@@ -113,7 +113,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             if (ModelState.IsValid)
             {
                 var updatedShippingRate = await _stripeDatabaseService.UpdateShippingRate(shippingRate);
-                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate);
+                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate!);
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
 
@@ -138,7 +138,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        private async Task<ShippingRateResponse> GetShippingRateProperties(ShippingRate? shippingRate)
+        private Task<ShippingRateResponse> GetShippingRateProperties(ShippingRate shippingRate)
         {
             try
             {
@@ -170,7 +170,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     }
                 };
 
-                return new ShippingRateResponse{ Key = shippingRate.Key, Properties = backOfficeProperties};
+                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate!.Key, Properties = backOfficeProperties});
             }
             catch (Exception ex)
             {
