@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -259,7 +259,11 @@ namespace UmbCheckout.Stripe.Services
                                 Quantity = lineItem.Quantity
                             };
 
-                            if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
+                            if (!string.IsNullOrEmpty(lineItem.Description))
+                            {
+                                stripeLineItem.PriceData.ProductData.Description = lineItem.Description;
+                            }
+                            else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
                             {
                                 stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
                             }
