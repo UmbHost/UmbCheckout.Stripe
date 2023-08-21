@@ -41,7 +41,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 var product = UmbracoContext.Content?.GetById(basketAdd.Id);
                 if (product != null)
                 {
-                    lineItem.Id = product.Key;
+                    lineItem.Key = product.Key;
                     lineItem.Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty;
                     lineItem.Price = Convert.ToDecimal(product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias)?.GetValue());
                     lineItem.CurrencyCode = basketAdd.CurrencyCode;

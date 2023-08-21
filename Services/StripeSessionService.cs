@@ -242,7 +242,7 @@ namespace UmbCheckout.Stripe.Services
                             continue;
                         }
 
-                        var product = publishedSnapshot.Content?.GetById(lineItem.Id);
+                        var product = publishedSnapshot.Content?.GetById(lineItem.Key);
                         if (product != null)
                         {
                             var stripeLineItem = new SessionLineItemOptions

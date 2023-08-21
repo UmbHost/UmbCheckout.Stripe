@@ -20,27 +20,27 @@
             foreach (var lineItem in Model.Basket.LineItems)
             {
                 <tr>
-                    <th scope="row"><a href="@Umbraco.Content(lineItem.Id)?.Url()">@lineItem.Name</a></th>
+                    <th scope="row"><a href="@Umbraco.Content(lineItem.Key)?.Url()">@lineItem.Name</a></th>
                     <td>@lineItem.CurrencyPrice</td>
                     <td>@lineItem.Quantity</td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Reduce), FormMethod.Post))
                         {
-                            <input type="hidden" name="id" value="@lineItem.Id" />
+                            <input type="hidden" name="id" value="@lineItem.Key" />
                             <button class="@Model.ReduceButtonCssClass" type="submit">@Model.ReduceButtonText</button>
                         }
                     </td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
                         {
-                            <input type="hidden" name="id" value="@lineItem.Id" />
+                            <input type="hidden" name="id" value="@lineItem.Key" />
                             <button class="@Model.IncreaseButtonCssClass" type="submit">@Model.IncreaseButtonText</button>
                         }
                     </td>
                     <td>
                         @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Remove), FormMethod.Post))
                         {
-                            <input type="hidden" name="id" value="@lineItem.Id" />
+                            <input type="hidden" name="id" value="@lineItem.Key" />
                             <button class="@Model.RemoveButtonCssClass" type="submit">@Model.RemoveButtonText</button>
                         }
                     </td>
