@@ -9,12 +9,12 @@ namespace UmbCheckout.Stripe.NotificationHandlers
 {
     public class StripeResponseNotificationHandler : INotificationAsyncHandler<RoutingRequestNotification>
     {
-        private readonly IBasketService _basketService;
+        private readonly ISessionService _sessionService;
         private readonly IStripeSessionService _stripeSessionService;
-        public StripeResponseNotificationHandler(IBasketService basketService, IStripeSessionService stripeSessionService)
+        public StripeResponseNotificationHandler(IStripeSessionService stripeSessionService, ISessionService sessionService)
         {
-            _basketService = basketService;
             _stripeSessionService = stripeSessionService;
+            _sessionService = sessionService;
         }
 
         public async Task HandleAsync(RoutingRequestNotification notification, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
 
                     if (stripeSession.Status == "complete")
                     {
-                        await _basketService.Clear();
+                        await _sessionService.Clear();
                     }
                 }
             }
