@@ -121,6 +121,12 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             try
             {
                 var basket = await _basketService.Get();
+                if (!basket.LineItems.Any())
+                {
+                    TempData["UmbCheckout_EmptyBasket"] = true;
+                    return RedirectToCurrentUmbracoPage();
+                }
+
                 var stripeSession = await _sessionService.CreateSessionAsync(basket);
                 return Redirect(stripeSession.Url);
             }
