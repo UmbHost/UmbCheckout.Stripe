@@ -11,6 +11,7 @@ namespace UmbCheckout.Stripe.Composers
         {
             builder.AddNotificationHandler<TreeNodesRenderingNotification, StripeTreeNotificationHandler>();
             builder.AddNotificationHandler<TreeNodesRenderingNotification, StripeShippingTreeNotificationHandler>();
+            builder.AddNotificationAsyncHandler<RoutingRequestNotification, StripeResponseNotificationHandler>();
         }
     }
 }

@@ -299,8 +299,8 @@ namespace UmbCheckout.Stripe.Services
                             Enabled = true,
                         },
                         Mode = Shared.Consts.SessionMode,
-                        SuccessUrl = successUri != null ? successUri.ToString() : string.Empty,
-                        CancelUrl = cancelUri != null ? cancelUri.ToString() : string.Empty
+                        SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
+                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
                     };
 
                     if (configuration is { EnableShipping: true })
