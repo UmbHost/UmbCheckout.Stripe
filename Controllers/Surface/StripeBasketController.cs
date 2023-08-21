@@ -38,7 +38,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             {
                 var lineItem = new LineItem();
 
-                var product = UmbracoContext.Content?.GetById(basketAdd.Id);
+                var product = UmbracoContext.Content?.GetById(basketAdd.Key);
                 if (product != null)
                 {
                     lineItem.Key = product.Key;
@@ -50,7 +50,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 _basketService.Add(lineItem);
 
-                TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Id;
+                TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Key;
 
                 if (redirectGuid.HasValue)
                 {
@@ -68,13 +68,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Reduce(Guid id, Guid? redirectGuid = null)
+        public IActionResult Reduce(Guid key, Guid? redirectGuid = null)
         {
             try
             {
-                _basketService.Reduce(id);
+                _basketService.Reduce(key);
 
-                TempData["UmbCheckout_Basket_Reduced"] = id;
+                TempData["UmbCheckout_Basket_Reduced"] = key;
 
                 if (redirectGuid.HasValue)
                 {
@@ -92,13 +92,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(Guid id, Guid? redirectGuid = null)
+        public IActionResult Remove(Guid key, Guid? redirectGuid = null)
         {
             try
             {
-                _basketService.Remove(id);
+                _basketService.Remove(key);
 
-                TempData["UmbCheckout_Basket_Removed"] = id;
+                TempData["UmbCheckout_Basket_Removed"] = key;
 
                 if (redirectGuid.HasValue)
                 {
