@@ -49,7 +49,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                     _basketService.Add(lineItem);
 
-                    TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Key;
+                    TempData[Shared.Consts.TempData.UmbCheckoutAddedToBasket] = basketAdd.Key;
                 }
                 else
                 {
@@ -78,7 +78,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             {
                 _basketService.Reduce(key);
 
-                TempData["UmbCheckout_Basket_Reduced"] = key;
+                TempData[Shared.Consts.TempData.UmbCheckoutBasketReduced] = key;
 
                 if (redirectGuid.HasValue)
                 {
@@ -102,7 +102,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             {
                 _basketService.Remove(key);
 
-                TempData["UmbCheckout_Basket_Removed"] = key;
+                TempData[Shared.Consts.TempData.UmbCheckoutBasketRemoved] = key;
 
                 if (redirectGuid.HasValue)
                 {
@@ -127,7 +127,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 var basket = await _basketService.Get();
                 if (!basket.LineItems.Any())
                 {
-                    TempData["UmbCheckout_EmptyBasket"] = true;
+                    TempData[Shared.Consts.TempData.UmbCheckoutEmptyBasket] = true;
                     return RedirectToCurrentUmbracoPage();
                 }
 
