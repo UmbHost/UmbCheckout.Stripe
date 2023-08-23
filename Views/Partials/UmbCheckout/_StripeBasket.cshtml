@@ -19,8 +19,9 @@
         {
             foreach (var lineItem in Model.Basket.LineItems)
             {
+                var lineItemContent = Umbraco.Content(lineItem.Key);
                 <tr>
-                    <th scope="row"><a href="@Umbraco.Content(lineItem.Key)?.Url()">@lineItem.Name</a></th>
+                    <th scope="row"><a href="@(lineItemContent != null && lineItemContent.HasTemplate() ? lineItemContent?.Url() : lineItemContent?.Parent?.Url())">@(lineItemContent != null && lineItemContent.HasTemplate() ? lineItemContent?.Name : $"{lineItemContent?.Parent?.Name} - {lineItemContent?.Name}")</a></th>
                     <td>@lineItem.CurrencyPrice</td>
                     <td>@lineItem.Quantity</td>
                     <td>
