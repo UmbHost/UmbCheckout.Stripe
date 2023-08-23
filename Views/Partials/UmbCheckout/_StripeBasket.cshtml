@@ -40,11 +40,15 @@
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))
                                     {
-                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias))
+                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias)) <text> - </text>
+                                        if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                        {
+                                            @(lineItemContent.Value<string>(Model.ProductNameAlias))
+                                        }
                                     }
                                     else
                                     {
-                                        @lineItemContent.Parent.Name
+                                        @lineItemContent.Parent.Name <text> - </text> @lineItemContent.Name
                                     }
                                 }
                                 else
