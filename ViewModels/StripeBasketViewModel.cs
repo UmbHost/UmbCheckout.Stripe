@@ -49,5 +49,7 @@ namespace UmbCheckout.Stripe.ViewModels
         public string? FormatCurrency { get; set; } = "GBP";
 
         public string? SubtotalInformationText { get; set; } = "Coupons, Shipping and Tax are calculated on the next checkout step";
+
+        public string? ProductNameAlias { get; set; }
     }
 }

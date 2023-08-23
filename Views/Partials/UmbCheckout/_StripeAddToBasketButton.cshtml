@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using UmbCheckout.Shared
 @using UmbCheckout.Shared.Extensions
 @using UmbCheckout.Stripe.Controllers.Surface
 @using Umbraco.Extensions
@@ -15,10 +16,10 @@
         {
             <div style="margin-bottom: 1.5rem">
                 <select name="key" class="form-control" style="height: 100%;">
-                    <option>Please Select</option>
+                    <option value="@Model.Product.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? Model.Product.Value<string>(Model.ProductNameAlias) : Model.Product.Name)</option>
                     @foreach (var variant in Model.Product.Children)
                     {
-                        <!option value="@variant.Key">@(variant.Name) - @(Model.Product.Value<decimal>("umbCheckoutPrice").ToString("C"))</!option>
+                        <!option value="@variant.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? variant.Value<string>(Model.ProductNameAlias) : variant.Name) - @(Model.Product.Value<decimal>(Consts.PropertyAlias.PriceAlias).ToString("C"))</!option>
                     }
                 </select>
             </div>

@@ -20,32 +20,64 @@
             foreach (var lineItem in Model.Basket.LineItems)
             {
                 var lineItemContent = Umbraco.Content(lineItem.Key);
-                <tr>
-                    <th scope="row"><a href="@(lineItemContent != null && lineItemContent.HasTemplate() ? lineItemContent?.Url() : lineItemContent?.Parent?.Url())">@(lineItemContent != null && lineItemContent.HasTemplate() ? lineItemContent?.Name : $"{lineItemContent?.Parent?.Name} - {lineItemContent?.Name}")</a></th>
-                    <td>@lineItem.CurrencyPrice</td>
-                    <td>@lineItem.Quantity</td>
-                    <td>
-                        @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Reduce), FormMethod.Post))
-                        {
-                            <input type="hidden" name="key" value="@lineItem.Key" />
-                            <button class="@Model.ReduceButtonCssClass" type="submit">@Model.ReduceButtonText</button>
-                        }
-                    </td>
-                    <td>
-                        @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
-                        {
-                            <input type="hidden" name="key" value="@lineItem.Key" />
-                            <button class="@Model.IncreaseButtonCssClass" type="submit">@Model.IncreaseButtonText</button>
-                        }
-                    </td>
-                    <td>
-                        @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Remove), FormMethod.Post))
-                        {
-                            <input type="hidden" name="key" value="@lineItem.Key" />
-                            <button class="@Model.RemoveButtonCssClass" type="submit">@Model.RemoveButtonText</button>
-                        }
-                    </td>
-                </tr>
+                if (lineItemContent != null)
+                {
+                    <tr>
+                        <th scope="row">
+                            <a href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
+                                @if (lineItemContent.HasTemplate())
+                                {
+                                    if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                    {
+                                        @(lineItemContent.Value<string>(Model.ProductNameAlias))
+                                    }
+                                    else
+                                    {
+                                        @lineItemContent.Name
+                                    }
+                                }
+                                else if (lineItemContent.Parent != null)
+                                {
+                                    if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                    {
+                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias))
+                                    }
+                                    else
+                                    {
+                                        @lineItemContent.Parent.Name
+                                    }
+                                }
+                                else
+                                {
+                                    @lineItemContent.Name
+                                }
+                            </a>
+                        </th>
+                        <td>@lineItem.CurrencyPrice</td>
+                        <td>@lineItem.Quantity</td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Reduce), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.ReduceButtonCssClass" type="submit">@Model.ReduceButtonText</button>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.IncreaseButtonCssClass" type="submit">@Model.IncreaseButtonText</button>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Remove), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.RemoveButtonCssClass" type="submit">@Model.RemoveButtonText</button>
+                            }
+                        </td>
+                    </tr>
+                }
             }
         }
         else

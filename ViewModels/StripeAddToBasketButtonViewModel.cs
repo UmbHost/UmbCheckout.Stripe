@@ -14,5 +14,7 @@ namespace UmbCheckout.Stripe.ViewModels
 
         public Guid? ReturnGuid { get; set; } = null;
         public IPublishedContent? Product { get; set; } = null;
+
+        public string? ProductNameAlias { get; set; }
     }
 }
