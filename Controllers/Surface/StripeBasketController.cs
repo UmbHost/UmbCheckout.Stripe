@@ -46,11 +46,15 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     lineItem.Price = Convert.ToDecimal(product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias)?.GetValue());
                     lineItem.CurrencyCode = basketAdd.CurrencyCode;
                     lineItem.Quantity = basketAdd.Quantity;
+
+                    _basketService.Add(lineItem);
+
+                    TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Key;
                 }
-
-                _basketService.Add(lineItem);
-
-                TempData["UmbCheckout_Added_To_Basket"] = basketAdd.Key;
+                else
+                {
+                    return RedirectToCurrentUmbracoPage();
+                }
 
                 if (redirectGuid.HasValue)
                 {
