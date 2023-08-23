@@ -1,0 +1,40 @@
+﻿@using System.Globalization
+@using UmbCheckout.Shared.Extensions
+@using UmbCheckout.Stripe.Controllers.Surface
+@using Umbraco.Extensions
+@model UmbCheckout.Stripe.ViewModels.StripeAddToBasketButtonViewModel
+
+@if (Model.Product != null)
+{
+    using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
+    {
+        <label for="quantity">Quantity:</label>
+        <input class="form-control" type="number" name="quantity" value="1" min="1" /> <br />
+                        
+        if (Model.Product.Children != null && Model.Product.Children.Any())
+        {
+            <div style="margin-bottom: 1.5rem">
+                <select name="key" class="form-control" style="height: 100%;">
+                    <option>Please Select</option>
+                    @foreach (var variant in Model.Product.Children)
+                    {
+                        <!option value="@variant.Key">@(variant.Name) - @(Model.Product.Value<decimal>("umbCheckoutPrice").ToString("C"))</!option>
+                    }
+                </select>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" name="key" value="@Model.Product.Key" />
+        }
+
+        <input type="hidden" name="currencyCode" value="@CultureInfo.CurrentUICulture.GetISOCurrencySymbol()" />
+
+        if (Model.ReturnGuid.HasValue)
+        {
+            <input type="hidden" name="redirectGuid" value="@Model.ReturnGuid.Value" />
+        }
+
+        <button class="@Model.LinkCssClass" type="submit">@Model.LinkName</button>
+    }
+}
