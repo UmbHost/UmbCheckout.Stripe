@@ -9,13 +9,25 @@
 {
     using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
     {
-        <label for="quantity">Quantity:</label>
-        <input class="form-control" type="number" name="quantity" value="1" min="1" /> <br />
+        @if (Model.ShowQuantity)
+        {
+            <div class="@Model.FormGroupSpacerClass">
+                @if (!string.IsNullOrEmpty(Model.QuantityLabel))
+                {
+                    <label for="quantity" class="@Model.LabelCssClass">@(Model.QuantityLabel):</label>
+                }
+                <input id="quantity" class="@Model.InputCssClass" type="number" name="quantity" value="1" min="1"/>
+            </div>
+        }
                         
         if (Model.Product.Children != null && Model.Product.Children.Any())
         {
-            <div style="margin-bottom: 1.5rem">
-                <select name="key" class="form-control" style="height: 100%;">
+            <div class="@Model.FormGroupSpacerClass">
+                @if (!string.IsNullOrEmpty(Model.VariantSelectLabel))
+                {
+                    <label for="quantity" class="@Model.LabelCssClass">@(Model.VariantSelectLabel):</label>
+                }
+                <select name="key" class="@Model.SelectCssClass" style="height: 100%;">
                     <option value="@Model.Product.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? Model.Product.Value<string>(Model.ProductNameAlias) : Model.Product.Name)</option>
                     @foreach (var variant in Model.Product.Children)
                     {
@@ -36,6 +48,6 @@
             <input type="hidden" name="redirectGuid" value="@Model.ReturnGuid.Value" />
         }
 
-        <button class="@Model.LinkCssClass" type="submit">@Model.LinkName</button>
+        <button class="@Model.ButtonCssClass" type="submit">@Model.ButtonText</button>
     }
 }

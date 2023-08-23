@@ -7,14 +7,27 @@ namespace UmbCheckout.Stripe.ViewModels
     /// </summary>
     public class StripeAddToBasketButtonViewModel
     {
+        public bool ShowQuantity { get; set; }
 
-        public string? LinkCssClass { get; set; } = null;
+        public string? QuantityLabel { get; set; }
 
-        public string LinkName { get; set; } = string.Empty;
+        public string? ButtonCssClass { get; set; } = null;
+
+        public string ButtonText { get; set; } = string.Empty;
 
         public Guid? ReturnGuid { get; set; } = null;
         public IPublishedContent? Product { get; set; } = null;
 
-        public string? ProductNameAlias { get; set; }
+        public string? ProductNameAlias { get; set; } = null;
+
+        public string? InputCssClass { get; set; } = null;
+        
+        public string? SelectCssClass { get; set; } = null;
+
+        public string? LabelCssClass { get; set; } = null;
+
+        public string? FormGroupSpacerClass { get; set; } = null;
+
+        public string? VariantSelectLabel { get; set; } = null;
     }
 }
