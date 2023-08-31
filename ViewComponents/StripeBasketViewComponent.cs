@@ -38,6 +38,7 @@ namespace UmbCheckout.Stripe.ViewComponents
             string? subTotalInformationText = "Coupons, Shipping and Tax are calculated on the next checkout step",
             string? checkoutButtonCssClass = null,
             string? productNameAlias = null,
+            string? productAnchorLinkCssClass = null,
             string checkoutButtonText = "Checkout")
         {
             var basket = await _basketService.Get();
@@ -66,7 +67,8 @@ namespace UmbCheckout.Stripe.ViewComponents
                 Basket = basket,
                 SubTotal = await _basketService.SubTotal(),
                 TotalItems = await _basketService.TotalItems(),
-                ProductNameAlias = productNameAlias
+                ProductNameAlias = productNameAlias,
+                ProductAnchorLinkCssClass = productAnchorLinkCssClass
             };
 
             return View("~/Views/Partials/UmbCheckout/_StripeBasket.cshtml", model);

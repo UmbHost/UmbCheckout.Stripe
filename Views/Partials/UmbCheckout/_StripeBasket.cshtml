@@ -24,7 +24,7 @@
                 {
                     <tr>
                         <th scope="row">
-                            <a href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
+                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
                                 @if (lineItemContent.HasTemplate())
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))

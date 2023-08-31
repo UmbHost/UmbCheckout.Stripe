@@ -51,5 +51,7 @@ namespace UmbCheckout.Stripe.ViewModels
         public string? SubtotalInformationText { get; set; } = "Coupons, Shipping and Tax are calculated on the next checkout step";
 
         public string? ProductNameAlias { get; set; }
+
+        public string? ProductAnchorLinkCssClass { get; set; }
     }
 }
