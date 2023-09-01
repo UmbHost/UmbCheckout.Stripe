@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,8 +9,8 @@
 	  <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <Company>UmbHost Limited</Company>
 	  <Copyright>(c) 2023 UmbHost Limited</Copyright>
-	  <PackageProjectUrl>https://umbcheckout.net</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/UmbHost/UmbCheckout</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/UmbHost/UmbCheckout.Stripe</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/UmbHost/UmbCheckout.Stripe</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
