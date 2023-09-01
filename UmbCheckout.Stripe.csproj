@@ -9,8 +9,8 @@
 	  <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <Company>UmbHost Limited</Company>
 	  <Copyright>(c) 2023 UmbHost Limited</Copyright>
-	  <PackageProjectUrl>https://github.com/UmbHost/UmbCheckout.Stripe</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/UmbHost/UmbCheckout.Stripe</RepositoryUrl>
+	  <PackageProjectUrl>https://umbcheckout.net</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/UmbHost/UmbCheckout</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -18,7 +18,7 @@
 	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
 	  <FileVersion>1.0.0.0</FileVersion>
 	  <VersionPrefix>1.0.0</VersionPrefix>
-	  <PackageTags>umbraco-marketplace;umbraco;ecommerce;umbcheckout;stripe;checkout;</PackageTags>
+	  <PackageTags>umbraco-marketplace;umbraco;ecommerce;umbcheckout;commerce;shop;stripe;checkout;</PackageTags>
 	  <PackageIcon>icon.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
