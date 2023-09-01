@@ -19,8 +19,8 @@
           "Description": "UmbCheckout.Starterkit.Stripe is a pre-configured Umbraco site"
         },
         {
-          "PackageId": "UmbCheckout.Stripe",
-          "Description": "Stripe payment provider for UmbCheckout"
+          "PackageId": "UmbCheckout",
+          "Description": "UmbCheckout an eCommerce solution for Umbraco"
         },
         {
           "PackageId": "UmbCheckout.uSync",
