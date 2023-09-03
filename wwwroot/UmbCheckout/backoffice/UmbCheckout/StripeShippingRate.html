@@ -1,0 +1,147 @@
+﻿<div ng-controller="UmbCheckout.Stripe.ShippingRate.Controller as vm" class="umbcheckout">
+    <form></form>
+    <form name="shippingRateForm" novalidate val-form-manager ng-submit="vm.saveShippingRate()">
+        <umb-editor-view class="form-horizontal">
+            <umb-editor-header name="vm.shippingRateName"
+                               name-locked="true"
+                               hide-alias="true"
+                               show-back-button="false"
+                               hide-description="true"
+                               hide-icon="true">
+            </umb-editor-header>
+            <umb-editor-container>
+                <umb-box>
+                    <umb-box-header title-key="umbcheckout_help_support"></umb-box-header>
+                    <umb-box-content>
+                        <p class="muted">
+                            <umb-icon icon="icon-info"></umb-icon> <localize key="umbcheckoutstripe_shipping_help"></localize>
+                        </p>
+
+                        <p class="red bold" ng-if="!vm.LicenseState.Valid">
+                            <localize key="umbcheckout_unlicensed_warning"></localize>
+                        </p>
+
+                    </umb-box-content>
+                </umb-box>
+                <umb-box>
+                    <umb-box-header title-key="umbcheckout_shipping_rate"></umb-box-header>
+                    <umb-box-content>
+                        <umb-property property="property" ng-repeat="property in vm.properties">
+                            <umb-property-editor model="property"></umb-property-editor>
+                        </umb-property>
+                    </umb-box-content>
+                </umb-box>
+                <umb-box ng-if="vm.stripeShippingRate">
+                    <umb-box-header title-key="umbcheckoutstripe_shipping_rate_details" description-key="umbcheckoutstripe_shipping_rate_details_description"></umb-box-header>
+                    <umb-box-content>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_name"></localize></label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.displayName}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_amount"></localize></label>
+                                    <small class="control-description ng-binding ng-scope"><localize key="umbcheckoutstripe_shipping_rate_detail_amount_description"></localize></small>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.fixedAmount.amount}} {{vm.stripeShippingRate.fixedAmount.currency}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_minimum"></localize></label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.deliveryEstimate.minimum.value}} {{vm.stripeShippingRate.deliveryEstimate.minimum.unit}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_maximum"></localize></label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            {{vm.stripeShippingRate.deliveryEstimate.maximum.value}} {{vm.stripeShippingRate.deliveryEstimate.maximum.unit}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group umb-control-group">
+                            <div class="umb-el-wrap">
+                                <div class="control-header" aria-hidden="false">
+                                    <label data-element="property-label-name" class="control-label ng-binding" title="name"><localize key="umbcheckoutstripe_shipping_rate_detail_edit"></localize></label>
+                                </div>
+                                <div class="controls">
+                                    <div class="umb-property ng-scope">
+                                        <div class="umb-el-wrap ng-binding">
+                                            <a href="https://dashboard.stripe.com/shipping-rates/{{vm.stripeShippingRate.id}}" target="_blank" class="btn umb-button__button btn-success umb-button-- umb-outline"><localize key="umbcheckoutstripe_shipping_rate_detail_edit_button"></localize></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </umb-box-content>
+                </umb-box>
+                <umb-box>
+                    <umb-box-header title-key="umbcheckoutstripe_shipping_rates" description-key="umbcheckoutstripe_shipping_rates_description"></umb-box-header>
+                    <umb-box-content>
+                        <umb-table ng-if="vm.stripeShippingRates"
+                                   items="vm.stripeShippingRates"
+                                   on-select="vm.clickItem(item)"
+                                   on-click="vm.clickItem(item)"
+                                   item-properties="vm.options.includeProperties">
+                        </umb-table>
+                    </umb-box-content>
+                </umb-box>
+            </umb-editor-container>
+
+            <umb-editor-footer>
+                <umb-editor-footer-content-left>
+<localize ng-if="!vm.LicenseState.Valid" key="umbcheckout_made_by"></localize>
+                </umb-editor-footer-content-left>
+
+                <umb-editor-footer-content-right>
+                    <umb-button type="button"
+                                button-style="danger"
+                                state="vm.deleteButtonState"
+                                action="vm.deleteShippingRate()"
+                                label-key="delete"
+                                disabled="vm.deleteButtonState === 'busy'">
+                    </umb-button>
+                    <umb-button type="submit"
+                                button-style="success"
+                                state="vm.saveButtonState"
+                                label-key="buttons_save"
+                                shortcut="ctrl+s"
+                                disabled="vm.saveButtonState === 'busy'">
+                    </umb-button>
+                </umb-editor-footer-content-right>
+            </umb-editor-footer>
+        </umb-editor-view>
+    </form>
+</div>

@@ -1,0 +1,102 @@
+﻿@using UmbCheckout.Shared.Extensions
+@using UmbCheckout.Stripe.Controllers.Surface
+@using Umbraco.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<UmbCheckout.Stripe.ViewModels.StripeBasketViewModel>
+
+<table class="@Model.TableCssClass">
+    <thead>
+        <tr>
+            <th scope="col">@Model.ProductNameColumnText</th>
+            <th scope="col">@Model.ProductPriceColumnText</th>
+            <th scope="col">@Model.QuantityColumnText</th>
+            <th scope="col">@Model.ReduceColumnText</th>
+            <th scope="col">@Model.IncreaseColumnText</th>
+            <th scope="col">@Model.RemoveColumnText</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Basket.LineItems.Any())
+        {
+            foreach (var lineItem in Model.Basket.LineItems)
+            {
+                var lineItemContent = Umbraco.Content(lineItem.Key);
+                if (lineItemContent != null)
+                {
+                    <tr>
+                        <th scope="row">
+                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
+                                @if (lineItemContent.HasTemplate())
+                                {
+                                    if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                    {
+                                        @(lineItemContent.Value<string>(Model.ProductNameAlias))
+                                    }
+                                    else
+                                    {
+                                        @lineItemContent.Name
+                                    }
+                                }
+                                else if (lineItemContent.Parent != null)
+                                {
+                                    if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                    {
+                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias)) <text> - </text>
+                                        if (!string.IsNullOrEmpty(Model.ProductNameAlias))
+                                        {
+                                            @(lineItemContent.Value<string>(Model.ProductNameAlias))
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @lineItemContent.Parent.Name <text> - </text> @lineItemContent.Name
+                                    }
+                                }
+                                else
+                                {
+                                    @lineItemContent.Name
+                                }
+                            </a>
+                        </th>
+                        <td>@lineItem.CurrencyPrice</td>
+                        <td>@lineItem.Quantity</td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Reduce), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.ReduceButtonCssClass" type="submit">@Model.ReduceButtonText</button>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.IncreaseButtonCssClass" type="submit">@Model.IncreaseButtonText</button>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Remove), FormMethod.Post))
+                            {
+                                <input type="hidden" name="key" value="@lineItem.Key" />
+                                <button class="@Model.RemoveButtonCssClass" type="submit">@Model.RemoveButtonText</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" style="text-align: center;">@Model.EmptyBasketText</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p><strong>@Model.SubTotalText</strong> @Model.SubTotal.FormatCurrency(Model.FormatCurrency)</p>
+<p><i><strong>@Model.SubtotalInformationText</strong></i></p>
+<p>
+    @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Checkout), FormMethod.Post))
+    {
+        <button class="@Model.CheckoutButtonCssClass" type="submit">@Model.CheckoutButtonText</button>
+    }
+</p>

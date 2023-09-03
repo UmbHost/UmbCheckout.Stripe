@@ -1,0 +1,51 @@
+﻿using Stripe.Checkout;
+using UmbCheckout.Shared.Models;
+
+namespace UmbCheckout.Stripe.Interfaces
+{
+    /// <summary>
+    /// A service which handles all things around the Stripe Session
+    /// </summary>
+    public interface IStripeSessionService
+    {
+        /// <summary>
+        /// Gets a Stripe Session
+        /// </summary>
+        /// <param name="id">Id of the Stripe Session</param>
+        /// <returns>The Stripe Session</returns>
+        Session GetSession(string id);
+
+        /// <summary>
+        /// Gets a Stripe Session asynchronously
+        /// </summary>
+        /// <param name="id">Id of the Stripe Session</param>
+        /// <returns>The Stripe Session</returns>
+        Task<Session> GetSessionAsync(string id);
+
+        /// <summary>
+        /// Creates a Stripe Session
+        /// </summary>
+        /// <param name="basket">The basket to be stored in the Stripe Session</param>
+        /// <returns>The Stripe Session</returns>
+        Session CreateSession(Basket basket);
+
+        /// <summary>
+        /// Creates a Stripe Session asynchronously
+        /// </summary>
+        /// <param name="basket">The basket to be stored in the Stripe Session</param>
+        /// <returns>The Stripe Session</returns>
+        Task<Session> CreateSessionAsync(Basket basket);
+
+        /// <summary>
+        /// Clears a Stripe Session
+        /// </summary>
+        /// <param name="id">Id of the Stripe Session</param>
+        void ClearSession(string id);
+
+        /// <summary>
+        /// Clears a Stripe Session asynchronously
+        /// </summary>
+        /// <param name="id">Id of the Stripe Session</param>
+        Task ClearSessionAsync(string id);
+    }
+}

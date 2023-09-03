@@ -1,0 +1,53 @@
+﻿<div ng-controller="UmbCheckout.Stripe.ShippingRates.Controller as vm" class="umbcheckout">
+    <umb-editor-view class="form-horizontal">
+        <umb-editor-header
+                           name="vm.shippingRatesName"
+                           name-locked="true"
+                           hide-alias="true"
+                           show-back-button="false"
+                           hide-description="true"
+                           hide-icon="true">
+        </umb-editor-header>
+        <umb-editor-container>
+            <umb-box>
+                <umb-box-header title-key="umbcheckout_help_support"></umb-box-header>
+                <umb-box-content>
+                    <p class="muted">
+                        <umb-icon icon="icon-info"></umb-icon> <localize key="umbcheckoutstripe_shipping_help"></localize>
+                    </p>
+
+                    <p class="red bold" ng-if="!vm.LicenseState.Valid">
+                        <localize key="umbcheckout_unlicensed_warning"></localize>
+                    </p>
+
+                </umb-box-content>
+            </umb-box>
+            <umb-editor-sub-header>
+                <umb-button action="vm.clickCreateButton()"
+                            type="button"
+                            button-style="outline"
+                            label-key="umbcheckoutstripe_create_shipping_rate">
+                </umb-button>
+            </umb-editor-sub-header>
+            <umb-box>
+                <umb-box-header title-key="umbcheckout_shipping_rates"></umb-box-header>
+                <umb-box-content>
+                    <umb-table ng-if="vm.shippingRates"
+                               items="vm.shippingRates"
+                               on-click="vm.clickItem(item)"
+                               item-properties="vm.options.includeProperties">
+                    </umb-table>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
+
+        <umb-editor-footer>
+            <umb-editor-footer-content-left>
+                <localize ng-if="!vm.LicenseState.Valid" key="umbcheckout_made_by"></localize>
+            </umb-editor-footer-content-left>
+
+            <umb-editor-footer-content-right>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</div>
