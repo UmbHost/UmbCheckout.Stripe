@@ -10,6 +10,7 @@
         {
             public const string Stripe = "stripe";
             public const string Area = "umbcheckoutstripe";
+            public const string Settings = "settings";
             public const string ShippingHelp = "shipping_help";
             public const string ShippingRates = "shipping_rates";
             public const string ShippingRatesDescription = "shipping_rates_description";

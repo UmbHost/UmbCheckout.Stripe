@@ -21,6 +21,8 @@ namespace UmbCheckout.Stripe.Composers
         {
             mapper.Define<ShippingRate, UmbCheckoutStripeShipping>((_, _) => new UmbCheckoutStripeShipping(), Map);
             mapper.Define<UmbCheckoutStripeShipping, ShippingRate>((_, _) => new ShippingRate(), Map);
+            mapper.Define<Models.UmbCheckoutStripeSettings, Pocos.UmbCheckoutStripeSettings>((_, _) => new Pocos.UmbCheckoutStripeSettings(), Map);
+            mapper.Define<Pocos.UmbCheckoutStripeSettings, Models.UmbCheckoutStripeSettings>((_, _) => new Models.UmbCheckoutStripeSettings(), Map);
         }
 
         private static void Map(ShippingRate source, UmbCheckoutStripeShipping target, MapperContext context)
@@ -37,6 +39,20 @@ namespace UmbCheckout.Stripe.Composers
             target.Id = source.Id;
             target.Name = source.Name;
             target.Value = source.Value;
+        }
+
+        private static void Map(Pocos.UmbCheckoutStripeSettings source, Models.UmbCheckoutStripeSettings target, MapperContext context)
+        {
+            target.Key = source.Key;
+            target.Id = source.Id;
+            target.UseLiveApiDetails = source.UseLiveApiDetails;
+        }
+
+        private static void Map(Models.UmbCheckoutStripeSettings source, Pocos.UmbCheckoutStripeSettings target, MapperContext context)
+        {
+            target.Key = source.Key;
+            target.Id = source.Id;
+            target.UseLiveApiDetails = source.UseLiveApiDetails;
         }
     }
 }

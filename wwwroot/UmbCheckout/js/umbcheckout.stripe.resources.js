@@ -55,5 +55,21 @@
                 }
                 );
         },
+        getStripeSettings: function () {
+
+            return $http.get("backoffice/UmbCheckout/StripeSettingsApi/GetStripeSettings")
+                .then(function (response) {
+                    return response;
+                }
+                );
+        },
+        updateStripeSettings: function (configurationValues) {
+
+            return $http.patch("backoffice/UmbCheckout/StripeSettingsApi/UpdateStripeSettings", configurationValues)
+                .then(function (response) {
+                    return response;
+                }
+                );
+        },
     }
 });

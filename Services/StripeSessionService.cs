@@ -30,8 +30,9 @@ namespace UmbCheckout.Stripe.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
         private readonly StripeSettings _stripeSettings;
+        private readonly IStripeSettingsService _stripeSettingsService;
 
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService)
+        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
         {
             _snapshotAccessor = snapshotAccessor;
             _coreScopeProvider = coreScopeProvider;
@@ -40,6 +41,7 @@ namespace UmbCheckout.Stripe.Services
             _configurationService = configurationService;
             _httpContextAccessor = httpContextAccessor;
             _stripeDatabaseService = stripeDatabaseService;
+            _stripeSettingsService = stripeSettingsService;
             _stripeSettings = stripeSettings.CurrentValue;
             licenseService.RunLicenseCheck();
         }
@@ -52,7 +54,14 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 _eventAggregator.Publish(new OnProviderGetSessionStartedNotification(id));
 
-                var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+                var apiKey = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
+                }
+
+                var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
                 var session = service.Get(id);
@@ -77,7 +86,14 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id));
 
-                var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+                var apiKey = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
+                }
+
+                var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
                 var session = await service.GetAsync(id);
@@ -101,7 +117,14 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 _eventAggregator.Publish(new OnProviderCreateSessionStartedNotification(basket));
 
-                var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+                var apiKey = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
+                }
+
+                var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
                 var session = service.Create(CreateSessionOptions(basket).Result);
@@ -125,7 +148,14 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket));
 
-                var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+                var apiKey = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
+                }
+
+                var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
                 var session = await service.CreateAsync(await CreateSessionOptions(basket));
@@ -149,7 +179,14 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 _eventAggregator.Publish(new OnProviderClearSessionStartedNotification(id));
 
-                var stripeClient = new StripeClient(_stripeSettings.ApiKey);
+                var apiKey = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
+                }
+
+                var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
                 service.Expire(id);
