@@ -9,6 +9,8 @@ namespace UmbCheckout.Stripe.Composers
         public void Compose(IUmbracoBuilder builder)
         {
             builder.BackOfficeAssets()
+                .Append<UmbCheckoutStripeSettingsJsFIle>();
+            builder.BackOfficeAssets()
                 .Append<UmbCheckoutStripeShippingRatesJsFIle>();
             builder.BackOfficeAssets()
                 .Append<UmbCheckoutStripeShippingRateJsFIle>();

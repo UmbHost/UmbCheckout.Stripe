@@ -1,11 +1,11 @@
-function UmbCheckout($scope, editorService, umbCheckoutResources, $routeParams, notificationsService, formHelper) {
+function UmbCheckout($scope, editorService, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper) {
     var vm = this;
     vm.saveButtonState = "init";
     vm.createFolderError = "";
     vm.properties = [];
     vm.saveConfiguration = saveConfiguration;
 
-    umbCheckoutResources.getStripeSettings()
+    umbCheckoutStripeResources.getStripeSettings()
         .then(function (response) {
             vm.properties = response.data
         }
@@ -23,7 +23,7 @@ function UmbCheckout($scope, editorService, umbCheckoutResources, $routeParams, 
                 configurationValues[newKey] = value.value
             });
 
-            umbCheckoutResources.updateStripeSettings(configurationValues)
+            umbCheckoutStripeResources.updateStripeSettings(configurationValues)
                 .then(function (response) {
                     vm.properties = response.data
                     notificationsService.success("Stripe settings saved", "The Stripe settings have been saved successfully");

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Core.Scoping;
@@ -62,7 +63,7 @@ namespace UmbCheckout.Stripe.Services
                         var db = scope.Database;
                         var result = await db.UpdateAsync(stripeSettingsPoco);
                         var updatedConfiguration = await GetStripeSettings();
-                        //scope.Notifications.Publish(new OnConfigurationSavedNotification(updatedConfiguration));
+                        scope.Notifications.Publish(new OnStripeSettingsSavedNotification(updatedConfiguration));
                         return result != 0;
                     }
                 }

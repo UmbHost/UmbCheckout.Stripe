@@ -31,7 +31,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         {
             if (notification.TreeAlias.Equals(Shared.Consts.TreeAlias) && notification.Id == "2")
             {
-                var menuItem = CreateTreeNode("4", "2", notification.QueryString, _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.Settings, CultureInfo.CurrentUICulture), "icon-settings", false, $"{Constants.Applications.Settings}/UmbCheckout/StripeSettings");
+                var menuItem = CreateTreeNode("5", "2", notification.QueryString, _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.Settings, CultureInfo.CurrentUICulture), "icon-settings", false, $"{Constants.Applications.Settings}/UmbCheckout/StripeSettings");
 
                 notification.Nodes.Add(menuItem);
             }

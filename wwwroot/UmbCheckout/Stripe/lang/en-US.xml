@@ -2,6 +2,7 @@
 <language>
 	<area alias="umbcheckoutstripe">
 		<key alias="stripe">Stripe</key>
+		<key alias="settings">Settings</key>
 		<key alias="shipping_help"><![CDATA[You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them below.]]></key>
 		<key alias="shipping_id">ID</key>
 		<key alias="shipping_rates">Stripe Shipping Rates</key>
