@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
+using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications.Webhooks;
+using UmbCheckout.Stripe.Services;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -16,11 +18,13 @@ namespace UmbCheckout.Stripe.Controllers.Api
         private readonly ILogger<StripeWebhookApiController> _logger;
         private readonly ICoreScopeProvider _coreScopeProvider;
         private readonly StripeSettings _settings;
+        private readonly IStripeSettingsService _stripeSettingsService;
 
-        public StripeWebhookApiController(ILogger<StripeWebhookApiController> logger, ICoreScopeProvider coreScopeProvider, IOptionsMonitor<StripeSettings> stripeSettings)
+        public StripeWebhookApiController(ILogger<StripeWebhookApiController> logger, ICoreScopeProvider coreScopeProvider, IOptionsMonitor<StripeSettings> stripeSettings, IStripeSettingsService stripeSettingsService)
         {
             _logger = logger;
             _coreScopeProvider = coreScopeProvider;
+            _stripeSettingsService = stripeSettingsService;
             _settings = stripeSettings.CurrentValue;
         }
 
@@ -30,8 +34,16 @@ namespace UmbCheckout.Stripe.Controllers.Api
             var json = await new StreamReader(request).ReadToEndAsync();
             try
             {
+
+                var webHookSecret = string.Empty;
+                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                if (stripeSettings != null)
+                {
+                    webHookSecret = stripeSettings.UseLiveApiDetails ? _settings.Live.WebHookSecret : _settings.Test.WebHookSecret;
+                }
+
                 var stripeEvent = EventUtility.ConstructEvent(json,
-                    Request.Headers["Stripe-Signature"], _settings.WebHookSecret);
+                    Request.Headers["Stripe-Signature"], webHookSecret);
 
                 switch (stripeEvent.Type)
                 {

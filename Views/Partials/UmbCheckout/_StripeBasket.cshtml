@@ -95,6 +95,7 @@
 <p><strong>@Model.SubTotalText</strong> @Model.SubTotal.FormatCurrency(Model.FormatCurrency)</p>
 <p><i><strong>@Model.SubtotalInformationText</strong></i></p>
 <p>
+    <a href="@Url.SurfaceAction("EmptyBasket","StripeBasket")" class="@Model.CheckoutButtonCssClass">@Model.EmptyBasketButtonText</a>
     @using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Checkout), FormMethod.Post))
     {
         <button class="@Model.CheckoutButtonCssClass" type="submit">@Model.CheckoutButtonText</button>
