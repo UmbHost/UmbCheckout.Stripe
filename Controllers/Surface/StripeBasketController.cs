@@ -138,5 +138,20 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 return StatusCode(500);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> EmptyBasket()
+        {
+            try
+            {
+                await _basketService.Clear();
+                return RedirectToCurrentUmbracoPage();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500);
+            }
+        }
     }
 }
