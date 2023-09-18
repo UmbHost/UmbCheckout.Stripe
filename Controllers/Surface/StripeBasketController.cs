@@ -10,12 +10,10 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
-using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Website.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Surface
 {
-    [PluginController(Shared.Consts.PackageName)]
     public class StripeBasketController : SurfaceController
     {
         private readonly IBasketService _basketService;
