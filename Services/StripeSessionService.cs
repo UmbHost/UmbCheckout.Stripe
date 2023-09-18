@@ -304,7 +304,7 @@ namespace UmbCheckout.Stripe.Services
                             {
                                 stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
                             }
-                            else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
+                            else if (product.HasValue(Shared.Consts.PropertyAlias.FallbackDescriptionAlias))
                             {
                                 stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                             }
