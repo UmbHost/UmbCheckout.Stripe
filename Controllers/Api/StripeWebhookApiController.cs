@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -10,7 +10,6 @@ using Umbraco.Cms.Web.Common.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Api
 {
-    [PluginController(Shared.Consts.PackageName)]
     public class StripeWebhookApiController : UmbracoApiController
     {
         private readonly ILogger<StripeWebhookApiController> _logger;
