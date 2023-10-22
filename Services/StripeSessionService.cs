@@ -340,6 +340,19 @@ namespace UmbCheckout.Stripe.Services
                         CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
                     };
 
+                    if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
+                    {
+                        options.ClientReferenceId = basket.CustomerReferenceId;
+                    }
+
+                    if (basket.Customer != null)
+                    {
+                        if (!string.IsNullOrEmpty(basket.Customer.EmailAddress))
+                        {
+                            options.CustomerEmail = basket.Customer.EmailAddress;
+                        }
+                    }
+
                     if (configuration is { EnableShipping: true })
                     {
                         var shippingRates = await _stripeDatabaseService.GetShippingRates();
