@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -278,7 +278,7 @@ namespace UmbCheckout.Stripe.Services
                                 metaData.Add("nodeKey", product.Key.ToString());
                             }
 
-                            if (lineItem.MetaData.Any())
+                            if (metaData.Any())
                             {
                                 if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
                                 {
