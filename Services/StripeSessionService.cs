@@ -309,9 +309,27 @@ namespace UmbCheckout.Stripe.Services
                                 stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                             }
 
-                            if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
+                            var metaData = lineItem.MetaData;
+                            if (metaData.ContainsKey("nodeKey"))
                             {
-                                var metaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
+                                metaData.Add("nodeKey", product.Key.ToString());
+                            }
+
+                            if (lineItem.MetaData.Any())
+                            {
+                                if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
+                                {
+                                    var productMetaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
+
+                                    if (productMetaData != null)
+                                    {
+                                        foreach (var pm in productMetaData.Where(pm => metaData.ContainsKey(pm.Key)))
+                                        {
+                                            metaData.Add(pm.Key, pm.Value);
+                                        }
+                                    }
+                                }
+
                                 stripeLineItem.PriceData.ProductData.Metadata = metaData;
                             }
 
