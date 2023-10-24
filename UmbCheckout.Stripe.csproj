@@ -40,7 +40,7 @@
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.21" />
-    <PackageReference Include="Stripe.net" Version="42.1.0" />
+    <PackageReference Include="Stripe.net" Version="43.0.0" />
     <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.6.1" />
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.6.1" />
   </ItemGroup>
