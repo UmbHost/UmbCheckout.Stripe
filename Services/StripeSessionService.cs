@@ -233,6 +233,7 @@ namespace UmbCheckout.Stripe.Services
                 if (hasPublishedSnapshot)
                 {
                     var configuration = await _configurationService.GetConfiguration();
+                    var stripeSettings = await _stripeSettingsService.GetStripeSettings();
                     Uri? successUri = null;
                     Uri? cancelUri = null;
                     if (configuration != null)
@@ -371,6 +372,14 @@ namespace UmbCheckout.Stripe.Services
                         }
                     }
 
+                    if (stripeSettings != null)
+                    {
+                        options.PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+                        {
+                            Enabled = stripeSettings.CollectPhoneNumber
+                        };
+                    }
+
                     if (configuration is { EnableShipping: true })
                     {
                         var shippingRates = await _stripeDatabaseService.GetShippingRates();
@@ -386,6 +395,21 @@ namespace UmbCheckout.Stripe.Services
 
                         options.BillingAddressCollection = "required";
 
+                        if (stripeSettings != null)
+                        {
+                            if (!string.IsNullOrEmpty(stripeSettings.ShippingAllowedCountries))
+                            {
+                                var allowedCountries = stripeSettings.ShippingAllowedCountries.Split(",");
+
+                                if (allowedCountries.Any())
+                                {
+                                    options.ShippingAddressCollection = new SessionShippingAddressCollectionOptions
+                                    {
+                                        AllowedCountries = allowedCountries.ToList()
+                                    };
+                                }
+                            }
+                        }
                     }
 
                     return options;
