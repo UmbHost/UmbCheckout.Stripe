@@ -105,7 +105,23 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.UseLiveApiDetailsLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.UseLiveApiDetails.ToString() : "false",
                         View = "boolean"
-                    }
+                    },
+                    new()
+                    {
+                        Alias = "collectPhoneNumber",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumber, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumberLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPhoneNumber.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                    Alias = "shippingAllowedCountries",
+                    Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
+                    Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
+                    Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
+                    View = "textbox"
+                }
                 };
 
                 return backOfficeProperties;
