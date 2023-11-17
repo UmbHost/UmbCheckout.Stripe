@@ -149,7 +149,7 @@ namespace UmbCheckout.Stripe.Services
                 await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket));
 
                 var apiKey = string.Empty;
-                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                var stripeSettings = await _stripeSettingsService.GetStripeSettings();
                 if (stripeSettings != null)
                 {
                     apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
