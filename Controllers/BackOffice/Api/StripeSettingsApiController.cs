@@ -64,9 +64,15 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 var useLiveApiDetails =
                     configValues.UseLiveApiDetails.ToBoolean();
 
+                var collectPhoneNumber =
+                    configValues.CollectPhoneNumber.ToBoolean();
+
                 var configuration = new UmbCheckoutStripeSettings()
                 {
-                    UseLiveApiDetails = useLiveApiDetails
+                    UseLiveApiDetails = useLiveApiDetails,
+                    CollectPhoneNumber = collectPhoneNumber,
+                    ShippingAllowedCountries = configValues.
+                        ShippingAllowedCountries
                 };
 
                 var updated = await _stripeSettingsService.UpdateStripeSettings(configuration);
