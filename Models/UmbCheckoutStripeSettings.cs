@@ -7,5 +7,9 @@
         public Guid Key { get; set; } = Guid.NewGuid();
 
         public bool UseLiveApiDetails { get; set; } = false;
+
+        public string? ShippingAllowedCountries { get; set; } = null;
+
+        public bool CollectPhoneNumber { get; set; } = false;
     }
 }
