@@ -383,6 +383,9 @@ namespace UmbCheckout.Stripe.Services
 
                             options.ShippingOptions = shippingRateOptions;
                         }
+
+                        options.BillingAddressCollection = "required";
+
                     }
 
                     return options;
