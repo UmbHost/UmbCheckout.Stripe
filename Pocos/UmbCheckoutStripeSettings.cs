@@ -1,6 +1,4 @@
 ﻿using NPoco;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace UmbCheckout.Stripe.Pocos
@@ -21,5 +19,13 @@ namespace UmbCheckout.Stripe.Pocos
         [Column("UseLiveApiDetails")]
         [NullSetting(NullSetting = NullSettings.NotNull)]
         public bool UseLiveApiDetails { get; set; } = false;
+
+        [Column("CollectPhoneNumber")]
+        [NullSetting(NullSetting = NullSettings.NotNull)]
+        public bool CollectPhoneNumber { get; set; } = false;
+
+        [Column("ShippingAllowedCountries")]
+        [NullSetting(NullSetting = NullSettings.Null)]
+        public string? ShippingAllowedCountries { get; set; } = null;
     }
 }
