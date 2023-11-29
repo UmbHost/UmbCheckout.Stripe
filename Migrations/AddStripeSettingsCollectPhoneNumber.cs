@@ -16,7 +16,7 @@ namespace UmbCheckout.Stripe.Migrations
 
             if (!ColumnExists("UmbCheckoutStripeSettings", "CollectPhoneNumber"))
             {
-                AddColumn<UmbCheckoutStripeSettings>("UmbCheckoutStripeSettings", "CollectPhoneNumber");
+                Create.Column("CollectPhoneNumber").OnTable("UmbCheckoutStripeSettings").AsBoolean().NotNullable().WithDefaultValue(false).Do();
             }
             else
             {
