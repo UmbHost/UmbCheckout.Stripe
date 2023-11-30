@@ -1,10 +1,17 @@
 ﻿@using System.Globalization
+@using UmbCheckout.Core.Interfaces
 @using UmbCheckout.Shared
 @using UmbCheckout.Shared.Extensions
 @using UmbCheckout.Stripe.Controllers.Surface
 @using Umbraco.Extensions
 @model UmbCheckout.Stripe.ViewModels.StripeAddToBasketButtonViewModel
+@inject IConfigurationService ConfigurationService
+@{
+    var configuration = await ConfigurationService.GetConfiguration();
+    var fallbackCurrencyCode = !string.IsNullOrEmpty(configuration?.CurrencyCode) ? configuration.CurrencyCode : CultureInfo.CurrentUICulture.GetISOCurrencySymbol();
 
+    var currencyCode = !string.IsNullOrEmpty(Model.CurrencyCode) ? Model.CurrencyCode : fallbackCurrencyCode;
+}
 @if (Model.Product != null)
 {
     using (Html.BeginUmbracoForm<StripeBasketController>(nameof(StripeBasketController.Add), FormMethod.Post))
@@ -41,7 +48,7 @@
             <input type="hidden" name="key" value="@Model.Product.Key" />
         }
 
-        <input type="hidden" name="currencyCode" value="@CultureInfo.CurrentUICulture.GetISOCurrencySymbol()" />
+        <input type="hidden" name="currencyCode" value="@currencyCode" />
 
         if (Model.ReturnGuid.HasValue)
         {

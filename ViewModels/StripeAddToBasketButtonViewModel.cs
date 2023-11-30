@@ -29,5 +29,7 @@ namespace UmbCheckout.Stripe.ViewModels
         public string? FormGroupSpacerClass { get; set; } = null;
 
         public string? VariantSelectLabel { get; set; } = null;
+
+        public string? CurrencyCode { get; set; } = null;
     }
 }

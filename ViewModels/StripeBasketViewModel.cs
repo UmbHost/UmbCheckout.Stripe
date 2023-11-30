@@ -44,6 +44,8 @@ namespace UmbCheckout.Stripe.ViewModels
 
         public string? EmptyBasketText { get; set; } = "Your basket is empty!";
 
+        public string? EmptyBasketButtonText { get; set; } = "Empty basket";
+
         public string? SubTotalText { get; set; } = "Sub Total:";
 
         public string? FormatCurrency { get; set; } = "GBP";

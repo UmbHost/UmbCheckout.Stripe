@@ -9,6 +9,7 @@ namespace UmbCheckout.Stripe.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
+            builder.AddNotificationHandler<UmbracoApplicationStartingNotification, RunUmbCheckoutStripeSettingsMigration>();
             builder.AddNotificationHandler<UmbracoApplicationStartingNotification, RunUmbCheckoutStripeShippingMigration>();
         }
     }

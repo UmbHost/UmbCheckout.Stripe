@@ -10,7 +10,7 @@ namespace UmbCheckout.Stripe.ViewComponents
     [ViewComponent(Name = "StripeAddToBasketButton")]
     public class StripeAddToBasketButtonViewComponent : ViewComponent
     {
-        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null)
+        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, string? currencyCode = null)
         {
             var model = new StripeAddToBasketButtonViewModel
             {
@@ -25,7 +25,8 @@ namespace UmbCheckout.Stripe.ViewComponents
                 SelectCssClass = selectCssClass,
                 LabelCssClass = labelCssClass,
                 FormGroupSpacerClass = formGroupSpacerClass,
-                VariantSelectLabel = variantSelectLabel
+                VariantSelectLabel = variantSelectLabel,
+                CurrencyCode = currencyCode
             };
 
             return View("~/Views/Partials/UmbCheckout/_StripeAddToBasketButton.cshtml", model);

@@ -10,12 +10,10 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
-using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Website.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Surface
 {
-    [PluginController(Shared.Consts.PackageName)]
     public class StripeBasketController : SurfaceController
     {
         private readonly IBasketService _basketService;
@@ -133,6 +131,21 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 var stripeSession = await _sessionService.CreateSessionAsync(basket);
                 return Redirect(stripeSession.Url);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EmptyBasket()
+        {
+            try
+            {
+                await _basketService.Clear();
+                return RedirectToCurrentUmbracoPage();
             }
             catch (Exception ex)
             {

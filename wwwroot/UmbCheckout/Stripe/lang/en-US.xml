@@ -2,6 +2,7 @@
 <language>
 	<area alias="umbcheckoutstripe">
 		<key alias="stripe">Stripe</key>
+		<key alias="settings">Settings</key>
 		<key alias="shipping_help"><![CDATA[You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them below.]]></key>
 		<key alias="shipping_id">ID</key>
 		<key alias="shipping_rates">Stripe Shipping Rates</key>
@@ -33,5 +34,9 @@
 		<key alias="shipping_rate_notification_deleted_message">The Shipping Rate has been deleted successfully</key>
 		<key alias="shipping_rate_notification_delete_failed_title">There was an issue trying to update the Shipping Rate</key>
 		<key alias="shipping_rate_notification_delete_failed_message">There was an issue trying to update the Shipping Rate</key>
+		<key alias="allowed_shipping_countries">Allowed shipping countries in two letter ISO format, separate multiple countries with a comma</key>
+		<key alias="allowed_shipping_countries_label">Allowed Shipping Countries</key>
+		<key alias="collect_phone_number">When enabled the field to collect a phone number is shown on the payment form</key>
+		<key alias="collect_phone_number_label">Collect Phone Number</key>
 	</area>
 </language>
