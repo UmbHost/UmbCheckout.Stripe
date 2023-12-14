@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Stripe.net" Version="43.0.0" />
+    <PackageReference Include="UmbHost.Licensing" Version="1.2.6" />
   </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

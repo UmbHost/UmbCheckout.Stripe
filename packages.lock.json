@@ -25,6 +25,15 @@
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
       },
+      "UmbHost.Licensing": {
+        "type": "Direct",
+        "requested": "[1.2.6, )",
+        "resolved": "1.2.6",
+        "contentHash": "IiVIrefcRCtwGpz3zfr7boPAJtMvEg7o1svPnLg80AvNcHQmQf9VoappHCg4JFd1txfMydCk/H6eogRyjJD16w==",
+        "dependencies": {
+          "Umbraco.Cms.Web.BackOffice": "10.6.1"
+        }
+      },
       "Umbraco.Cms.Web.BackOffice": {
         "type": "Direct",
         "requested": "[10.6.1, )",
