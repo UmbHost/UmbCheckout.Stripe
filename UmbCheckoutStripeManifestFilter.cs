@@ -22,7 +22,14 @@ namespace UmbCheckout.Stripe
                 PackageName = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
                 Version = UmbCheckoutVersion.Version.ToString(3),
                 AllowPackageTelemetry = true,
-                BundleOptions = BundleOptions.None
+                BundleOptions = BundleOptions.None,
+                Scripts = new []
+                {
+                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.resources.js",
+                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.settings.controller.js",
+                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.shippingrate.controller.js",
+                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.shippingrates.controller.js"
+                }
             });
         }
     }
