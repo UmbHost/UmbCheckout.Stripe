@@ -70,6 +70,6 @@
                     return response;
                 }
                 );
-        },
+        }
     }
 });
