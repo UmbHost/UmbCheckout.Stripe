@@ -38,5 +38,6 @@
 		<key alias="allowed_shipping_countries_label">Allowed Shipping Countries</key>
 		<key alias="collect_phone_number">When enabled the field to collect a phone number is shown on the payment form</key>
 		<key alias="collect_phone_number_label">Collect Phone Number</key>
+		<key alias="viewinstripe">View In Stripe Dashboard</key>
 	</area>
 </language>
