@@ -29,6 +29,7 @@
             public const string ShippingRateDetailMaximum = "shipping_rate_detail_maximum";
             public const string ShippingRateDetailEdit = "shipping_rate_detail_edit";
             public const string ShippingRateDetailEditButton = "shipping_rate_detail_edit_button";
+            public const string ViewinStripe = "viewinstripe";
         }
     }
 }
