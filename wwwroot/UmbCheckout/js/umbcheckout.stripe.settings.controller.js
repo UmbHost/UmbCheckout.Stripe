@@ -1,4 +1,4 @@
-function UmbCheckout($scope, editorService, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper) {
+function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, formHelper) {
     var vm = this;
     vm.saveButtonState = "init";
     vm.createFolderError = "";
@@ -26,13 +26,24 @@ function UmbCheckout($scope, editorService, umbCheckoutResources, umbCheckoutStr
             umbCheckoutStripeResources.updateStripeSettings(configurationValues)
                 .then(function (response) {
                     vm.properties = response.data
-                    notificationsService.success("Stripe settings saved", "The Stripe settings have been saved successfully");
+
+                    localizationService.localize("umbcheckoutstripe_settings_saved_title").then(function (title) {
+                        localizationService.localize("umbcheckoutstripe_settings_saved_message").then(function (message) {
+                            notificationsService.success(title, message);
+                        });
+                    });
+
                     vm.saveButtonState = "success";
                     $scope.configurationForm.$dirty = false;
                 })
                 .catch(
                     function (response) {
-                        notificationsService.error("Stripe settings failed to save", "There was an issue trying to save the Stripe settings");
+                        localizationService.localize("umbcheckoutstripe_settings_save_failed_title").then(function (title) {
+                            localizationService.localize("umbcheckoutstripe_settings_save_failed_message").then(function (message) {
+                                notificationsService.error(title, message);
+                            });
+                        });
+
                         vm.saveButtonState = "error";
                     }
                 );
