@@ -14,7 +14,7 @@
                     <umb-box-header title-key="umbcheckout_help_support"></umb-box-header>
                     <umb-box-content>
                         <p class="muted">
-                            <umb-icon icon="icon-info"></umb-icon> <localize key="umbcheckoutstripe_shipping_help"></localize>
+                            <umb-icon icon="icon-info"></umb-icon> <span ng-bind-html="vm.shipping_help"></span>
                         </p>
 
                         <p class="red bold" ng-if="!vm.LicenseState.Valid">

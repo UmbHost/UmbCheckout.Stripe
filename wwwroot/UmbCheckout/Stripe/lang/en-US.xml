@@ -7,7 +7,7 @@
 		<key alias="settings_saved_message">The Stripe settings have been saved successfully</key>
 		<key alias="settings_save_failed_title">Stripe settings failed to save</key>
 		<key alias="settings_save_failed_message">There was an issue trying to save the Stripe settings</key>
-		<key alias="shipping_help"><![CDATA[You will need to create your Shipping Rates within your <a href="https://dashboard.stripe.com/shipping-rates" target="_blank">Stripe account here</a> before you can add them below.]]></key>
+		<key alias="shipping_help"><![CDATA[You will need to create your Shipping Rates within your <a href="[[STRIPE_URL]]" target="_blank">Stripe account here</a> before you can add them below.]]></key>
 		<key alias="shipping_id">ID</key>
 		<key alias="shipping_rates">Stripe Shipping Rates</key>
 		<key alias="shipping_rates_description">The available Shipping Rates found in your Stripe account, click on a Shipping Rate to update the form above</key>
