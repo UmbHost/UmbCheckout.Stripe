@@ -7,6 +7,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
     vm.stripeShippingRate = {};
+    vm.stripeShippingRateUrl = "";
 
     localizationService.localize("umbcheckoutstripe_shipping_rate").then(function (value) {
         vm.shippingRateName = value;
@@ -73,7 +74,18 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
             vm.stripeShippingRates = response.data
         }
-        );
+    );
+
+    umbCheckoutStripeResources.getStripeSettings()
+        .then(function (response) {
+
+            if (response.data.useLiveApiDetails) {
+                vm.stripeShippingRateUrl = "https://dashboard.stripe.com/shipping-rates/";
+            } else {
+                vm.stripeShippingRateUrl = "https://dashboard.stripe.com/test/shipping-rates/";
+            }
+        }
+    );
 
     localizationService.localize("umbcheckoutstripe_shipping_id").then(function (value) {
         vm.options = {
