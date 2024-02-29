@@ -22,6 +22,16 @@ namespace UmbCheckout.Stripe.Composers
 #if NET8_0_OR_GREATER
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();
             builder.WebhookEvents().Add<OnShippingRateSavedWebhook>();
+            builder.WebhookEvents().Add<OnChargeFailedWebhook>();
+            builder.WebhookEvents().Add<OnChargeSucceededWebhook>();
+            builder.WebhookEvents().Add<OnCheckoutSessionCompletedWebhook>();
+            builder.WebhookEvents().Add<OnCheckoutSessionExpiredWebhook>();
+            builder.WebhookEvents().Add<OnPaymentFailedWebhook>();
+            builder.WebhookEvents().Add<OnPaymentIntentCancelledWebhook>();
+            builder.WebhookEvents().Add<OnPaymentIntentCreatedWebhook>();
+            builder.WebhookEvents().Add<OnPaymentIntentPaymentFailedWebhook>();
+            builder.WebhookEvents().Add<OnPaymentIntentSucceededWebhook>();
+            builder.WebhookEvents().Add<OnPaymentSuccessWebhook>();
 #endif
         }
     }
