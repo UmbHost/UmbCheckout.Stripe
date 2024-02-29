@@ -32,7 +32,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
-            if (response.data.status == "Invalid" || response.data.status == "Unlicensed") {
+            if (response.data.status == "Invalid" || response.data.status == "Unlicensed" || response.data.status == "Expired") {
                 vm.LicenseState.Valid = false;
 
                 localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
