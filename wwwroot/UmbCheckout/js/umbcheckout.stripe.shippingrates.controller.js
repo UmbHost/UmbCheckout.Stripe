@@ -2,7 +2,8 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
     var vm = this;
     vm.shippingRatesName;
     vm.shippingRates = [];
-    vm.LicenseState = {}
+    vm.LicenseState = {};
+    vm.shipping_help = "";
 
     localizationService.localize("umbcheckoutstripe_shipping_rates").then(function (value) {
         vm.shippingRatesName = value;
@@ -53,5 +54,20 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
     function clickCreateButton() {
         $location.path("/settings/UmbCheckout/StripeShippingRate");
     }
+
+    umbCheckoutStripeResources.getStripeSettings()
+        .then(function (response) {
+
+            if (response.data.useLiveApiDetails) {
+                vm.stripeShippingRateUrl = "https://dashboard.stripe.com/shipping-rates/";
+            } else {
+                vm.stripeShippingRateUrl = "https://dashboard.stripe.com/test/shipping-rates/";
+            }
+
+            localizationService.localize("umbcheckoutstripe_shipping_help").then(function (message) {
+                vm.shipping_help = message.replace("[[STRIPE_URL]]", vm.stripeShippingRateUrl);
+            });
+        }
+        );
 }
 angular.module("umbraco").controller("UmbCheckout.Stripe.ShippingRates.Controller", UmbCheckout);
