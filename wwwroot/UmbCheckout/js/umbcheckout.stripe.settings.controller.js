@@ -1,4 +1,4 @@
-function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, formHelper) {
+function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, formHelper, localizationService) {
     var vm = this;
     vm.saveButtonState = "init";
     vm.createFolderError = "";
