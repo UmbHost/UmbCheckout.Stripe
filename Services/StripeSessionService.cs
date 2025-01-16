@@ -8,6 +8,7 @@ using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Models;
 using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Events;
@@ -229,6 +230,7 @@ namespace UmbCheckout.Stripe.Services
         {
             try
             {
+                using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 var hasPublishedSnapshot = _snapshotAccessor.TryGetPublishedSnapshot(out var publishedSnapshot);
                 if (hasPublishedSnapshot)
                 {
@@ -343,6 +345,8 @@ namespace UmbCheckout.Stripe.Services
                                 }
                             }
 
+                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAddedBefore(stripeLineItem));
+
                             stripeLineItems.Add(stripeLineItem);
                         }
                     }
@@ -358,6 +362,8 @@ namespace UmbCheckout.Stripe.Services
                         SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
                         CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
                     };
+
+                    scope.Notifications.Publish(new OnProviderSessionOptionsAfterInitiallyCreated(options));
 
                     if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
                     {
@@ -411,6 +417,8 @@ namespace UmbCheckout.Stripe.Services
                             }
                         }
                     }
+
+                    scope.Notifications.Publish(new OnProviderSessionOptionsAfterFullyCreated(options));
 
                     return options;
                 }
