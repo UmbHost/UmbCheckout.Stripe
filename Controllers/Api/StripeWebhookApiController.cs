@@ -44,70 +44,71 @@ namespace UmbCheckout.Stripe.Controllers.Api
 
                 switch (stripeEvent.Type)
                 {
-                    case Events.CheckoutSessionAsyncPaymentFailed:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentFailedNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.CheckoutSessionAsyncPaymentSucceeded:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentSuccessNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.CheckoutSessionCompleted:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnCheckoutSessionCompletedNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.CheckoutSessionExpired:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnCheckoutSessionExpiredNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.ChargeSucceeded:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnChargeSucceededNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.ChargeFailed:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnChargeFailedNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.PaymentIntentCreated:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentIntentCreatedNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.PaymentIntentCanceled:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentIntentCancelledNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.PaymentIntentSucceeded:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentIntentSucceededNotification(stripeEvent));
-                        break;
-                    }
-                    case Events.PaymentIntentPaymentFailed:
-                    {
-                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                        scope.Notifications.Publish(new OnPaymentIntentPaymentFailedNotification(stripeEvent));
-                        break;
-                    }
+                    case "checkout.session.async_payment_failed":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentFailedNotification(stripeEvent));
+                            break;
+                        }
+                    case "checkout.session.async_payment_succeeded":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentSuccessNotification(stripeEvent));
+                            break;
+                        }
+                    case "checkout.session.completed":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnCheckoutSessionCompletedNotification(stripeEvent));
+                            break;
+                        }
+                    case "checkout.session.expired":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnCheckoutSessionExpiredNotification(stripeEvent));
+                            break;
+                        }
+                    case "charge.succeeded":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnChargeSucceededNotification(stripeEvent));
+                            break;
+                        }
+                    case "charge.failed":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnChargeFailedNotification(stripeEvent));
+                            break;
+                        }
+                    case "payment_intent.created":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentIntentCreatedNotification(stripeEvent));
+                            break;
+                        }
+                    case "payment_intent.canceled":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentIntentCancelledNotification(stripeEvent));
+                            break;
+                        }
+                    case "payment_intent.succeeded":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentIntentSucceededNotification(stripeEvent));
+                            break;
+                        }
+                    case "payment_intent.payment_failed":
+                        {
+                            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                            scope.Notifications.Publish(new OnPaymentIntentPaymentFailedNotification(stripeEvent));
+                            break;
+                        }
                     default:
                         _logger.LogWarning("Unhandled event type: {0}", stripeEvent.Type);
                         break;
                 }
+
 
                 return Accepted();
             }
