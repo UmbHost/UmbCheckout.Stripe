@@ -4,14 +4,14 @@ using Umbraco.Cms.Core.Notifications;
 namespace UmbCheckout.Stripe.Notifications
 {
     /// <summary>
-    ///     Notification which is triggered just before a stripe line item is added to the
+    ///     Notification which is triggered before a stripe line item is added to the
     ///     line item collection that is sent to Stripe
     /// </summary>
-    public class OnProviderSessionOptionsLineItemAddedBefore : INotification
+    public class OnProviderSessionOptionsLineItemAdding : INotification
     {
         public SessionLineItemOptions LineItem { get; set; }
 
-        public OnProviderSessionOptionsLineItemAddedBefore(SessionLineItemOptions lineItem)
+        public OnProviderSessionOptionsLineItemAdding(SessionLineItemOptions lineItem)
         {
             LineItem = lineItem;
         }

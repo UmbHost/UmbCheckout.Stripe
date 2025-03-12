@@ -345,9 +345,11 @@ namespace UmbCheckout.Stripe.Services
                                 }
                             }
 
-                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAddedBefore(stripeLineItem));
+                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
 
                             stripeLineItems.Add(stripeLineItem);
+
+                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
                         }
                     }
 
@@ -363,7 +365,7 @@ namespace UmbCheckout.Stripe.Services
                         CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
                     };
 
-                    scope.Notifications.Publish(new OnProviderSessionOptionsAfterInitiallyCreated(options));
+                    scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
 
                     if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
                     {
@@ -418,7 +420,7 @@ namespace UmbCheckout.Stripe.Services
                         }
                     }
 
-                    scope.Notifications.Publish(new OnProviderSessionOptionsAfterFullyCreated(options));
+                    scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
 
                     return options;
                 }

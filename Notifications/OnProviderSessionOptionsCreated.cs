@@ -4,13 +4,13 @@ using Umbraco.Cms.Core.Notifications;
 namespace UmbCheckout.Stripe.Notifications
 {
     /// <summary>
-    ///     Notification which is triggered just after the initial session options are created
+    ///     Notification which is triggered after the session options have been created
     /// </summary>
-    public class OnProviderSessionOptionsAfterInitiallyCreated : INotification
+    public class OnProviderSessionOptionsCreated : INotification
     {
         public SessionCreateOptions Options { get; set; }
 
-        public OnProviderSessionOptionsAfterInitiallyCreated(SessionCreateOptions options)
+        public OnProviderSessionOptionsCreated(SessionCreateOptions options)
         {
             Options = options;
         }
