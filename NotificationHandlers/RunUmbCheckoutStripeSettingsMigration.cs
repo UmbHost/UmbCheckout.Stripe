@@ -39,6 +39,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 .To<AddStripeShippingAllowedCountries>("8fa88aa1-e9d7-4e93-94dc-b2934b5f230e");
             migrationPlan.From("8fa88aa1-e9d7-4e93-94dc-b2934b5f230e")
                 .To<AddStripeSettingsCollectPhoneNumber>("34d9f1ff-bd65-4afd-adf7-993a0c616be8");
+            migrationPlan.From("34d9f1ff-bd65-4afd-adf7-993a0c616be8")
+                .To<AddStripeSettingsCollectPromotionalConsent>("5d796bc1-feff-41e0-ad27-f0d258ec699e");
 
             var upgrader = new Upgrader(migrationPlan);
             upgrader.Execute(

@@ -67,10 +67,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 var collectPhoneNumber =
                     configValues.CollectPhoneNumber.ToBoolean();
 
+                var collectPromotionalEmailsConsent =
+                    configValues.CollectionPromotionalEmailsConsent.ToBoolean();
+
                 var configuration = new UmbCheckoutStripeSettings()
                 {
                     UseLiveApiDetails = useLiveApiDetails,
                     CollectPhoneNumber = collectPhoneNumber,
+                    CollectPromotionalEmailsConsent = collectPromotionalEmailsConsent,
                     ShippingAllowedCountries = configValues.
                         ShippingAllowedCountries
                 };
@@ -118,6 +122,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumber, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumberLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPhoneNumber.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "collectPromotionalEmailsConsent",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsent, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsentLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPromotionalEmailsConsent.ToString() : "false",
                         View = "boolean"
                     },
                     new()

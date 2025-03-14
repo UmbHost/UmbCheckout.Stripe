@@ -11,5 +11,7 @@
         public string? ShippingAllowedCountries { get; set; } = null;
 
         public bool CollectPhoneNumber { get; set; } = false;
+
+        public bool CollectPromotionalEmailsConsent { get; set; } = false;
     }
 }
