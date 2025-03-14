@@ -428,6 +428,11 @@ namespace UmbCheckout.Stripe.Services
                         };
                     }
 
+                    if (stripeSettings is { AllowPromotionalCodes: true })
+                    {
+                        options.AllowPromotionCodes = true;
+                    }
+
                     scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
 
                     return options;

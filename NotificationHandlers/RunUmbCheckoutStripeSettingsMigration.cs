@@ -41,6 +41,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 .To<AddStripeSettingsCollectPhoneNumber>("34d9f1ff-bd65-4afd-adf7-993a0c616be8");
             migrationPlan.From("34d9f1ff-bd65-4afd-adf7-993a0c616be8")
                 .To<AddStripeSettingsCollectPromotionalConsent>("5d796bc1-feff-41e0-ad27-f0d258ec699e");
+            migrationPlan.From("5d796bc1-feff-41e0-ad27-f0d258ec699e")
+                .To<AddStripeSettingsAllowPromotionalCodes>("a9081699-3234-49a2-abbf-0fc48caa9711");
 
             var upgrader = new Upgrader(migrationPlan);
             upgrader.Execute(

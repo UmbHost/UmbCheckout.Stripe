@@ -70,11 +70,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 var collectPromotionalEmailsConsent =
                     configValues.CollectPromotionalEmailsConsent.ToBoolean();
 
+                var allowPromotionalCodes = configValues.AllowPromotionalCodes.ToBoolean();
+
                 var configuration = new UmbCheckoutStripeSettings()
                 {
                     UseLiveApiDetails = useLiveApiDetails,
                     CollectPhoneNumber = collectPhoneNumber,
                     CollectPromotionalEmailsConsent = collectPromotionalEmailsConsent,
+                    AllowPromotionalCodes = allowPromotionalCodes,
                     ShippingAllowedCountries = configValues.
                         ShippingAllowedCountries
                 };
@@ -122,6 +125,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumber, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumberLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPhoneNumber.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "allowPromotionalCodes",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodes, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodes.ToString() : "false",
                         View = "boolean"
                     },
                     new()

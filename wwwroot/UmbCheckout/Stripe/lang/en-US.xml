@@ -45,5 +45,7 @@
 		<key alias="viewinstripe">View In Stripe Dashboard</key>
 		<key alias="collect_promotional_emails_consent_label">Collect Promotional Emails Consent</key>
 		<key alias="collect_promotional_emails_consent">When enabled a checkbox to collect promotinal emails consent is shown on the payment form</key>
+		<key alias="allow_promotional_codes_label">Allow Promotional Codes</key>
+		<key alias="allow_promotional_codes">When enabled a text box for promotional codes is shown on the payment form</key>
 	</area>
 </language>

@@ -13,5 +13,6 @@
         public bool CollectPhoneNumber { get; set; } = false;
 
         public bool CollectPromotionalEmailsConsent { get; set; } = false;
+        public bool AllowPromotionalCodes { get; set; } = false;
     }
 }

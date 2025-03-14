@@ -28,6 +28,10 @@ namespace UmbCheckout.Stripe.Pocos
         [NullSetting(NullSetting = NullSettings.NotNull)]
         public bool CollectPromotionalConsent { get; set; } = false;
 
+        [Column("AllowPromotionalCodes")]
+        [NullSetting(NullSetting = NullSettings.NotNull)]
+        public bool AllowPromotionalCodes { get; set; } = false;
+
         [Column("ShippingAllowedCountries")]
         [NullSetting(NullSetting = NullSettings.Null)]
         public string? ShippingAllowedCountries { get; set; } = null;
