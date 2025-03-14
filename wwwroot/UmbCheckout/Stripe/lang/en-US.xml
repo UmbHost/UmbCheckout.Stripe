@@ -43,5 +43,7 @@
 		<key alias="collect_phone_number">When enabled the field to collect a phone number is shown on the payment form</key>
 		<key alias="collect_phone_number_label">Collect Phone Number</key>
 		<key alias="viewinstripe">View In Stripe Dashboard</key>
+		<key alias="collect_promotional_emails_consent_label">Collect Promotional Emails Consent</key>
+		<key alias="collect_promotional_emails_consent">When enabled a checkbox to collect promotinal emails consent is shown on the payment form</key>
 	</area>
 </language>

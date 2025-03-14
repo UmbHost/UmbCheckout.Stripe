@@ -48,6 +48,7 @@ namespace UmbCheckout.Stripe.Composers
             target.UseLiveApiDetails = source.UseLiveApiDetails;
             target.ShippingAllowedCountries = source.ShippingAllowedCountries;
             target.CollectPhoneNumber = source.CollectPhoneNumber;
+            target.CollectPromotionalEmailsConsent = source.CollectPromotionalConsent;
         }
 
         private static void Map(Models.UmbCheckoutStripeSettings source, Pocos.UmbCheckoutStripeSettings target, MapperContext context)
@@ -57,6 +58,7 @@ namespace UmbCheckout.Stripe.Composers
             target.UseLiveApiDetails = source.UseLiveApiDetails;
             target.ShippingAllowedCountries = source.ShippingAllowedCountries;
             target.CollectPhoneNumber = source.CollectPhoneNumber;
+            target.CollectPromotionalConsent = source.CollectPromotionalEmailsConsent;
         }
     }
 }

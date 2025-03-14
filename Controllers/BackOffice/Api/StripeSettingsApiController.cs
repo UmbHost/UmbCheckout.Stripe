@@ -68,7 +68,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     configValues.CollectPhoneNumber.ToBoolean();
 
                 var collectPromotionalEmailsConsent =
-                    configValues.CollectionPromotionalEmailsConsent.ToBoolean();
+                    configValues.CollectPromotionalEmailsConsent.ToBoolean();
 
                 var configuration = new UmbCheckoutStripeSettings()
                 {

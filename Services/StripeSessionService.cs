@@ -420,6 +420,14 @@ namespace UmbCheckout.Stripe.Services
                         }
                     }
 
+                    if (stripeSettings is { CollectPromotionalEmailsConsent: true })
+                    {
+                        options.ConsentCollection = new SessionConsentCollectionOptions
+                        {
+                            Promotions = "auto",
+                        };
+                    }
+
                     scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
 
                     return options;
