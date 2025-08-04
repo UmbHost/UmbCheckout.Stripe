@@ -12,6 +12,7 @@ using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Models;
 using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Events;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Extensions;
@@ -32,7 +33,6 @@ namespace UmbCheckout.Stripe.Services
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
-
         public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
         {
             _snapshotAccessor = snapshotAccessor;
@@ -240,37 +240,62 @@ namespace UmbCheckout.Stripe.Services
                     Uri? cancelUri = null;
                     if (configuration != null)
                     {
-                        var isValidSuccessUrl = Uri.TryCreate(configuration.SuccessPageUrl.First().Url, UriKind.Absolute, out successUri)
-                                                && (successUri.Scheme == Uri.UriSchemeHttp || successUri.Scheme == Uri.UriSchemeHttps);
-                        if (!isValidSuccessUrl)
+                        var pickedSuccessPage = configuration.SuccessPageUrl.FirstOrDefault();
+                        if (pickedSuccessPage != null && pickedSuccessPage.Udi.StartsWith("umb://document/"))
                         {
-                            var request = _httpContextAccessor.HttpContext?.Request;
-                            if (request != null)
+                            var guidString = pickedSuccessPage.Udi.Replace("umb://document/", "");
+                            if (Guid.TryParse(guidString, out var guid))
                             {
-                                successUri =
-                                    new Uri($"{request.Scheme}://{request.Host.Value}/{configuration.SuccessPageUrl.First().Url.Trim('/')}");
+                                var successPage = publishedSnapshot!.Content!.GetById(guid);
+                                if (successPage != null)
+                                {
+                                    var url = successPage.Url(mode: UrlMode.Absolute);
+                                    var isValidSuccessUrl = Uri.TryCreate(url, UriKind.Absolute, out successUri)
+                                                            && (successUri.Scheme == Uri.UriSchemeHttp || successUri.Scheme == Uri.UriSchemeHttps);
+                                    if (!isValidSuccessUrl)
+                                    {
+                                        var request = _httpContextAccessor.HttpContext?.Request;
+                                        if (request != null)
+                                        {
+                                            successUri =
+                                                new Uri($"{request.Scheme}://{request.Host.Value}/{pickedSuccessPage.Url.Trim('/')}");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        successUri = new Uri(url);
+                                    }
+                                }
                             }
                         }
-                        else
-                        {
-                            successUri = new Uri(configuration.SuccessPageUrl.First().Url);
-                        }
 
-                        var isValidCancelUrl = Uri.TryCreate(configuration.CancelPageUrl.First().Url, UriKind.Absolute, out cancelUri)
-                                               && (cancelUri.Scheme == Uri.UriSchemeHttp || cancelUri.Scheme == Uri.UriSchemeHttps);
-                        if (!isValidCancelUrl)
+                        var pickedCancelPage = configuration.CancelPageUrl.FirstOrDefault();
+                        if (pickedCancelPage != null && pickedCancelPage.Udi.StartsWith("umb://document/"))
                         {
-                            var request = _httpContextAccessor.HttpContext?.Request;
-
-                            if (request != null)
+                            var guidString = pickedCancelPage.Udi.Replace("umb://document/", "");
+                            if (Guid.TryParse(guidString, out var guid))
                             {
-                                cancelUri =
-                                    new Uri($"{request.Scheme}://{request.Host.Value}/{configuration.CancelPageUrl.First().Url.Trim('/')}");
+                                var cancelPage = publishedSnapshot!.Content!.GetById(guid);
+                                if (cancelPage != null)
+                                {
+                                    var url = cancelPage.Url(mode: UrlMode.Absolute);
+                                    var isValidCancelUrl = Uri.TryCreate(url, UriKind.Absolute, out cancelUri)
+                                                            && (cancelUri.Scheme == Uri.UriSchemeHttp || cancelUri.Scheme == Uri.UriSchemeHttps);
+                                    if (!isValidCancelUrl)
+                                    {
+                                        var request = _httpContextAccessor.HttpContext?.Request;
+                                        if (request != null)
+                                        {
+                                            cancelUri =
+                                                new Uri($"{request.Scheme}://{request.Host.Value}/{pickedCancelPage.Url.Trim('/')}");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        cancelUri = new Uri(url);
+                                    }
+                                }
                             }
-                        }
-                        else
-                        {
-                            cancelUri = new Uri(configuration.CancelPageUrl.First().Url);
                         }
                     }
 
