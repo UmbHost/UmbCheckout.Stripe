@@ -431,7 +431,7 @@ namespace UmbCheckout.Stripe.Services
                         {
                             var afterExpirationOptions = new SessionAfterExpirationOptions
                             {
-                                Recovery =
+                                Recovery = new SessionAfterExpirationRecoveryOptions
                                 {
                                     Enabled = stripeSettings.EnableAbandonedCartRecovery
                                 }
