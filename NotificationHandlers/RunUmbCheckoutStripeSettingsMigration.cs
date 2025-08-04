@@ -43,6 +43,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 .To<AddStripeSettingsCollectPromotionalConsent>("5d796bc1-feff-41e0-ad27-f0d258ec699e");
             migrationPlan.From("5d796bc1-feff-41e0-ad27-f0d258ec699e")
                 .To<AddStripeSettingsAllowPromotionalCodes>("a9081699-3234-49a2-abbf-0fc48caa9711");
+            migrationPlan.From("a9081699-3234-49a2-abbf-0fc48caa9711")
+                .To<AddStripeSettingsAbandonedCarts>("05b38788-64d1-41cc-9f8c-3e3900127140");
 
             var upgrader = new Upgrader(migrationPlan);
             upgrader.Execute(

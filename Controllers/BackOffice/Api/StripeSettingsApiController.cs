@@ -145,12 +145,28 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     },
                     new()
                     {
-                    Alias = "shippingAllowedCountries",
-                    Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
-                    Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
-                    Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
-                    View = "textbox"
-                }
+                        Alias = "shippingAllowedCountries",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
+                        View = "textbox"
+                    },
+                    new()
+                    {
+                        Alias = "enableAbandonedCartRecovery",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecovery, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecoveryLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.EnableAbandonedCartRecovery.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "allowPromotionalCodesOnAbandonedCarts",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCarts, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCartsLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodesOnRecoveredCarts.ToString() : "false",
+                        View = "boolean"
+                    }
                 };
 
                 return backOfficeProperties;

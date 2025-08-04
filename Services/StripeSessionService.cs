@@ -426,6 +426,25 @@ namespace UmbCheckout.Stripe.Services
                         {
                             Promotions = "auto",
                         };
+
+                        if (stripeSettings is { EnableAbandonedCartRecovery: true })
+                        {
+                            var afterExpirationOptions = new SessionAfterExpirationOptions
+                            {
+                                Recovery =
+                                {
+                                    Enabled = stripeSettings.EnableAbandonedCartRecovery
+                                }
+                            };
+
+                            if (stripeSettings is { AllowPromotionalCodesOnRecoveredCarts: true })
+                            {
+                                afterExpirationOptions.Recovery.AllowPromotionCodes =
+                                    stripeSettings.AllowPromotionalCodesOnRecoveredCarts;
+                            }
+
+                            options.AfterExpiration = afterExpirationOptions;
+                        }
                     }
 
                     if (stripeSettings is { AllowPromotionalCodes: true })
