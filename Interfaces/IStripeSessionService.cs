@@ -1,5 +1,6 @@
 ﻿using Stripe.Checkout;
 using UmbCheckout.Shared.Models;
+using UmbCheckout.Stripe.Models;
 
 namespace UmbCheckout.Stripe.Interfaces
 {
@@ -12,8 +13,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// Gets a Stripe Session
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
+        /// <param name="options">Optional Get Options</param>
         /// <returns>The Stripe Session</returns>
-        Session GetSession(string id);
+        Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null);
 
         /// <summary>
         /// Gets a Stripe Session asynchronously

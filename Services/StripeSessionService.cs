@@ -30,7 +30,7 @@ namespace UmbCheckout.Stripe.Services
         private readonly IConfigurationService _configurationService;
         private readonly ILogger<StripeSessionService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
+        private readonly IStripeShippingOptionsService _stripeShippingOptionsService;
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
         public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingRateDatabaseService stripeDatabaseService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
@@ -41,14 +41,14 @@ namespace UmbCheckout.Stripe.Services
             _logger = logger;
             _configurationService = configurationService;
             _httpContextAccessor = httpContextAccessor;
-            _stripeDatabaseService = stripeDatabaseService;
+            _stripeShippingOptionsService = stripeShippingOptionsService;
             _stripeSettingsService = stripeSettingsService;
             _stripeSettings = stripeSettings.CurrentValue;
             licenseService.RunLicenseCheck();
         }
 
         /// <inheritdoc />
-        public Session GetSession(string id)
+        public Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace UmbCheckout.Stripe.Services
                 var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
-                var session = service.Get(id);
+                var session = service.Get(id, options?.ToSessionGetOptions());
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
 
@@ -415,16 +415,7 @@ namespace UmbCheckout.Stripe.Services
 
                     if (configuration is { EnableShipping: true })
                     {
-                        var shippingRates = await _stripeDatabaseService.GetShippingRates();
-                        var shippingRatesList = shippingRates.ToList();
-
-                        if (shippingRatesList.Any())
-                        {
-                            var shippingRateOptions = shippingRatesList.Select(shippingRate =>
-                                new SessionShippingOptionOptions { ShippingRate = shippingRate.Value }).ToList();
-
-                            options.ShippingOptions = shippingRateOptions;
-                        }
+                        options.ShippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
 
                         options.BillingAddressCollection = "required";
 
