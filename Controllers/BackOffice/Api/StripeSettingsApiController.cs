@@ -70,6 +70,11 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 var collectPromotionalEmailsConsent =
                     configValues.CollectPromotionalEmailsConsent.ToBoolean();
 
+                var allowPromotionalCodesOnRecoveredCarts =
+                    configValues.AllowPromotionalCodesOnRecoveredCarts.ToBoolean();
+
+                var enableAbandonedCartRecovery = configValues.EnableAbandonedCartRecovery.ToBoolean();
+
                 var allowPromotionalCodes = configValues.AllowPromotionalCodes.ToBoolean();
 
                 var configuration = new UmbCheckoutStripeSettings()
@@ -79,7 +84,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     CollectPromotionalEmailsConsent = collectPromotionalEmailsConsent,
                     AllowPromotionalCodes = allowPromotionalCodes,
                     ShippingAllowedCountries = configValues.
-                        ShippingAllowedCountries
+                        ShippingAllowedCountries,
+                    AllowPromotionalCodesOnRecoveredCarts = allowPromotionalCodesOnRecoveredCarts,
+                    EnableAbandonedCartRecovery = enableAbandonedCartRecovery
                 };
 
                 var updated = await _stripeSettingsService.UpdateStripeSettings(configuration);
@@ -161,7 +168,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     },
                     new()
                     {
-                        Alias = "allowPromotionalCodesOnAbandonedCarts",
+                        Alias = "allowPromotionalCodesOnRecoveredCarts",
                         Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCarts, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCartsLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodesOnRecoveredCarts.ToString() : "false",
