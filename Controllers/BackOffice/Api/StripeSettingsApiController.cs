@@ -1,14 +1,25 @@
-using System.Globalization;
-using System.Text.Json;
+#if NET8_0
+using Umbraco.Cms.Web.BackOffice.Controllers;
+#endif
+
+#if NET9_0
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
+using Umbraco.Cms.Web.Common.Routing;
+using Umbraco.Cms.Api.Common.Attributes;
+#endif
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Text.Json;
 using UmbCheckout.Shared.Extensions;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
-using UmbHost.Licensing.Services;
+using UmbHost.Licencing.Services;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
@@ -17,18 +28,31 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     /// UmbracoAuthorizedApiController to retrieve the Stripe settings for the backoffice
     /// </summary>
     [PluginController(Shared.Consts.PackageName)]
+
+#if NET8_0
     public class StripeSettingsApiController : UmbracoAuthorizedApiController
+#endif
+
+#if NET9_0
+    [ApiController]
+    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripesettings")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    [MapToApi(Shared.Consts.ApiName)]
+    [ApiVersion("1.0")]
+    public class StripeSettingsApiController : ControllerBase
+#endif
     {
         private readonly IStripeSettingsService _stripeSettingsService;
         private readonly ILocalizedTextService _localizedTextService;
         private readonly ILogger<StripeSettingsApiController> _logger;
 
-        public StripeSettingsApiController(ILogger<StripeSettingsApiController> logger, LicenseService licenseService, ILocalizedTextService localizedTextService, IStripeSettingsService stripeSettingsService)
+        public StripeSettingsApiController(ILogger<StripeSettingsApiController> logger, LicenceService licenseService, ILocalizedTextService localizedTextService, IStripeSettingsService stripeSettingsService)
         {
             _logger = logger;
             _localizedTextService = localizedTextService;
             _stripeSettingsService = stripeSettingsService;
-            licenseService.RunLicenseCheck();
+            licenseService.RunLicenceCheck();
         }
 
         /// <summary>

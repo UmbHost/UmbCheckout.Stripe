@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿#if NET8_0
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -53,3 +54,4 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         }
     }
 }
+#endif

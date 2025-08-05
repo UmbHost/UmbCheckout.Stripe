@@ -9,12 +9,12 @@ using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications;
-using UmbHost.Licensing.Models;
-using UmbHost.Licensing.Services;
+using UmbHost.Licencing.Models;
+using UmbHost.Licencing.Services;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
 namespace UmbCheckout.Stripe.Services
@@ -24,7 +24,6 @@ namespace UmbCheckout.Stripe.Services
     /// </summary>
     internal class StripeSessionService : IStripeSessionService
     {
-        private readonly IPublishedSnapshotAccessor _snapshotAccessor;
         private readonly IEventAggregator _eventAggregator;
         private readonly ICoreScopeProvider _coreScopeProvider;
         private readonly IConfigurationService _configurationService;
@@ -33,9 +32,9 @@ namespace UmbCheckout.Stripe.Services
         private readonly IStripeShippingOptionsService _stripeShippingOptionsService;
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        public StripeSessionService(ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenceService licenseService, IStripeSettingsService stripeSettingsService, IUmbracoContextAccessor umbracoContextAccessor)
         {
-            _snapshotAccessor = snapshotAccessor;
             _coreScopeProvider = coreScopeProvider;
             _eventAggregator = eventAggregator;
             _logger = logger;
@@ -43,8 +42,9 @@ namespace UmbCheckout.Stripe.Services
             _httpContextAccessor = httpContextAccessor;
             _stripeShippingOptionsService = stripeShippingOptionsService;
             _stripeSettingsService = stripeSettingsService;
+            _umbracoContextAccessor = umbracoContextAccessor;
             _stripeSettings = stripeSettings.CurrentValue;
-            licenseService.RunLicenseCheck();
+            licenseService.RunLicenceCheck();
         }
 
         /// <inheritdoc />
@@ -231,8 +231,8 @@ namespace UmbCheckout.Stripe.Services
             try
             {
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                var hasPublishedSnapshot = _snapshotAccessor.TryGetPublishedSnapshot(out var publishedSnapshot);
-                if (hasPublishedSnapshot)
+                var hasUmbracoContext = _umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext);
+                if (hasUmbracoContext)
                 {
                     var configuration = await _configurationService.GetConfiguration();
                     var stripeSettings = await _stripeSettingsService.GetStripeSettings();
@@ -246,7 +246,8 @@ namespace UmbCheckout.Stripe.Services
                             var guidString = pickedSuccessPage.Udi.Replace("umb://document/", "");
                             if (Guid.TryParse(guidString, out var guid))
                             {
-                                var successPage = publishedSnapshot!.Content!.GetById(guid);
+                                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                                var successPage = umbracoContext!.Content?.GetById(guid);
                                 if (successPage != null)
                                 {
                                     var url = successPage.Url(mode: UrlMode.Absolute);
@@ -275,7 +276,7 @@ namespace UmbCheckout.Stripe.Services
                             var guidString = pickedCancelPage.Udi.Replace("umb://document/", "");
                             if (Guid.TryParse(guidString, out var guid))
                             {
-                                var cancelPage = publishedSnapshot!.Content!.GetById(guid);
+                                var cancelPage = umbracoContext!.Content?.GetById(guid);
                                 if (cancelPage != null)
                                 {
                                     var url = cancelPage.Url(mode: UrlMode.Absolute);
@@ -302,12 +303,7 @@ namespace UmbCheckout.Stripe.Services
                     var stripeLineItems = new List<SessionLineItemOptions>();
                     foreach (var lineItem in basket.LineItems)
                     {
-                        if (publishedSnapshot == null && publishedSnapshot?.Content == null)
-                        {
-                            continue;
-                        }
-
-                        var product = publishedSnapshot.Content?.GetById(lineItem.Key);
+                        var product = umbracoContext?.Content?.GetById(lineItem.Key);
                         if (product != null)
                         {
                             var stripeLineItem = new SessionLineItemOptions
