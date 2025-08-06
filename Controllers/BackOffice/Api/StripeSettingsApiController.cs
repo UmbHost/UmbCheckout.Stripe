@@ -1,7 +1,3 @@
-#if NET8_0
-using Umbraco.Cms.Web.BackOffice.Controllers;
-#endif
-
 #if NET9_0
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -28,12 +24,6 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     /// UmbracoAuthorizedApiController to retrieve the Stripe settings for the backoffice
     /// </summary>
     [PluginController(Shared.Consts.PackageName)]
-
-#if NET8_0
-    public class StripeSettingsApiController : UmbracoAuthorizedApiController
-#endif
-
-#if NET9_0
     [ApiController]
     [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripesettings")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
@@ -41,7 +31,6 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [MapToApi(Shared.Consts.ApiName)]
     [ApiVersion("1.0")]
     public class StripeSettingsApiController : ControllerBase
-#endif
     {
         private readonly IStripeSettingsService _stripeSettingsService;
         private readonly ILocalizedTextService _localizedTextService;

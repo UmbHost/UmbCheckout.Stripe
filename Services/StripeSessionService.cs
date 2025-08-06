@@ -357,7 +357,7 @@ namespace UmbCheckout.Stripe.Services
                                 stripeLineItem.PriceData.ProductData.Metadata = metaData;
                             }
 
-                            if (UmbCheckoutSettings.IsLicensed)
+                            if (UmbCheckoutSettings.IsLicenced)
                             {
                                 if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
                                 {

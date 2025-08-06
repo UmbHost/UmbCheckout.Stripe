@@ -6,11 +6,12 @@ using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications.Webhooks;
 using Umbraco.Cms.Core.Scoping;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Api
 {
-    public class StripeWebhookApiController : UmbracoApiController
+    [ApiController]
+    [Route("/umbraco/api/stripewebhookapi")]
+    public class StripeWebhookApiController : Controller
     {
         private readonly ILogger<StripeWebhookApiController> _logger;
         private readonly ICoreScopeProvider _coreScopeProvider;

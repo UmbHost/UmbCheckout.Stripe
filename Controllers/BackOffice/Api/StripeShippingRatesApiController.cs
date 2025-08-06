@@ -1,15 +1,8 @@
-﻿#if NET8_0
-using Umbraco.Cms.Web.BackOffice.Controllers;
-#endif
-
-#if NET9_0
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Umbraco.Cms.Web.Common.Authorization;
 using Umbraco.Cms.Web.Common.Routing;
 using Umbraco.Cms.Api.Common.Attributes;
-#endif
-
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,12 +15,6 @@ using Umbraco.Cms.Web.Common.Attributes;
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [PluginController(Shared.Consts.PackageName)]
-
-#if NET8_0
-    public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
-#endif
-
-#if NET9_0
     [ApiController]
     [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripeshippingrates")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
@@ -35,7 +22,6 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [MapToApi(Shared.Consts.ApiName)]
     [ApiVersion("1.0")]
     public class StripeShippingRatesApiController : ControllerBase
-#endif
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;

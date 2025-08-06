@@ -9,11 +9,6 @@ namespace UmbCheckout.Stripe.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
-#if NET8_0
-            builder.AddNotificationHandler<TreeNodesRenderingNotification, StripeSettingsTreeNotificationHandler>();
-            builder.AddNotificationHandler<TreeNodesRenderingNotification, StripeTreeNotificationHandler>();
-            builder.AddNotificationHandler<TreeNodesRenderingNotification, StripeShippingTreeNotificationHandler>();
-#endif
             builder.AddNotificationAsyncHandler<RoutingRequestNotification, StripeResponseNotificationHandler>();
         }
     }

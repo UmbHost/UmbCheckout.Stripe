@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using UmbCheckout.Stripe.Notifications.Webhooks;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Services;
@@ -20,5 +19,3 @@ namespace UmbCheckout.Stripe.Webhooks
         public override string Alias => "OnPaymentFailedWebhook";
     }
 }
-
-#endif
