@@ -24,7 +24,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [MapToApi(Shared.Consts.ApiName)]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [ApiExplorerSettings(GroupName = "Stripe Shipping Rates")]
     public class StripeShippingRatesApiController : ControllerBase
     {
@@ -42,7 +42,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpGet("get-shipping-rates")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetShippingRates()
         {
@@ -60,7 +60,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpGet("get-stripe-shipping-rates")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetStripeShippingRates()
         {
@@ -78,7 +78,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpGet("get-shipping-rate")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetShippingRate(Guid? key)
         {
@@ -97,7 +97,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpGet("get-stripe-shipping-rate")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetStripeShippingRate(string id)
         {
@@ -115,7 +115,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpPut("create-shipping-rate")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> CreateShippingRate([FromBody] ShippingRate shippingRate)
         {
@@ -133,7 +133,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpPatch("update-shipping-rate")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> UpdateShippingRate([FromBody] ShippingRate shippingRate)
         {
@@ -148,7 +148,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         }
 
         [HttpDelete("delete-shipping-rate")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> DeleteShippingRate([FromQuery] Guid key)
         {

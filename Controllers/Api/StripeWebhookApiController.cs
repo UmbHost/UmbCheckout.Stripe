@@ -22,7 +22,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     [MapToApi(Shared.Consts.ApiName)]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [ApiExplorerSettings(GroupName = "Stripe Webhooks")]
     public class StripeWebhookApiController : Controller
     {
@@ -40,7 +40,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
         }
 
         [HttpPost("checkout-events")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckoutEvents()

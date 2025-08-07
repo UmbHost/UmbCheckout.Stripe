@@ -30,7 +30,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [MapToApi(Shared.Consts.ApiName)]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [ApiExplorerSettings(GroupName = "Stripe Settings")]
     public class StripeSettingsApiController : ControllerBase
     {
@@ -51,9 +51,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         /// </summary>
         /// <returns>The Stripe settings properties in JSON</returns>
         [HttpGet("get-settings")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetStripeSettings()
         {
             try
@@ -75,7 +74,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         /// <param name="configValues">The Stripe settings values</param>
         /// <returns>The updated Stripe settings properties in JSON</returns>
         [HttpPatch("update-settings")]
-        [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateStripeSettings([FromBody] StripeSettingsValue configValues)
