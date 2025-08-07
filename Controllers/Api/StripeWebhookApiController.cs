@@ -1,16 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications.Webhooks;
+using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Web.Common.Authorization;
+using Umbraco.Cms.Web.Common.Routing;
 
 namespace UmbCheckout.Stripe.Controllers.Api
 {
+    [PluginController(Shared.Consts.PackageName)]
     [ApiController]
-    [Route("/umbraco/api/stripewebhookapi")]
+    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripe/webhook-api")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    [MapToApi(Shared.Consts.ApiName)]
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Stripe Webhooks")]
     public class StripeWebhookApiController : Controller
     {
         private readonly ILogger<StripeWebhookApiController> _logger;
@@ -26,7 +39,10 @@ namespace UmbCheckout.Stripe.Controllers.Api
             _settings = stripeSettings.CurrentValue;
         }
 
-        [HttpPost]
+        [HttpPost("checkout-events")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckoutEvents()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();

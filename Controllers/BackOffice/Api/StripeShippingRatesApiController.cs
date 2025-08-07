@@ -1,26 +1,31 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
-using Umbraco.Cms.Web.Common.Authorization;
-using Umbraco.Cms.Web.Common.Routing;
-using Umbraco.Cms.Api.Common.Attributes;
-using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Text.Json;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using Umbraco.Cms.Api.Common.Attributes;
+using Umbraco.Cms.Api.Common.Filters;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Web.Common.Authorization;
+using Umbraco.Cms.Web.Common.Routing;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [PluginController(Shared.Consts.PackageName)]
     [ApiController]
-    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripeshippingrates")]
+    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripe/shipping-rates")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [MapToApi(Shared.Consts.ApiName)]
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Stripe Shipping Rates")]
     public class StripeShippingRatesApiController : ControllerBase
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;
@@ -36,7 +41,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             _localizedTextService = localizedTextService;
         }
 
-        [HttpGet]
+        [HttpGet("get-shipping-rates")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetShippingRates()
         {
             try
@@ -52,7 +59,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("get-stripe-shipping-rates")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetStripeShippingRates()
         {
             try
@@ -68,7 +77,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("get-shipping-rate")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetShippingRate(Guid? key)
         {
             try
@@ -85,7 +96,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("get-stripe-shipping-rate")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> GetStripeShippingRate(string id)
         {
             try
@@ -101,7 +114,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpPut]
+        [HttpPut("create-shipping-rate")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> CreateShippingRate([FromBody] ShippingRate shippingRate)
         {
             if (ModelState.IsValid)
@@ -117,7 +132,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        [HttpPatch]
+        [HttpPatch("update-shipping-rate")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> UpdateShippingRate([FromBody] ShippingRate shippingRate)
         {
             if (ModelState.IsValid)
@@ -130,7 +147,9 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        [HttpDelete]
+        [HttpDelete("delete-shipping-rate")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         public async Task<IActionResult> DeleteShippingRate([FromQuery] Guid key)
         {
             if (ModelState.IsValid)

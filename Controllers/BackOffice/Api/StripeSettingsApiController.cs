@@ -1,11 +1,8 @@
-#if NET9_0
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Umbraco.Cms.Web.Common.Authorization;
 using Umbraco.Cms.Web.Common.Routing;
 using Umbraco.Cms.Api.Common.Attributes;
-#endif
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -17,6 +14,9 @@ using UmbCheckout.Stripe.Models;
 using UmbHost.Licencing.Services;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Common.Filters;
+using Umbraco.Cms.Core;
+using Microsoft.AspNetCore.Http;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
@@ -25,11 +25,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     /// </summary>
     [PluginController(Shared.Consts.PackageName)]
     [ApiController]
-    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripesettings")]
+    [BackOfficeRoute($"{Shared.Consts.ApiName}/{Shared.Consts.ApiVersion}/stripe/settings")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    [JsonOptionsName(Constants.JsonOptionsNames.BackOffice)]
     [MapToApi(Shared.Consts.ApiName)]
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Stripe Settings")]
     public class StripeSettingsApiController : ControllerBase
     {
         private readonly IStripeSettingsService _stripeSettingsService;
@@ -48,7 +50,10 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         /// Gets the Stripe settings properties
         /// </summary>
         /// <returns>The Stripe settings properties in JSON</returns>
-        [HttpGet]
+        [HttpGet("get-settings")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetStripeSettings()
         {
             try
@@ -69,7 +74,10 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         /// </summary>
         /// <param name="configValues">The Stripe settings values</param>
         /// <returns>The updated Stripe settings properties in JSON</returns>
-        [HttpPatch]
+        [HttpPatch("update-settings")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateStripeSettings([FromBody] StripeSettingsValue configValues)
         {
             try
