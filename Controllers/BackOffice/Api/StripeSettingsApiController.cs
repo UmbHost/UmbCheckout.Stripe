@@ -67,12 +67,26 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 var collectPhoneNumber =
                     configValues.CollectPhoneNumber.ToBoolean();
 
+                var collectPromotionalEmailsConsent =
+                    configValues.CollectPromotionalEmailsConsent.ToBoolean();
+
+                var allowPromotionalCodesOnRecoveredCarts =
+                    configValues.AllowPromotionalCodesOnRecoveredCarts.ToBoolean();
+
+                var enableAbandonedCartRecovery = configValues.EnableAbandonedCartRecovery.ToBoolean();
+
+                var allowPromotionalCodes = configValues.AllowPromotionalCodes.ToBoolean();
+
                 var configuration = new UmbCheckoutStripeSettings()
                 {
                     UseLiveApiDetails = useLiveApiDetails,
                     CollectPhoneNumber = collectPhoneNumber,
+                    CollectPromotionalEmailsConsent = collectPromotionalEmailsConsent,
+                    AllowPromotionalCodes = allowPromotionalCodes,
                     ShippingAllowedCountries = configValues.
-                        ShippingAllowedCountries
+                        ShippingAllowedCountries,
+                    AllowPromotionalCodesOnRecoveredCarts = allowPromotionalCodesOnRecoveredCarts,
+                    EnableAbandonedCartRecovery = enableAbandonedCartRecovery
                 };
 
                 var updated = await _stripeSettingsService.UpdateStripeSettings(configuration);
@@ -122,12 +136,44 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     },
                     new()
                     {
-                    Alias = "shippingAllowedCountries",
-                    Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
-                    Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
-                    Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
-                    View = "textbox"
-                }
+                        Alias = "allowPromotionalCodes",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodes, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodes.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "collectPromotionalEmailsConsent",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsent, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsentLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPromotionalEmailsConsent.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "shippingAllowedCountries",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
+                        View = "textbox"
+                    },
+                    new()
+                    {
+                        Alias = "enableAbandonedCartRecovery",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecovery, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecoveryLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.EnableAbandonedCartRecovery.ToString() : "false",
+                        View = "boolean"
+                    },
+                    new()
+                    {
+                        Alias = "allowPromotionalCodesOnRecoveredCarts",
+                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCarts, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCartsLabel, CultureInfo.CurrentUICulture),
+                        Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodesOnRecoveredCarts.ToString() : "false",
+                        View = "boolean"
+                    }
                 };
 
                 return backOfficeProperties;

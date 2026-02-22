@@ -24,8 +24,24 @@ namespace UmbCheckout.Stripe.Pocos
         [NullSetting(NullSetting = NullSettings.NotNull)]
         public bool CollectPhoneNumber { get; set; } = false;
 
+        [Column("CollectPromotionalConsent")]
+        [NullSetting(NullSetting = NullSettings.NotNull)]
+        public bool CollectPromotionalConsent { get; set; } = false;
+
+        [Column("AllowPromotionalCodes")]
+        [NullSetting(NullSetting = NullSettings.NotNull)]
+        public bool AllowPromotionalCodes { get; set; } = false;
+
         [Column("ShippingAllowedCountries")]
         [NullSetting(NullSetting = NullSettings.Null)]
         public string? ShippingAllowedCountries { get; set; } = null;
+
+        [Column("EnableAbandonedCartRecovery")]
+        [NullSetting(NullSetting = NullSettings.Null)]
+        public bool EnableAbandonedCartRecovery { get; set; } = false;
+
+        [Column("AllowPromotionalCodesOnRecoveredCarts")]
+        [NullSetting(NullSetting = NullSettings.Null)]
+        public bool AllowPromotionalCodesOnRecoveredCarts { get; set; } = false;
     }
 }
