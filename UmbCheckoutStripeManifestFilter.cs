@@ -1,7 +1,9 @@
-﻿using UmbCheckout.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using UmbCheckout.Shared;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Manifest;
+using Umbraco.Cms.Infrastructure.Manifest;
 
 namespace UmbCheckout.Stripe
 {
@@ -9,28 +11,26 @@ namespace UmbCheckout.Stripe
     {
         public void Compose(IUmbracoBuilder builder)
         {
-            builder.ManifestFilters().Append<UmbCheckoutStripeManifestFilter>();
+            builder.Services.AddSingleton<IPackageManifestReader, UmbCheckoutStripeReader>();
         }
     }
 
-    public class UmbCheckoutStripeManifestFilter : IManifestFilter
+    internal sealed class UmbCheckoutStripeReader : IPackageManifestReader
     {
-        public void Filter(List<PackageManifest> manifests)
+        public Task<IEnumerable<PackageManifest>> ReadPackageManifestsAsync()
         {
-            manifests.Add(new PackageManifest
-            {
-                PackageName = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
-                Version = UmbCheckoutVersion.Version.ToString(3),
-                AllowPackageTelemetry = true,
-                BundleOptions = BundleOptions.None,
-                Scripts = new []
+            IEnumerable<PackageManifest> manifests =
+            [
+                new PackageManifest
                 {
-                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.resources.js",
-                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.settings.controller.js",
-                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.shippingrate.controller.js",
-                    "/App_Plugins/UmbCheckout/js/umbcheckout.stripe.shippingrates.controller.js"
+                    Id = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
+                    Name = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
+                    Version = UmbCheckoutVersion.Version.ToString(3),
+                    AllowTelemetry = true,
+                    Extensions = []
                 }
-            });
+            ];
+            return Task.FromResult(manifests);
         }
     }
 }
