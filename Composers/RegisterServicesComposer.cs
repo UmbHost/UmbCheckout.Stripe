@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Services;
+using UmbCheckout.Stripe.Webhooks;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
-
-#if NET8_0_OR_GREATER
-using UmbCheckout.Stripe.Webhooks;
-#endif
 
 namespace UmbCheckout.Stripe.Composers
 {
@@ -20,7 +17,6 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
 
-#if NET8_0_OR_GREATER
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();
             builder.WebhookEvents().Add<OnShippingRateSavedWebhook>();
             builder.WebhookEvents().Add<OnChargeFailedWebhook>();
@@ -33,7 +29,6 @@ namespace UmbCheckout.Stripe.Composers
             builder.WebhookEvents().Add<OnPaymentIntentPaymentFailedWebhook>();
             builder.WebhookEvents().Add<OnPaymentIntentSucceededWebhook>();
             builder.WebhookEvents().Add<OnPaymentSuccessWebhook>();
-#endif
         }
     }
 }
