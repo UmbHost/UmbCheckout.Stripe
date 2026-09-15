@@ -2,7 +2,7 @@
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications;
-using UmbHost.Licensing.Services;
+// using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Core.Scoping;
 using IScopeProvider = Umbraco.Cms.Infrastructure.Scoping.IScopeProvider;
@@ -19,13 +19,14 @@ namespace UmbCheckout.Stripe.Services
         private readonly IUmbracoMapper _mapper;
         private readonly ILogger<StripeSettingsService> _logger;
 
-        public StripeSettingsService(IScopeProvider scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, ICoreScopeProvider coreScopeProvider, LicenseService licenseService)
+        public StripeSettingsService(IScopeProvider scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, ICoreScopeProvider coreScopeProvider /*, LicenseService licenseService */)
         {
             _scopeProvider = scopeProvider;
             _logger = logger;
             _mapper = mapper;
             _coreScopeProvider = coreScopeProvider;
-            licenseService.RunLicenseCheck();
+            // TODO: UmbHost.Licensing - re-enable once a Umbraco 17 compatible version of UmbHost.Licensing is available
+            //licenseService.RunLicenseCheck();
         }
 
         /// <inheritdoc />
@@ -95,7 +96,7 @@ namespace UmbCheckout.Stripe.Services
             {
                 using var scope = _scopeProvider.CreateScope(autoComplete: true);
                 var db = scope.Database;
-                var result = (long?)await db.InsertAsync(stripeSettings);
+                var result = await db.InsertAsync(stripeSettings);
 
                 return result is not null;
             }

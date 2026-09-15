@@ -5,13 +5,13 @@ using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    internal class AddUmbCheckoutStripeSettingsTable : MigrationBase
+    internal class AddUmbCheckoutStripeSettingsTable : AsyncMigrationBase
     {
         public AddUmbCheckoutStripeSettingsTable(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutStripeSettingsTable");
 
@@ -23,6 +23,7 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The database table {DbTable} already exists, skipping", "UmbCheckoutStripeSettingsTable");
             }
+            return Task.CompletedTask;
         }
 
         [TableName("UmbCheckoutStripeSettings")]

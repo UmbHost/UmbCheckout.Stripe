@@ -3,13 +3,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    internal class AddStripeSettingsCollectPromotionalConsent : MigrationBase
+    internal class AddStripeSettingsCollectPromotionalConsent : AsyncMigrationBase
     {
         public AddStripeSettingsCollectPromotionalConsent(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeSettingsCollectPromotionalConsent");
 
@@ -21,6 +21,7 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The database column {DbColumn} already exists, skipping", "CollectPromotionalConsent");
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿#if NET8_0_OR_GREATER
 using Microsoft.Extensions.Options;
 using UmbCheckout.Stripe.Notifications;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -14,11 +13,9 @@ namespace UmbCheckout.Stripe.Webhooks
         IWebhookService webhookService,
         IOptionsMonitor<WebhookSettings> webhookSettings,
         IServerRoleAccessor serverRoleAccessor)
-        : WebhookEventBase<OnShippingRateDeletedNotification>(webhookFiringService, webhookService, webhookSettings,
+        : WebhookEventBase<OnShippingRateSavedNotification>(webhookFiringService, webhookService, webhookSettings,
             serverRoleAccessor)
     {
         public override string Alias => "OnShippingRateSavedWebhook";
     }
 }
-
-#endif

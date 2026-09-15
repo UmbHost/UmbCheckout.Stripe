@@ -1,43 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Stripe;
-using UmbCheckout.Stripe.Interfaces;
-using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Services;
 using UmbCheckout.Stripe.Notifications.Webhooks;
 using Umbraco.Cms.Core.Scoping;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace UmbCheckout.Stripe.Controllers.Api
 {
-    public class StripeWebhookApiController : UmbracoApiController
+    /// <summary>
+    /// Receives Stripe webhook events.
+    /// </summary>
+    /// <remarks>
+    /// The route is kept identical to the legacy UmbracoApiController-based route (/umbraco/api/StripeWebhookApi/CheckoutEvents)
+    /// as merchants have this URL configured in their Stripe webhook settings.
+    /// </remarks>
+    [AllowAnonymous]
+    [Route("umbraco/api/StripeWebhookApi")]
+    public class StripeWebhookApiController : ControllerBase
     {
         private readonly ILogger<StripeWebhookApiController> _logger;
         private readonly ICoreScopeProvider _coreScopeProvider;
-        private readonly StripeSettings _settings;
-        private readonly IStripeSettingsService _stripeSettingsService;
+        private readonly StripeClientProvider _stripeClientProvider;
 
-        public StripeWebhookApiController(ILogger<StripeWebhookApiController> logger, ICoreScopeProvider coreScopeProvider, IOptionsMonitor<StripeSettings> stripeSettings, IStripeSettingsService stripeSettingsService)
+        public StripeWebhookApiController(ILogger<StripeWebhookApiController> logger, ICoreScopeProvider coreScopeProvider, StripeClientProvider stripeClientProvider)
         {
             _logger = logger;
             _coreScopeProvider = coreScopeProvider;
-            _stripeSettingsService = stripeSettingsService;
-            _settings = stripeSettings.CurrentValue;
+            _stripeClientProvider = stripeClientProvider;
         }
 
-        [HttpPost]
+        [HttpPost("CheckoutEvents")]
         public async Task<IActionResult> CheckoutEvents()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             try
             {
 
-                var webHookSecret = string.Empty;
-                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-                if (stripeSettings != null)
-                {
-                    webHookSecret = stripeSettings.UseLiveApiDetails ? _settings.Live.WebHookSecret : _settings.Test.WebHookSecret;
-                }
+                var (apiDetails, _) = await _stripeClientProvider.GetApiDetailsAsync();
+                var webHookSecret = apiDetails.WebHookSecret;
 
                 var stripeEvent = EventUtility.ConstructEvent(json,
                     Request.Headers["Stripe-Signature"], webHookSecret);

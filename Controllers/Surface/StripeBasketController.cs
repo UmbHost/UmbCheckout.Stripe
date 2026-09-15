@@ -30,13 +30,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(BasketAdd basketAdd, Guid? redirectGuid = null)
+        public async Task<IActionResult> Add(BasketAdd basketAdd, Guid? redirectGuid = null)
         {
             try
             {
                 var lineItem = new LineItem();
 
-                var product = UmbracoContext.Content?.GetById(basketAdd.Key);
+                var product = UmbracoContext.Content != null ? await UmbracoContext.Content.GetByIdAsync(basketAdd.Key) : null;
                 if (product != null)
                 {
                     lineItem.Key = product.Key;

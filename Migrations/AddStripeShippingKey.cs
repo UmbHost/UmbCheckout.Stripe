@@ -4,13 +4,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    internal class AddStripeShippingKey : MigrationBase
+    internal class AddStripeShippingKey : AsyncMigrationBase
     {
         public AddStripeShippingKey(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeShippingKey");
 
@@ -22,6 +22,7 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The database table {DbTable} already exists, skipping", "UmbCheckoutAddStripeShippingKey");
             }
+            return Task.CompletedTask;
         }
     }
 }

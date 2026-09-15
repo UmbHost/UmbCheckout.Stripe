@@ -4,13 +4,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    internal class AddStripeSettingsCollectPhoneNumber : MigrationBase
+    internal class AddStripeSettingsCollectPhoneNumber : AsyncMigrationBase
     {
         public AddStripeSettingsCollectPhoneNumber(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeSettingsCollectPhoneNumber");
 
@@ -22,6 +22,7 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The database column {DbColumn} already exists, skipping", "CollectPhoneNumber");
             }
+            return Task.CompletedTask;
         }
     }
 }

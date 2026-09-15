@@ -1,4 +1,4 @@
-﻿using UmbCheckout.Stripe.Migrations;
+using UmbCheckout.Stripe.Migrations;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Migrations;
@@ -10,7 +10,7 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 
 namespace UmbCheckout.Stripe.NotificationHandlers
 {
-    internal class RunUmbCheckoutStripeShippingMigration : INotificationHandler<UmbracoApplicationStartingNotification>
+    internal class RunUmbCheckoutStripeShippingMigration : INotificationAsyncHandler<UmbracoApplicationStartingNotification>
     {
         private readonly IMigrationPlanExecutor _migrationPlanExecutor;
         private readonly ICoreScopeProvider _coreScopeProvider;
@@ -25,7 +25,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             _runtimeState = runtimeState;
         }
 
-        public void Handle(UmbracoApplicationStartingNotification notification)
+        public async Task HandleAsync(UmbracoApplicationStartingNotification notification, CancellationToken cancellationToken)
         {
             if (_runtimeState.Level < RuntimeLevel.Run)
             {
@@ -43,7 +43,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 .To<AddStripeIdUniqueConstraint>("9219beca-8c25-4397-8394-ae9dd51ffbee");
 
             var upgrader = new Upgrader(migrationPlan);
-            upgrader.Execute(
+            await upgrader.ExecuteAsync(
                 _migrationPlanExecutor,
                 _coreScopeProvider,
                 _keyValueService);

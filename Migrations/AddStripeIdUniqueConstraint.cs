@@ -3,13 +3,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    internal class AddStripeIdUniqueConstraint : MigrationBase
+    internal class AddStripeIdUniqueConstraint : AsyncMigrationBase
     {
         public AddStripeIdUniqueConstraint(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeIdShippingRateUniqueConstraint");
 
@@ -22,6 +22,7 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The index {DbTable} already exists, skipping", "IX_stripeIdShippingRate");
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -109,7 +109,7 @@ namespace UmbCheckout.Stripe.Services
 
                 if (existingShippingRate == null)
                 {
-                    var result = (long)await scope.Database.InsertAsync(shippingRatePoco);
+                    var result = Convert.ToInt64(await scope.Database.InsertAsync(shippingRatePoco));
                     var updatedShippingRate = await GetShippingRate(result);
                     scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
 
@@ -134,7 +134,8 @@ namespace UmbCheckout.Stripe.Services
 
                 var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
 
-                var existingShippingRate = await GetShippingRate(shippingRate.Value);
+                // Match on the key first so the Stripe ID of an existing shipping rate can be changed, fall back to the Stripe ID
+                var existingShippingRate = await GetShippingRate(shippingRate.Key) ?? await GetShippingRate(shippingRate.Value);
 
                 if (existingShippingRate != null)
                 {

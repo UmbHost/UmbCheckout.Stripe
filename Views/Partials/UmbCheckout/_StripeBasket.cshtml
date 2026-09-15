@@ -1,7 +1,11 @@
 ﻿@using UmbCheckout.Shared.Extensions
 @using UmbCheckout.Stripe.Controllers.Surface
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Services.Navigation
 @using Umbraco.Extensions
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<UmbCheckout.Stripe.ViewModels.StripeBasketViewModel>
+@inject IDocumentNavigationQueryService NavigationQueryService
+@inject IPublishedContentStatusFilteringService PublishedStatusFilteringService
 
 <table class="@Model.TableCssClass">
     <thead>
@@ -22,9 +26,10 @@
                 var lineItemContent = Umbraco.Content(lineItem.Key);
                 if (lineItemContent != null)
                 {
+                    var lineItemParent = lineItemContent.Parent<IPublishedContent>(NavigationQueryService, PublishedStatusFilteringService);
                     <tr>
                         <th scope="row">
-                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
+                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemParent?.Url())">
                                 @if (lineItemContent.HasTemplate())
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))
@@ -36,11 +41,11 @@
                                         @lineItemContent.Name
                                     }
                                 }
-                                else if (lineItemContent.Parent != null)
+                                else if (lineItemParent != null)
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))
                                     {
-                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias)) <text> - </text>
+                                        @(lineItemParent.Value<string>(Model.ProductNameAlias)) <text> - </text>
                                         if (!string.IsNullOrEmpty(Model.ProductNameAlias))
                                         {
                                             @(lineItemContent.Value<string>(Model.ProductNameAlias))
@@ -48,7 +53,7 @@
                                     }
                                     else
                                     {
-                                        @lineItemContent.Parent.Name <text> - </text> @lineItemContent.Name
+                                        @lineItemParent.Name <text> - </text> @lineItemContent.Name
                                     }
                                 }
                                 else
