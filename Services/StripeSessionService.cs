@@ -8,6 +8,7 @@ using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Models;
 using UmbHost.Licensing.Services;
@@ -299,6 +300,7 @@ namespace UmbCheckout.Stripe.Services
                     }
 
                     var stripeLineItems = new List<SessionLineItemOptions>();
+                    var currency = StripeLineItemPrice.BasketCurrency(basket.LineItems);
                     foreach (var lineItem in basket.LineItems)
                     {
                         var product = _contentCache.GetById(lineItem.Key);
@@ -306,15 +308,7 @@ namespace UmbCheckout.Stripe.Services
                         {
                             var stripeLineItem = new SessionLineItemOptions
                             {
-                                PriceData = new SessionLineItemPriceDataOptions
-                                {
-                                    Currency = lineItem.CurrencyCode,
-                                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                                    {
-                                        Name = !string.IsNullOrEmpty(lineItem.Name) ? lineItem.Name : product.Name
-                                    },
-                                    UnitAmountDecimal = lineItem.Price * 100
-                                },
+                                PriceData = StripeLineItemPrice.PriceData(lineItem, currency, product.Name),
                                 Quantity = lineItem.Quantity
                             };
 
