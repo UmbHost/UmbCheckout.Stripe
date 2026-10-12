@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.Interfaces;
+using UmbCheckout.Core.ManagementApi;
 using UmbCheckout.Core.Models;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
@@ -71,6 +72,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
+                if (Cancelled())
+                {
+                    return redirectGuid.HasValue ? RedirectToUmbracoPage(redirectGuid.Value) : RedirectToCurrentUmbracoPage();
+                }
+
                 TempData[Shared.Consts.TempData.UmbCheckoutAddedToBasket] = basketAdd.Key;
 
                 if (redirectGuid.HasValue)
@@ -94,6 +100,10 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             try
             {
                 await _basketService.Reduce(key);
+                if (Cancelled())
+                {
+                    return redirectGuid.HasValue ? RedirectToUmbracoPage(redirectGuid.Value) : RedirectToCurrentUmbracoPage();
+                }
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketReduced] = key;
 
@@ -118,6 +128,10 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             try
             {
                 await _basketService.Remove(key);
+                if (Cancelled())
+                {
+                    return redirectGuid.HasValue ? RedirectToUmbracoPage(redirectGuid.Value) : RedirectToCurrentUmbracoPage();
+                }
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketRemoved] = key;
 
@@ -153,6 +167,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 if (repricing.Changes.Count > 0)
                 {
                     await _umbCheckoutSessionService.Update(repricing.Basket);
+                    if (Cancelled())
+                    {
+                        return RedirectToCurrentUmbracoPage();
+                    }
+
                     TempData[Shared.Consts.TempData.UmbCheckoutBasketRepriced] = string.Join(", ", repricing.Changes.Select(change => change.Name).Distinct());
                     return RedirectToCurrentUmbracoPage();
                 }
@@ -162,6 +181,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 // The success page clears this basket only when it returns from this checkout session.
                 repricing.Basket.CheckoutSessionId = stripeSession.Id;
                 await _umbCheckoutSessionService.Update(repricing.Basket);
+                if (UmbCheckoutCancellation.Message(HttpContext) is { } cancelled)
+                {
+                    // The Stripe session exists, so checkout goes ahead; without the id the success page won't clear this basket.
+                    _logger.LogWarning("A notification handler cancelled recording checkout session {CheckoutSessionId} on the basket: {Reason}", stripeSession.Id, cancelled);
+                }
 
                 return Redirect(stripeSession.Url);
             }
@@ -170,6 +194,18 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 _logger.LogError(ex, "Checkout failed");
                 return StatusCode(500);
             }
+        }
+
+        /// <summary>Whether a notification handler cancelled this request's basket change; if so its reason is kept for the shopper.</summary>
+        private bool Cancelled()
+        {
+            if (UmbCheckoutCancellation.Message(HttpContext) is not { } message)
+            {
+                return false;
+            }
+
+            TempData[Shared.Consts.TempData.UmbCheckoutBasketChangeCancelled] = message;
+            return true;
         }
 
         [HttpGet]
