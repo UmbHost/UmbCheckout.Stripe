@@ -14,6 +14,7 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeSessionService, StripeSessionService>();
             builder.Services.AddTransient<IUmbCheckoutSuccessPageMatcher, UmbCheckoutSuccessPageMatcher>();
             builder.Services.AddTransient<IStripeWebhookEventStore, StripeWebhookEventStore>();
+            builder.Services.AddTransient<IStripeWebhookSecretProvider, StripeWebhookSecretProvider>();
             builder.Services.AddTransient<IStripeLineItemPricingService, StripeLineItemPricingService>();
             builder.Services.AddTransient<IStripeBasketPricingService, StripeBasketPricingService>();
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
