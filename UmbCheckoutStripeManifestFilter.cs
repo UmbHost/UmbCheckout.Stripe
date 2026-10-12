@@ -27,7 +27,16 @@ namespace UmbCheckout.Stripe
                     Name = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
                     Version = UmbCheckoutVersion.Version.ToString(3),
                     AllowTelemetry = true,
-                    Extensions = []
+                    Extensions =
+                    [
+                        new
+                        {
+                            type = "bundle",
+                            alias = "UmbCheckout.Stripe.Bundle",
+                            name = "UmbCheckout Stripe Bundle",
+                            js = "/App_Plugins/UmbCheckout.Stripe/umbcheckout-stripe.js"
+                        }
+                    ]
                 }
             ];
             return Task.FromResult(manifests);
