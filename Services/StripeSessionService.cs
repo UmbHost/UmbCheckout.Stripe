@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -6,6 +6,7 @@ using Stripe.Checkout;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
+using UmbCheckout.Stripe.Helpers;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Money;
@@ -290,29 +291,10 @@ namespace UmbCheckout.Stripe.Services
                                 stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                             }
 
-                            var metaData = lineItem.MetaData;
-                            if (metaData.ContainsKey("nodeKey"))
-                            {
-                                metaData.Add("nodeKey", product.Key.ToString());
-                            }
-
-                            if (metaData.Any())
-                            {
-                                if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
-                                {
-                                    var productMetaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
-
-                                    if (productMetaData != null)
-                                    {
-                                        foreach (var pm in productMetaData.Where(pm => metaData.ContainsKey(pm.Key)))
-                                        {
-                                            metaData.Add(pm.Key, pm.Value);
-                                        }
-                                    }
-                                }
-
-                                stripeLineItem.PriceData.ProductData.Metadata = metaData;
-                            }
+                            // Read through the property itself: the friendly HasValue/Value extensions need Umbraco's static service provider.
+                            var metaDataProperty = product.GetProperty(Shared.Consts.PropertyAlias.MetaDataAlias);
+                            var productMetaData = metaDataProperty?.HasValue() == true ? metaDataProperty.GetValue() as Dictionary<string, string> : null;
+                            stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
 
                             if (UmbCheckoutSettings.IsLicensed)
                             {
