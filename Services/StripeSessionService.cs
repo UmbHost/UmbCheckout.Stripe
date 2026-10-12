@@ -35,6 +35,7 @@ namespace UmbCheckout.Stripe.Services
         private readonly IStripeShippingOptionsService _stripeShippingOptionsService;
         private readonly IStripeSettingsService _stripeSettingsService;
         private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
+        private readonly LicenseService? _licenseService;
 
         public StripeSessionService(IPublishedContentCache contentCache, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, LicenseService licenseService, IStripeSettingsService stripeSettingsService, IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
@@ -47,6 +48,16 @@ namespace UmbCheckout.Stripe.Services
             _stripeShippingOptionsService = stripeShippingOptionsService;
             _stripeSettingsService = stripeSettingsService;
             _stripeClientFactory = stripeClientFactory;
+            _licenseService = licenseService;
+        }
+
+        /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
+        private void ReportLiveMode(Session session)
+        {
+            if (session.Livemode)
+            {
+                _licenseService?.ReportLiveModeActivity();
+            }
         }
 
         /// <inheritdoc />
@@ -110,6 +121,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = service.Create(CreateSessionOptions(basket).Result);
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
@@ -134,6 +146,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = await service.CreateAsync(await CreateSessionOptions(basket));
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
