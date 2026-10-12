@@ -89,17 +89,25 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 return;
             }
 
-            // Clear the basket that was paid for. This runs while routing, before the page (and its culture) is
-            // known, so the basket's culture and currency come from the session's metadata.
-            if (stripeSession.Metadata != null && stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCurrency, out var currency))
+            try
             {
-                stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCulture, out var culture);
-                await _sessionService.Clear(string.IsNullOrEmpty(culture) ? null : culture, currency);
+                // Clear the basket that was paid for. This runs while routing, before the page (and its culture) is
+                // known, so the basket's culture and currency come from the session's metadata.
+                if (stripeSession.Metadata != null && stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCurrency, out var currency))
+                {
+                    stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCulture, out var culture);
+                    await _sessionService.Clear(string.IsNullOrEmpty(culture) ? null : culture, currency);
+                }
+                else
+                {
+                    // Sessions created before baskets were per currency carry no basket metadata.
+                    await _sessionService.Clear(stripeSession.Currency?.ToUpperInvariant());
+                }
             }
-            else
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
-                // Sessions created before baskets were per currency carry no basket metadata.
-                await _sessionService.Clear(stripeSession.Currency?.ToUpperInvariant());
+                // The customer has paid: the success page must still render.
+                _logger.LogError(ex, "Could not clear the basket paid for by checkout session {CheckoutSessionId}", sessionId);
             }
         }
     }
