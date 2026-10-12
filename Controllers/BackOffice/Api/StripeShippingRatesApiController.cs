@@ -5,13 +5,19 @@ using System.Text.Json;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
-    [PluginController(Shared.Consts.PackageName)]
-    public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "UmbCheckout")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [VersionedApiBackOfficeRoute("umbcheckout/stripe-shipping-rates")]
+    public class StripeShippingRatesApiController : ManagementApiControllerBase
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;
         private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
@@ -26,7 +32,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             _localizedTextService = localizedTextService;
         }
 
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<IActionResult> GetShippingRates()
         {
             try
@@ -42,7 +48,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("stripe")]
         public async Task<IActionResult> GetStripeShippingRates()
         {
             try
@@ -58,7 +64,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("get")]
         public async Task<IActionResult> GetShippingRate(Guid? key)
         {
             try
@@ -75,7 +81,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("stripe-detail")]
         public async Task<IActionResult> GetStripeShippingRate(string id)
         {
             try
@@ -91,7 +97,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
         }
 
-        [HttpPut]
+        [HttpPut("create")]
         public async Task<IActionResult> CreateShippingRate([FromBody] ShippingRate shippingRate)
         {
             if (ModelState.IsValid)
@@ -107,7 +113,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        [HttpPatch]
+        [HttpPatch("update")]
         public async Task<IActionResult> UpdateShippingRate([FromBody] ShippingRate shippingRate)
         {
             if (ModelState.IsValid)
@@ -120,7 +126,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
-        [HttpDelete]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteShippingRate([FromQuery] Guid key)
         {
             if (ModelState.IsValid)

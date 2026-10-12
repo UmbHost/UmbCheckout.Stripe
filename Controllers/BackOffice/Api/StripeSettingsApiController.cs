@@ -8,16 +8,22 @@ using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     /// <summary>
-    /// UmbracoAuthorizedApiController to retrieve the Stripe settings for the backoffice
+    /// ManagementApiControllerBase to retrieve the Stripe settings for the backoffice
     /// </summary>
-    [PluginController(Shared.Consts.PackageName)]
-    public class StripeSettingsApiController : UmbracoAuthorizedApiController
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "UmbCheckout")]
+    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+    [VersionedApiBackOfficeRoute("umbcheckout/stripe-settings")]
+    public class StripeSettingsApiController : ManagementApiControllerBase
     {
         private readonly IStripeSettingsService _stripeSettingsService;
         private readonly ILocalizedTextService _localizedTextService;

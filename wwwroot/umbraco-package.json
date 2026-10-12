@@ -1,0 +1,77 @@
+{
+  "id": "umbcheckout-stripe",
+  "name": "UmbCheckout Stripe",
+  "version": "2.0.0",
+  "extensions": [
+    {
+      "type": "dashboard",
+      "alias": "UmbCheckout.Stripe.Settings",
+      "name": "Stripe Settings",
+      "element": "/App_Plugins/UmbCheckout.Stripe/umbcheckout-stripe.js",
+      "elementName": "umbcheckout-stripe-settings",
+      "meta": {
+        "label": "Stripe Settings",
+        "pathname": "umbcheckout-stripe-settings"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Settings"
+        }
+      ]
+    },
+    {
+      "type": "dashboard",
+      "alias": "UmbCheckout.Stripe.ShippingRates",
+      "name": "Stripe Shipping Rates",
+      "element": "/App_Plugins/UmbCheckout.Stripe/umbcheckout-stripe.js",
+      "elementName": "umbcheckout-stripe-shipping-rates",
+      "meta": {
+        "label": "Shipping Rates",
+        "pathname": "umbcheckout-stripe-shipping-rates"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Settings"
+        }
+      ]
+    }
+  ],
+  "localizations": [
+    {
+      "culture": "en-US",
+      "translations": {
+        "umbcheckoutstripe_stripe": "Stripe",
+        "umbcheckoutstripe_settings": "Settings",
+        "umbcheckoutstripe_settings_saved_title": "Stripe settings saved",
+        "umbcheckoutstripe_settings_saved_message": "The Stripe settings have been saved successfully",
+        "umbcheckoutstripe_settings_save_failed_title": "Stripe settings failed to save",
+        "umbcheckoutstripe_settings_save_failed_message": "There was an issue trying to save the Stripe settings",
+        "umbcheckoutstripe_shipping_rates": "Stripe Shipping Rates",
+        "umbcheckoutstripe_shipping_rate": "Stripe Shipping Rate",
+        "umbcheckoutstripe_create_shipping_rate": "Create Shipping Rate",
+        "umbcheckoutstripe_shipping_rate_label": "Shipping Rate Name",
+        "umbcheckoutstripe_shipping_rate_description": "The Shipping Rate Name",
+        "umbcheckoutstripe_shipping_rate_id_label": "Shipping Rate ID",
+        "umbcheckoutstripe_shipping_rate_id_description": "The Shipping Rate ID set in Stripe",
+        "umbcheckoutstripe_shipping_rate_details": "Stripe Shipping Rate Details",
+        "umbcheckoutstripe_shipping_rate_detail_name": "Shipping Rate Name",
+        "umbcheckoutstripe_shipping_rate_detail_amount": "Shipping Rate Amount",
+        "umbcheckoutstripe_shipping_rate_detail_minimum": "Shipping Rate Minimum",
+        "umbcheckoutstripe_shipping_rate_detail_maximum": "Shipping Rate Maximum",
+        "umbcheckoutstripe_shipping_rate_notification_created_title": "Shipping Rate created",
+        "umbcheckoutstripe_shipping_rate_notification_created_message": "The Shipping Rate has been created successfully",
+        "umbcheckoutstripe_shipping_rate_notification_updated_title": "Shipping Rate updated",
+        "umbcheckoutstripe_shipping_rate_notification_updated_message": "The Shipping Rate has been updated successfully",
+        "umbcheckoutstripe_shipping_rate_notification_deleted_title": "Shipping Rate deleted",
+        "umbcheckoutstripe_shipping_rate_notification_deleted_message": "The Shipping Rate has been deleted successfully",
+        "umbcheckoutstripe_allowed_shipping_countries_label": "Allowed Shipping Countries",
+        "umbcheckoutstripe_allowed_shipping_countries": "Allowed shipping countries in two letter ISO format, separate multiple countries with a comma",
+        "umbcheckoutstripe_collect_phone_number_label": "Collect Phone Number",
+        "umbcheckoutstripe_collect_phone_number": "When enabled the field to collect a phone number is shown on the payment form",
+        "umbcheckoutstripe_viewinstripe": "View In Stripe Dashboard"
+      }
+    }
+  ]
+}

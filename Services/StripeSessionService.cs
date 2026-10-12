@@ -23,7 +23,7 @@ namespace UmbCheckout.Stripe.Services
     /// </summary>
     internal class StripeSessionService : IStripeSessionService
     {
-        private readonly IPublishedSnapshotAccessor _snapshotAccessor;
+        private readonly IPublishedContentCache _contentCache;
         private readonly IEventAggregator _eventAggregator;
         private readonly ICoreScopeProvider _coreScopeProvider;
         private readonly IConfigurationService _configurationService;
@@ -33,9 +33,9 @@ namespace UmbCheckout.Stripe.Services
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
 
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
+        public StripeSessionService(IPublishedContentCache contentCache, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
         {
-            _snapshotAccessor = snapshotAccessor;
+            _contentCache = contentCache;
             _coreScopeProvider = coreScopeProvider;
             _eventAggregator = eventAggregator;
             _logger = logger;
@@ -231,8 +231,6 @@ namespace UmbCheckout.Stripe.Services
             try
             {
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                var hasPublishedSnapshot = _snapshotAccessor.TryGetPublishedSnapshot(out var publishedSnapshot);
-                if (hasPublishedSnapshot)
                 {
                     var configuration = await _configurationService.GetConfiguration();
                     var stripeSettings = await _stripeSettingsService.GetStripeSettings();
@@ -277,12 +275,7 @@ namespace UmbCheckout.Stripe.Services
                     var stripeLineItems = new List<SessionLineItemOptions>();
                     foreach (var lineItem in basket.LineItems)
                     {
-                        if (publishedSnapshot == null && publishedSnapshot?.Content == null)
-                        {
-                            continue;
-                        }
-
-                        var product = publishedSnapshot.Content?.GetById(lineItem.Key);
+                        var product = _contentCache.GetById(lineItem.Key);
                         if (product != null)
                         {
                             var stripeLineItem = new SessionLineItemOptions
