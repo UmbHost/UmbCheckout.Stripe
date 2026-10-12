@@ -30,7 +30,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
 
                     if (stripeSession.Status == "complete")
                     {
-                        await _sessionService.Clear();
+                        // Clear the basket that was paid for (a basket belongs to one currency).
+                        await _sessionService.Clear(stripeSession.Currency?.ToUpperInvariant());
                     }
                 }
             }
