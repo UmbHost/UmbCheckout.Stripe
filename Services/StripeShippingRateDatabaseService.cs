@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Persistence;
@@ -16,11 +17,13 @@ namespace UmbCheckout.Stripe.Services
     {
         private readonly IEFCoreScopeProvider<UmbCheckoutStripeDbContext> _scopeProvider;
         private readonly IUmbracoMapper _mapper;
+        private readonly ILogger<StripeShippingRateDatabaseService> _logger;
 
-        public StripeShippingRateDatabaseService(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, IUmbracoMapper mapper)
+        public StripeShippingRateDatabaseService(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, IUmbracoMapper mapper, ILogger<StripeShippingRateDatabaseService> logger)
         {
             _scopeProvider = scopeProvider;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <inheritdoc />
@@ -68,19 +71,48 @@ namespace UmbCheckout.Stripe.Services
         public async Task<ShippingRate?> UpdateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default)
         {
             using var scope = _scopeProvider.CreateScope();
-            var saved = await scope.ExecuteWithContextAsync(async db =>
+            ShippingRate? saved;
+            try
             {
-                var existing = await db.ShippingRates.SingleOrDefaultAsync(x => x.Value == shippingRate.Value, cancellationToken);
-                if (existing == null)
+                saved = await scope.ExecuteWithContextAsync(async db =>
                 {
-                    return await InsertAsync(db, shippingRate, cancellationToken);
-                }
+                    // By Key first: the Stripe ID (Value) is what the editor may have changed.
+                    var existing = shippingRate.Key == Guid.Empty
+                        ? null
+                        : await db.ShippingRates.SingleOrDefaultAsync(x => x.Key == shippingRate.Key, cancellationToken);
 
-                existing.Name = shippingRate.Name;
-                existing.Key ??= Guid.NewGuid();
-                await db.SaveChangesAsync(cancellationToken);
-                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(existing);
-            });
+                    if (existing != null)
+                    {
+                        if (await db.ShippingRates.AnyAsync(x => x.Value == shippingRate.Value && x.Id != existing.Id, cancellationToken))
+                        {
+                            return null;
+                        }
+
+                        existing.Name = shippingRate.Name;
+                        existing.Value = shippingRate.Value;
+                        await db.SaveChangesAsync(cancellationToken);
+                        return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(existing);
+                    }
+
+                    // No such key (a key-less update, or uSync from another environment): the row for this Stripe rate, if any.
+                    var byValue = await db.ShippingRates.SingleOrDefaultAsync(x => x.Value == shippingRate.Value, cancellationToken);
+                    if (byValue == null)
+                    {
+                        return await InsertAsync(db, shippingRate, cancellationToken);
+                    }
+
+                    byValue.Name = shippingRate.Name;
+                    byValue.Key ??= Guid.NewGuid();
+                    await db.SaveChangesAsync(cancellationToken);
+                    return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(byValue);
+                });
+            }
+            catch (DbUpdateException ex)
+            {
+                // A concurrent save took the same Key or Stripe ID.
+                _logger.LogWarning(ex, "Shipping rate {ShippingRateKey} ({StripeShippingRateId}) could not be saved", shippingRate.Key, shippingRate.Value);
+                return null;
+            }
 
             if (saved != null)
             {
