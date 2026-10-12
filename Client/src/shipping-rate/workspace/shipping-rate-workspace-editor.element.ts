@@ -4,7 +4,7 @@ import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 @customElement("umbcheckout-shipping-rate-workspace-editor")
 export class UmbCheckoutShippingRateWorkspaceEditorElement extends UmbLitElement {
   override render() {
-    return html`<umb-entity-detail-workspace-editor back-path="section/umbcheckout/workspace/umbcheckout-shipping-rate-root"></umb-entity-detail-workspace-editor>`;
+    return html`<umb-entity-detail-workspace-editor back-path="section/settings/workspace/umbcheckout-shipping-rate-root"></umb-entity-detail-workspace-editor>`;
   }
 }
 

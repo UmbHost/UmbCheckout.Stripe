@@ -30,7 +30,7 @@ const r = [
     type: "repository",
     alias: p,
     name: "UmbCheckout Shipping Rate Detail Repository",
-    api: () => import("./shipping-rate-detail.repository-C1vScCuk.js")
+    api: () => import("./shipping-rate-detail.repository-DkD1NlMs.js")
   },
   {
     type: "store",
@@ -38,12 +38,12 @@ const r = [
     name: "UmbCheckout Shipping Rate Detail Store",
     api: () => import("./shipping-rate-detail.store-DxFU_GlC.js")
   }
-], b = [
+], U = [
   {
     type: "repository",
     alias: c,
     name: "UmbCheckout Shipping Rate Item Repository",
-    api: () => import("./shipping-rate-item.repository-BEk7v8PI.js")
+    api: () => import("./shipping-rate-item.repository-BGeUj005.js")
   },
   {
     type: "itemStore",
@@ -51,12 +51,12 @@ const r = [
     name: "UmbCheckout Shipping Rate Item Store",
     api: () => import("./shipping-rate-item.store-BGZlqPk2.js")
   }
-], U = [
+], _ = [
   {
     type: "repository",
     alias: i,
     name: "UmbCheckout Shipping Rate Collection Repository",
-    api: () => import("./shipping-rate-collection.repository-DppFdUpK.js")
+    api: () => import("./shipping-rate-collection.repository-BDqJvWYn.js")
   },
   {
     type: "collection",
@@ -69,7 +69,7 @@ const r = [
     type: "collectionView",
     alias: "UmbCheckout.CollectionView.ShippingRate.Table",
     name: "UmbCheckout Shipping Rate Table View",
-    element: () => import("./shipping-rate-table-collection-view.element-CAttjCqO.js"),
+    element: () => import("./shipping-rate-table-collection-view.element-Cs34SgI_.js"),
     meta: { label: "Table", icon: "icon-list", pathName: "table" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: e }]
   },
@@ -78,10 +78,10 @@ const r = [
     kind: "button",
     alias: "UmbCheckout.CollectionAction.ShippingRate.Create",
     name: "Create Shipping Rate",
-    meta: { label: "#umbcheckoutStripe_create_shipping_rate", href: "section/umbcheckout/workspace/umbcheckout-shipping-rate/create" },
+    meta: { label: "#umbcheckoutStripe_create_shipping_rate", href: "section/settings/workspace/umbcheckout-shipping-rate/create" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: e }]
   }
-], _ = [
+], b = [
   {
     // Same pattern as Umbraco's own webhook root: a default-kind workspace plus a collection-kind workspace view.
     type: "workspace",
@@ -103,7 +103,7 @@ const r = [
     kind: "routable",
     alias: t,
     name: "UmbCheckout Shipping Rate Workspace",
-    api: () => import("./shipping-rate-workspace.context-ChCQFLY-.js"),
+    api: () => import("./shipping-rate-workspace.context-C93ups2T.js"),
     meta: { entityType: a }
   },
   {
@@ -149,7 +149,7 @@ const r = [
       menus: [m]
     }
   }
-], T = [...u, ...b, ...U, ..._, ...R, ...I], y = [...r, ...h, ...C, ...T];
+], T = [...u, ...U, ..._, ...b, ...R, ...I], y = [...r, ...h, ...C, ...T];
 export {
   a as U,
   p as a,
@@ -157,4 +157,4 @@ export {
   n as c,
   y as m
 };
-//# sourceMappingURL=bundle.manifests-BOpaj8Y2.js.map
+//# sourceMappingURL=bundle.manifests-Cs23f-QK.js.map

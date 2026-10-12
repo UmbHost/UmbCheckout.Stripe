@@ -21,7 +21,7 @@ export class UmbCheckoutShippingRateTableCollectionViewElement extends UmbLitEle
   }
 
   #toRow(rate: UmbCheckoutShippingRateDetailModel): UmbTableItem {
-    const href = `section/umbcheckout/workspace/umbcheckout-shipping-rate/edit/${rate.unique}`;
+    const href = `section/settings/workspace/umbcheckout-shipping-rate/edit/${rate.unique}`;
     return {
       id: rate.unique,
       icon: "icon-truck",

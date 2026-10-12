@@ -2,7 +2,7 @@
 // Keep in sync with UmbCheckout.Backoffice/Client/src/exports.ts.
 declare module "@umbcheckout/core" {
   import type { UmbElement } from "@umbraco-cms/backoffice/element-api";
-  import type { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
+  import type { UmbContextMinimal, UmbContextToken } from "@umbraco-cms/backoffice/context-api";
   import type { Observable } from "@umbraco-cms/backoffice/observable-api";
   import type { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
   import type { CSSResult } from "@umbraco-cms/backoffice/external/lit";
@@ -32,7 +32,7 @@ declare module "@umbcheckout/core" {
     addons: Array<UmbCheckoutLicenseAddon>;
   };
   export type UmbCheckoutLicenseCheckResult = { accepted: boolean; retryAfterSeconds?: number | null };
-  export interface UmbCheckoutLicenseContext {
+  export interface UmbCheckoutLicenseContext extends UmbContextMinimal {
     readonly status: Observable<UmbCheckoutLicenseStatus | undefined>;
     readonly isLicensed: Observable<boolean>;
     requestCheck(): Promise<UmbCheckoutLicenseCheckResult | undefined>;

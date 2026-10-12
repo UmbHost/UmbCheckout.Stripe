@@ -30,7 +30,7 @@ export const manifests: Array<UmbExtensionManifest> = [
     kind: "button",
     alias: "UmbCheckout.CollectionAction.ShippingRate.Create",
     name: "Create Shipping Rate",
-    meta: { label: "#umbcheckoutStripe_create_shipping_rate", href: "section/umbcheckout/workspace/umbcheckout-shipping-rate/create" },
+    meta: { label: "#umbcheckoutStripe_create_shipping_rate", href: "section/settings/workspace/umbcheckout-shipping-rate/create" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: UMBCHECKOUT_SHIPPING_RATE_COLLECTION_ALIAS }],
   },
 ];

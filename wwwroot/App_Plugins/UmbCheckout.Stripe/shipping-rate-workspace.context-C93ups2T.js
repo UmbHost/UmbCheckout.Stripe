@@ -1,5 +1,5 @@
 import { UmbEntityDetailWorkspaceContextBase as p, UmbWorkspaceIsNewRedirectController as c, UmbWorkspaceIsNewRedirectControllerAlias as u } from "@umbraco-cms/backoffice/workspace";
-import { a as l, U as m, b as h, c as _ } from "./bundle.manifests-BOpaj8Y2.js";
+import { a as l, U as m, b as h, c as _ } from "./bundle.manifests-Cs23f-QK.js";
 import { html as d, customElement as C } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as E } from "@umbraco-cms/backoffice/lit-element";
 var b = Object.getOwnPropertyDescriptor, T = (o, e, t, r) => {
@@ -9,13 +9,13 @@ var b = Object.getOwnPropertyDescriptor, T = (o, e, t, r) => {
 };
 let s = class extends E {
   render() {
-    return d`<umb-entity-detail-workspace-editor back-path="section/umbcheckout/workspace/umbcheckout-shipping-rate-root"></umb-entity-detail-workspace-editor>`;
+    return d`<umb-entity-detail-workspace-editor back-path="section/settings/workspace/umbcheckout-shipping-rate-root"></umb-entity-detail-workspace-editor>`;
   }
 };
 s = T([
   C("umbcheckout-shipping-rate-workspace-editor")
 ], s);
-class k extends p {
+class R extends p {
   constructor(e) {
     super(e, {
       workspaceAlias: h,
@@ -50,7 +50,7 @@ class k extends p {
   }
 }
 export {
-  k as UmbCheckoutShippingRateWorkspaceContext,
-  k as api
+  R as UmbCheckoutShippingRateWorkspaceContext,
+  R as api
 };
-//# sourceMappingURL=shipping-rate-workspace.context-ChCQFLY-.js.map
+//# sourceMappingURL=shipping-rate-workspace.context-C93ups2T.js.map
