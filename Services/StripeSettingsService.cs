@@ -31,7 +31,6 @@ namespace UmbCheckout.Stripe.Services
             _mapper = mapper;
             _eventAggregator = eventAggregator;
             _eventMessagesFactory = eventMessagesFactory;
-            licenseService.RunLicenseCheck();
         }
 
         /// <inheritdoc />

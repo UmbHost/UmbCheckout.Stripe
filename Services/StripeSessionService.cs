@@ -47,7 +47,6 @@ namespace UmbCheckout.Stripe.Services
             _stripeShippingOptionsService = stripeShippingOptionsService;
             _stripeSettingsService = stripeSettingsService;
             _stripeClientFactory = stripeClientFactory;
-            licenseService.RunLicenseCheck();
         }
 
         /// <inheritdoc />
