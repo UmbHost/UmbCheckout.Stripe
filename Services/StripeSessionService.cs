@@ -322,7 +322,13 @@ namespace UmbCheckout.Stripe.Services
                         },
                         Mode = Shared.Consts.SessionMode,
                         SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
-                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
+                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty,
+                        // Which basket this session pays for: the success handler runs before the page's culture is known.
+                        Metadata = new Dictionary<string, string>
+                        {
+                            [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
+                            [Consts.SessionMetadata.BasketCurrency] = basket.CurrencyCode ?? currency.ToUpperInvariant()
+                        }
                     };
 
                     scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
