@@ -1,3 +1,5 @@
+using Umbraco.Cms.Web.Common.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +19,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [VersionedApiBackOfficeRoute("umbcheckout/stripe-shipping-rates")]
     [ApiExplorerSettings(GroupName = "Shipping Rates")]
     [MapToApi(StripeApiComposer.DocumentName)]
+    // Settings > UmbCheckout: changing these requires Settings section access, not just a back-office login.
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class StripeShippingRatesApiController : ManagementApiControllerBase
     {
         private readonly IStripeShippingRateDatabaseService _database;

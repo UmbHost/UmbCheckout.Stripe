@@ -1,3 +1,5 @@
+using Umbraco.Cms.Web.Common.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [VersionedApiBackOfficeRoute("umbcheckout/stripe-settings")]
     [ApiExplorerSettings(GroupName = "Stripe Settings")]
     [MapToApi(StripeApiComposer.DocumentName)]
+    // Settings > UmbCheckout: changing these requires Settings section access, not just a back-office login.
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class StripeSettingsApiController : ManagementApiControllerBase
     {
         private readonly IStripeSettingsService _stripeSettingsService;
