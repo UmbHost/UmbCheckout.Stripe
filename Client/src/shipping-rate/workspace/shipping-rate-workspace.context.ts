@@ -10,10 +10,11 @@ import type { UmbCheckoutShippingRateDetailModel } from "../types.js";
 import {
   UMBCHECKOUT_SHIPPING_RATE_DETAIL_REPOSITORY_ALIAS,
   UMBCHECKOUT_SHIPPING_RATE_ENTITY_TYPE,
-  UMBCHECKOUT_SHIPPING_RATE_ROOT_ENTITY_TYPE,
+  UMBCHECKOUT_SHIPPING_RATES_WORKSPACE_ENTITY_TYPE,
   UMBCHECKOUT_SHIPPING_RATE_WORKSPACE_ALIAS,
 } from "../entity.js";
 import { UmbCheckoutShippingRateWorkspaceEditorElement } from "./shipping-rate-workspace-editor.element.js";
+import { UmbCheckoutShippingRateCollectionEditorElement } from "./shipping-rate-collection-editor.element.js";
 
 export class UmbCheckoutShippingRateWorkspaceContext extends UmbEntityDetailWorkspaceContextBase<
   UmbCheckoutShippingRateDetailModel,
@@ -34,7 +35,7 @@ export class UmbCheckoutShippingRateWorkspaceContext extends UmbEntityDetailWork
         path: "create",
         component: UmbCheckoutShippingRateWorkspaceEditorElement,
         setup: async () => {
-          await this.createScaffold({ parent: { entityType: UMBCHECKOUT_SHIPPING_RATE_ROOT_ENTITY_TYPE, unique: null } });
+          await this.createScaffold({ parent: { entityType: UMBCHECKOUT_SHIPPING_RATES_WORKSPACE_ENTITY_TYPE, unique: null } });
           new UmbWorkspaceIsNewRedirectController(
             this,
             this,
@@ -50,6 +51,8 @@ export class UmbCheckoutShippingRateWorkspaceContext extends UmbEntityDetailWork
           this.load(info.match.params.unique);
         },
       },
+      // The Shipping Rates list.
+      { path: "", component: UmbCheckoutShippingRateCollectionEditorElement },
     ]);
   }
 

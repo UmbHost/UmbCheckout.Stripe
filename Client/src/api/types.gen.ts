@@ -10,12 +10,15 @@ export type CreateShippingRateRequestModel = {
     value: string;
 };
 
-export type EventMessageTypeModel = 'Default' | 'Info' | 'Error' | 'Success' | 'Warning';
+export type DeliveryEstimateResponseModel = {
+    value: number;
+    unit: string;
+};
 
-export type NotificationHeaderModel = {
-    message: string;
-    category: string;
-    type: EventMessageTypeModel;
+export type MoneyResponseModel = {
+    minorUnits: number;
+    amount: number;
+    currency: string;
 };
 
 export type PagedShippingRateResponseModel = {
@@ -51,9 +54,11 @@ export type StripeSettingsResponseModel = {
 export type StripeShippingRateResponseModel = {
     id: string;
     displayName: string;
-    amount?: number | null;
-    currency?: string | null;
+    amount?: MoneyResponseModel | null;
     active: boolean;
+    deliveryEstimateMinimum?: DeliveryEstimateResponseModel | null;
+    deliveryEstimateMaximum?: DeliveryEstimateResponseModel | null;
+    dashboardUrl: string;
 };
 
 export type UpdateShippingRateRequestModel = {

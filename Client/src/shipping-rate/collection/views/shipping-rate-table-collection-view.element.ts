@@ -3,6 +3,7 @@ import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_COLLECTION_CONTEXT } from "@umbraco-cms/backoffice/collection";
 import type { UmbTableColumn, UmbTableItem } from "@umbraco-cms/backoffice/components";
 import type { UmbCheckoutShippingRateDetailModel } from "../../types.js";
+import { UMBCHECKOUT_SHIPPING_RATES_PATH } from "../../entity.js";
 
 @customElement("umbcheckout-shipping-rate-table-collection-view")
 export class UmbCheckoutShippingRateTableCollectionViewElement extends UmbLitElement {
@@ -21,7 +22,7 @@ export class UmbCheckoutShippingRateTableCollectionViewElement extends UmbLitEle
   }
 
   #toRow(rate: UmbCheckoutShippingRateDetailModel): UmbTableItem {
-    const href = `section/settings/workspace/umbcheckout-shipping-rate/edit/${rate.unique}`;
+    const href = `${UMBCHECKOUT_SHIPPING_RATES_PATH}/edit/${rate.unique}`;
     return {
       id: rate.unique,
       icon: "icon-truck",

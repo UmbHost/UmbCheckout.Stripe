@@ -44,4 +44,9 @@ declare module "@umbcheckout/core" {
   /** <umbcheckout-made-by>: v13's "Made with ♥ by UmbHost" link; renders nothing when licensed. */
   export class UmbCheckoutMadeByElement extends UmbLitElement {}
   export const UmbCheckoutAlertStyles: CSSResult;
+
+  /** A server-converted amount: `amount` is already in major units for `currency`. */
+  export type UmbCheckoutMoney = { amount: number; currency: string };
+  /** Formats money in the user's culture; never divides by a hard-coded 100. */
+  export function formatMoney(localize: import("@umbraco-cms/backoffice/localization-api").UmbLocalizationController, money: UmbCheckoutMoney | undefined | null): string;
 }

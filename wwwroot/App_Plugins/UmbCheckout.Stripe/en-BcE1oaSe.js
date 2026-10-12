@@ -39,10 +39,25 @@ const e = {
     allow_promotional_codes_on_recovered_carts: 'US only: When enabled a text box for promotional codes is shown on the payment form when an abandoned cart has been recovered. Requires "Abandoned Cart Recovery" to be enabled..',
     shipping_rate_name: "Name",
     shipping_rate_value: "Stripe shipping rate",
-    no_shipping_rates: "No shipping rates have been added yet"
+    no_shipping_rates: "No shipping rates have been added yet",
+    shipping_id: "ID",
+    shipping_rates_description: "The available Shipping Rates found in your Stripe account, click on a Shipping Rate to update the form above",
+    shipping_rate_details_description: "The details of the Shipping Rate as found in your Stripe account",
+    shipping_rate_detail_amount_description: "In Pence / Cents",
+    shipping_rate_detail_edit: "Manage Shipping Rate",
+    shipping_rate_detail_edit_button: "Edit Shipping Rate",
+    shipping_rate_notification_create_failed_title: "Shipping Rate failed to create",
+    shipping_rate_notification_create_failed_message: "There was an issue trying to create the Shipping Rate",
+    shipping_rate_notification_update_failed_title: "Shipping Rate failed to update",
+    shipping_rate_notification_update_failed_message: "There was an issue trying to update the Shipping Rate",
+    shipping_rate_notification_delete_failed_title: "There was an issue trying to update the Shipping Rate",
+    shipping_rate_notification_delete_failed_message: "There was an issue trying to update the Shipping Rate",
+    shipping_help_before: "You will need to create your Shipping Rates within your",
+    shipping_help_link: "Stripe account here",
+    shipping_help_after: "before you can add them below."
   }
 };
 export {
   e as default
 };
-//# sourceMappingURL=en-CU3-f1_k.js.map
+//# sourceMappingURL=en-BcE1oaSe.js.map

@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Options;
 using Stripe;
 using UmbCheckout.Stripe.Interfaces;
-using UmbCheckout.Stripe.Models;
 using ShippingRate = Stripe.ShippingRate;
 
 namespace UmbCheckout.Stripe.Services
@@ -11,49 +9,25 @@ namespace UmbCheckout.Stripe.Services
     /// </summary>
     internal class StripeShippingRateApiService : IStripeShippingRateApiService
     {
-        private readonly StripeSettings _stripeSettings;
-        private readonly IStripeSettingsService _stripeSettingsService;
+        private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
 
-        public StripeShippingRateApiService(IOptionsMonitor<StripeSettings> stripeSettings, IStripeSettingsService stripeSettingsService)
+        public StripeShippingRateApiService(IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
-            _stripeSettingsService = stripeSettingsService;
-            _stripeSettings = _stripeSettings = stripeSettings.CurrentValue;
+            _stripeClientFactory = stripeClientFactory;
         }
 
         /// <inheritdoc />
         public async Task<StripeList<ShippingRate>> GetShippingRates()
         {
-            var apiKey = string.Empty;
-            var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-            if (stripeSettings != null)
-            {
-                apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-            }
-
-            var stripeClient = new StripeClient(apiKey);
-            var service = new ShippingRateService(stripeClient);
-
-            var shippingRates = await service.ListAsync();
-
-            return shippingRates;
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync());
+            return await service.ListAsync();
         }
 
         /// <inheritdoc />
         public async Task<ShippingRate> GetShippingRate(string id)
         {
-            var apiKey = string.Empty;
-            var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-            if (stripeSettings != null)
-            {
-                apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-            }
-
-            var stripeClient = new StripeClient(apiKey);
-            var service = new ShippingRateService(stripeClient);
-
-            var shippingRate = await service.GetAsync(id);
-
-            return shippingRate;
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync());
+            return await service.GetAsync(id);
         }
     }
 }
