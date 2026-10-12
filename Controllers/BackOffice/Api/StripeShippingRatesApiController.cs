@@ -1,188 +1,157 @@
-﻿using System.Globalization;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
+using UmbCheckout.Core.ManagementApi;
+using UmbCheckout.Stripe.Composers;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
-using Umbraco.Cms.Core.Services;
-using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
+using UmbCheckout.Stripe.Models.Api;
+using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.Routing;
-using Umbraco.Cms.Web.Common.Authorization;
+using Umbraco.Cms.Api.Common.ViewModels.Pagination;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "UmbCheckout")]
-    [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
     [VersionedApiBackOfficeRoute("umbcheckout/stripe-shipping-rates")]
+    [ApiExplorerSettings(GroupName = "Shipping Rates")]
+    [MapToApi(StripeApiComposer.DocumentName)]
     public class StripeShippingRatesApiController : ManagementApiControllerBase
     {
-        private readonly ILogger<StripeShippingRatesApiController> _logger;
-        private readonly IStripeShippingRateDatabaseService _stripeDatabaseService;
-        private readonly IStripeShippingRateApiService _stripeShippingRateApiService;
-        private readonly ILocalizedTextService _localizedTextService;
+        private readonly IStripeShippingRateDatabaseService _database;
+        private readonly IStripeShippingRateApiService _stripe;
 
-        public StripeShippingRatesApiController(ILogger<StripeShippingRatesApiController> logger, IStripeShippingRateDatabaseService stripeDatabaseService, IStripeShippingRateApiService stripeShippingRateApiService, ILocalizedTextService localizedTextService)
+        public StripeShippingRatesApiController(IStripeShippingRateDatabaseService database, IStripeShippingRateApiService stripe)
         {
-            _logger = logger;
-            _stripeDatabaseService = stripeDatabaseService;
-            _stripeShippingRateApiService = stripeShippingRateApiService;
-            _localizedTextService = localizedTextService;
+            _database = database;
+            _stripe = stripe;
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetShippingRates()
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedViewModel<ShippingRateResponseModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetShippingRates(int skip = 0, int take = 100)
         {
-            try
+            var all = (await _database.GetShippingRates()).ToList();
+            return Ok(new PagedViewModel<ShippingRateResponseModel>
             {
-                var shippingRates = await _stripeDatabaseService.GetShippingRates();
-
-                return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+                Total = all.Count,
+                Items = all.Skip(skip).Take(take).Select(ToResponse)
+            });
         }
+
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(ShippingRateResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetShippingRateById(Guid id)
+        {
+            var rate = await _database.GetShippingRate(id);
+            return rate is null ? StatusResult(ShippingRateOperationStatus.NotFound) : Ok(ToResponse(rate));
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateShippingRate([FromBody] CreateShippingRateRequestModel model)
+        {
+            if (await _database.GetShippingRate(model.Value) is not null)
+            {
+                return StatusResult(ShippingRateOperationStatus.DuplicateValue);
+            }
+
+            var created = await _database.CreateShippingRate(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value });
+            return created is null
+                ? StatusResult(ShippingRateOperationStatus.SaveFailed)
+                : CreatedAtId<StripeShippingRatesApiController>(controller => nameof(controller.GetShippingRateById), created.Key);
+        }
+
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateShippingRate(Guid id, [FromBody] UpdateShippingRateRequestModel model)
+        {
+            var existing = await _database.GetShippingRate(id);
+            if (existing is null)
+            {
+                return StatusResult(ShippingRateOperationStatus.NotFound);
+            }
+
+            var duplicate = await _database.GetShippingRate(model.Value);
+            if (duplicate is not null && duplicate.Key != id)
+            {
+                return StatusResult(ShippingRateOperationStatus.DuplicateValue);
+            }
+
+            existing.Name = model.Name;
+            existing.Value = model.Value;
+            return await _database.UpdateShippingRate(existing) is null ? StatusResult(ShippingRateOperationStatus.SaveFailed) : Ok();
+        }
+
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteShippingRate(Guid id)
+            => await _database.DeleteShippingRate(id) ? Ok() : StatusResult(ShippingRateOperationStatus.NotFound);
 
         [HttpGet("stripe")]
+        [ProducesResponseType(typeof(IEnumerable<StripeShippingRateResponseModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetStripeShippingRates()
         {
             try
             {
-                var shippingRates = await _stripeShippingRateApiService.GetShippingRates();
-
-                return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var rates = await _stripe.GetShippingRates();
+                return Ok(rates.Data.Select(StripeShippingRateResponseModel.From));
             }
-            catch (Exception ex)
+            catch (global::Stripe.StripeException ex)
             {
-                _logger.LogError(ex, ex.Message);
-                throw;
+                return StripeErrorResult(ex);
             }
         }
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetShippingRate(Guid? key)
+        [HttpGet("stripe/{stripeId}")]
+        [ProducesResponseType(typeof(StripeShippingRateResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetStripeShippingRateById(string stripeId)
         {
             try
             {
-                var shippingRate = key.HasValue ? await _stripeDatabaseService.GetShippingRate(key.Value) : new ShippingRate();
-                var shippingRateProperties = await GetShippingRateProperties(shippingRate!);
-
-                return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                return Ok(StripeShippingRateResponseModel.From(await _stripe.GetShippingRate(stripeId)));
             }
-            catch (Exception ex)
+            catch (global::Stripe.StripeException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                _logger.LogError(ex, ex.Message);
-                throw;
+                return StatusResult(ShippingRateOperationStatus.NotFound);
+            }
+            catch (global::Stripe.StripeException ex)
+            {
+                return StripeErrorResult(ex);
             }
         }
 
-        [HttpGet("stripe-detail")]
-        public async Task<IActionResult> GetStripeShippingRate(string id)
-        {
-            try
+        private static ShippingRateResponseModel ToResponse(ShippingRate rate) => new() { Id = rate.Key, Name = rate.Name, Value = rate.Value };
+
+        private IActionResult StripeErrorResult(global::Stripe.StripeException ex)
+            => OperationStatusResult(ShippingRateOperationStatus.StripeError, problemDetails => BadRequest(problemDetails
+                .WithTitle(UmbCheckoutProblemDetails.StripeErrorTitle)
+                .WithDetail(ex.StripeError?.Message ?? ex.Message)
+                .Build()));
+
+        private IActionResult StatusResult(ShippingRateOperationStatus status)
+            => OperationStatusResult(status, problemDetails => status switch
             {
-                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id);
-
-                return new JsonResult(shippingRate, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
-
-        [HttpPut("create")]
-        public async Task<IActionResult> CreateShippingRate([FromBody] ShippingRate shippingRate)
-        {
-            if (ModelState.IsValid)
-            {
-                var createdShippingRate = await _stripeDatabaseService.CreateShippingRate(shippingRate);
-                if (createdShippingRate != null)
-                {
-                    var shippingRateProperties = await GetShippingRateProperties(createdShippingRate);
-                    return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-                }
-            }
-
-            return BadRequest();
-        }
-
-        [HttpPatch("update")]
-        public async Task<IActionResult> UpdateShippingRate([FromBody] ShippingRate shippingRate)
-        {
-            if (ModelState.IsValid)
-            {
-                var updatedShippingRate = await _stripeDatabaseService.UpdateShippingRate(shippingRate);
-                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate!);
-                return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-            }
-
-            return BadRequest();
-        }
-
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteShippingRate([FromQuery] Guid key)
-        {
-            if (ModelState.IsValid)
-            {
-                var deletedShippingRate = await _stripeDatabaseService.DeleteShippingRate(key);
-
-                if (deletedShippingRate == false)
-                {
-                    return BadRequest();
-                }
-
-                return Accepted();
-            }
-
-            return BadRequest();
-        }
-
-        private Task<ShippingRateResponse> GetShippingRateProperties(ShippingRate shippingRate)
-        {
-            try
-            {
-                var backOfficeProperties = new List<Property>
-                {
-                    new()
-                    {
-                        Alias = "name",
-                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateDescription, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Name : string.Empty,
-                        View = "textbox",
-                        Validation = new Validation
-                        {
-                            Mandatory = true
-                        }
-                    },
-                    new()
-                    {
-                        Alias = "value",
-                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdDescription, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Value : string.Empty,
-                        View = "textbox",
-                        Validation = new Validation
-                        {
-                            Mandatory = true
-                        }
-                    }
-                };
-
-                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate!.Key, Properties = backOfficeProperties});
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
+                ShippingRateOperationStatus.NotFound => NotFound(problemDetails
+                    .WithTitle(UmbCheckoutProblemDetails.NotFoundTitle)
+                    .WithDetail("The shipping rate could not be found.")
+                    .Build()),
+                ShippingRateOperationStatus.DuplicateValue => BadRequest(problemDetails
+                    .WithTitle(UmbCheckoutProblemDetails.InvalidValueTitle)
+                    .WithDetail("A shipping rate with this Stripe ID already exists.")
+                    .Build()),
+                _ => BadRequest(problemDetails
+                    .WithTitle("Shipping rate not saved")
+                    .WithDetail("The shipping rate could not be saved.")
+                    .Build())
+            });
     }
 }
