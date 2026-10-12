@@ -86,6 +86,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             // that result arrives by webhook, and keeping the basket would invite paying twice.
             if (stripeSession.Status != "complete")
             {
+                _logger.LogInformation("Checkout session {CheckoutSessionId} is {Status}; the basket is kept", sessionId, stripeSession.Status);
                 return;
             }
 
@@ -97,11 +98,13 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 {
                     stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCulture, out var culture);
                     await _sessionService.Clear(string.IsNullOrEmpty(culture) ? null : culture, currency);
+                    _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId}", culture, currency, sessionId);
                 }
                 else
                 {
                     // Sessions created before baskets were per currency carry no basket metadata.
                     await _sessionService.Clear(stripeSession.Currency?.ToUpperInvariant());
+                    _logger.LogInformation("Cleared the {Currency} basket paid for by checkout session {CheckoutSessionId} (no basket metadata)", stripeSession.Currency, sessionId);
                 }
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
