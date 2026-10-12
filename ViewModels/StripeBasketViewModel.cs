@@ -11,6 +11,9 @@ namespace UmbCheckout.Stripe.ViewModels
 
         public Basket Basket { get; set; } = new Basket();
 
+        /// <summary>Messages for the customer (a refused add, prices that changed at checkout).</summary>
+        public List<string> Notices { get; set; } = [];
+
         public decimal SubTotal { get; set; }
         public long TotalItems { get; set; }
 
