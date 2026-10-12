@@ -12,6 +12,8 @@ internal sealed class UmbCheckoutStripeWebhookEventConfiguration : IEntityTypeCo
         entity.ToTable("UmbCheckoutStripeWebhookEvents");
         entity.HasKey(x => x.EventId).HasName("PK_UmbCheckoutStripeWebhookEvents");
         entity.Property(x => x.EventId).HasMaxLength(255).ValueGeneratedNever();
+        entity.Property(x => x.Status).IsRequired();
+        entity.Property(x => x.LeaseUntilUtc).IsRequired(false);
         entity.HasIndex(x => x.ReceivedUtc).HasDatabaseName("IX_UmbCheckoutStripeWebhookEvents_ReceivedUtc");
     }
 }

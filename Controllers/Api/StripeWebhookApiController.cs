@@ -71,47 +71,75 @@ namespace UmbCheckout.Stripe.Controllers.Api
                     stripeEvent.ApiVersion, StripeConfiguration.ApiVersion, StripeConfiguration.ApiVersion);
             }
 
-            if (!await _eventStore.TryBeginAsync(stripeEvent.Id, cancellationToken))
+            var publish = Notification(stripeEvent);
+            if (publish == null)
             {
-                return Ok(); // already handled: a redelivery
+                _logger.LogInformation("Stripe webhook event type {EventType} has no UmbCheckout notification", stripeEvent.Type);
+                return Accepted();
+            }
+
+            switch (await _eventStore.TryClaimAsync(stripeEvent.Id, cancellationToken))
+            {
+                case StripeWebhookEventClaim.AlreadyHandled:
+                    return Ok(); // a redelivery of a handled event
+                case StripeWebhookEventClaim.InProgress:
+                    // Another delivery is running the handlers; a non-2xx makes Stripe retry later, by when it has finished
+                    // (acknowledged then) or died (taken over once its lease expires).
+                    return StatusCode(StatusCodes.Status409Conflict);
             }
 
             try
             {
-                if (!await PublishAsync(stripeEvent, cancellationToken))
-                {
-                    _logger.LogInformation("Stripe webhook event type {EventType} has no UmbCheckout notification", stripeEvent.Type);
-                }
+                // Not the request's token: if Stripe drops the connection, handlers still finish rather than stop midway.
+                await publish(CancellationToken.None);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Handling Stripe webhook event {EventId} ({EventType}) failed", stripeEvent.Id, stripeEvent.Type);
-                await _eventStore.ForgetAsync(stripeEvent.Id, CancellationToken.None);
+                try
+                {
+                    await _eventStore.ForgetAsync(stripeEvent.Id, CancellationToken.None);
+                }
+                catch (Exception forgetEx)
+                {
+                    // The claim stays until its lease expires; Stripe's retry takes the event over then.
+                    _logger.LogError(forgetEx, "Could not release Stripe webhook event {EventId}", stripeEvent.Id);
+                }
+
                 return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            try
+            {
+                await _eventStore.CompleteAsync(stripeEvent.Id, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                // The handlers succeeded: acknowledge, so Stripe doesn't re-run them; a redelivery inside the lease gets 409.
+                _logger.LogError(ex, "Stripe webhook event {EventId} was handled but could not be marked as done", stripeEvent.Id);
             }
 
             return Accepted();
         }
 
-        /// <summary>Published immediately and awaited, so a failing handler is seen here and Stripe retries.</summary>
-        /// <returns>false when the event type has no notification.</returns>
-        private async Task<bool> PublishAsync(Event e, CancellationToken cancellationToken)
+        /// <summary>
+        /// The event's notification, published immediately and awaited so a failing handler is seen here and Stripe retries;
+        /// null when the event type has none.
+        /// </summary>
+        private Func<CancellationToken, Task>? Notification(Event e) => e.Type switch
         {
-            switch (e.Type)
-            {
-                case "checkout.session.async_payment_failed": await _eventAggregator.PublishAsync(new OnPaymentFailedNotification(e), cancellationToken); return true;
-                case "checkout.session.async_payment_succeeded": await _eventAggregator.PublishAsync(new OnPaymentSuccessNotification(e), cancellationToken); return true;
-                case "checkout.session.completed": await _eventAggregator.PublishAsync(new OnCheckoutSessionCompletedNotification(e), cancellationToken); return true;
-                case "checkout.session.expired": await _eventAggregator.PublishAsync(new OnCheckoutSessionExpiredNotification(e), cancellationToken); return true;
-                case "charge.succeeded": await _eventAggregator.PublishAsync(new OnChargeSucceededNotification(e), cancellationToken); return true;
-                case "charge.failed": await _eventAggregator.PublishAsync(new OnChargeFailedNotification(e), cancellationToken); return true;
-                case "payment_intent.created": await _eventAggregator.PublishAsync(new OnPaymentIntentCreatedNotification(e), cancellationToken); return true;
-                case "payment_intent.canceled": await _eventAggregator.PublishAsync(new OnPaymentIntentCancelledNotification(e), cancellationToken); return true;
-                case "payment_intent.succeeded": await _eventAggregator.PublishAsync(new OnPaymentIntentSucceededNotification(e), cancellationToken); return true;
-                case "payment_intent.payment_failed": await _eventAggregator.PublishAsync(new OnPaymentIntentPaymentFailedNotification(e), cancellationToken); return true;
-                case "consent.promotions": await _eventAggregator.PublishAsync(new OnPromotionalEmailConsentNotification(e), cancellationToken); return true;
-                default: return false;
-            }
-        }
+            "checkout.session.async_payment_failed" => ct => _eventAggregator.PublishAsync(new OnPaymentFailedNotification(e), ct),
+            "checkout.session.async_payment_succeeded" => ct => _eventAggregator.PublishAsync(new OnPaymentSuccessNotification(e), ct),
+            "checkout.session.completed" => ct => _eventAggregator.PublishAsync(new OnCheckoutSessionCompletedNotification(e), ct),
+            "checkout.session.expired" => ct => _eventAggregator.PublishAsync(new OnCheckoutSessionExpiredNotification(e), ct),
+            "charge.succeeded" => ct => _eventAggregator.PublishAsync(new OnChargeSucceededNotification(e), ct),
+            "charge.failed" => ct => _eventAggregator.PublishAsync(new OnChargeFailedNotification(e), ct),
+            "payment_intent.created" => ct => _eventAggregator.PublishAsync(new OnPaymentIntentCreatedNotification(e), ct),
+            "payment_intent.canceled" => ct => _eventAggregator.PublishAsync(new OnPaymentIntentCancelledNotification(e), ct),
+            "payment_intent.succeeded" => ct => _eventAggregator.PublishAsync(new OnPaymentIntentSucceededNotification(e), ct),
+            "payment_intent.payment_failed" => ct => _eventAggregator.PublishAsync(new OnPaymentIntentPaymentFailedNotification(e), ct),
+            "consent.promotions" => ct => _eventAggregator.PublishAsync(new OnPromotionalEmailConsentNotification(e), ct),
+            _ => null
+        };
     }
 }

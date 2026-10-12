@@ -102,8 +102,14 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.SqlServer
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<DateTime?>("LeaseUntilUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("ReceivedUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("EventId")
                         .HasName("PK_UmbCheckoutStripeWebhookEvents");

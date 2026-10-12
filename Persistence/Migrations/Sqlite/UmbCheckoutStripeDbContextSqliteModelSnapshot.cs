@@ -96,8 +96,14 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("LeaseUntilUtc")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("ReceivedUtc")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("EventId")
                         .HasName("PK_UmbCheckoutStripeWebhookEvents");

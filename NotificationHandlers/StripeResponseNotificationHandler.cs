@@ -49,8 +49,17 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 return;
             }
 
-            if (!await _successPageMatcher.IsSuccessPageAsync(uri, cancellationToken))
+            try
             {
+                if (!await _successPageMatcher.IsSuccessPageAsync(uri, cancellationToken))
+                {
+                    return;
+                }
+            }
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // e.g. the configuration can't be read: the page still renders.
+                _logger.LogWarning(ex, "Could not check whether {Path} is the success page", uri.AbsolutePath);
                 return;
             }
 
@@ -65,8 +74,9 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             {
                 stripeSession = await _stripeSessionService.GetSessionAsync(sessionId);
             }
-            catch (Exception ex) when (ex is StripeException or StripeNotConfiguredException or HttpRequestException)
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
+                // Stripe errors, a missing or malformed key, an HttpClient timeout (TaskCanceledException), an unreachable Stripe.
                 // The page still renders; the basket stays until a successful return.
                 _logger.LogWarning(ex, "Could not read checkout session {CheckoutSessionId} on the success page", sessionId);
                 return;

@@ -16,7 +16,9 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.Sqlite
                 columns: table => new
                 {
                     EventId = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    ReceivedUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    ReceivedUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    LeaseUntilUtc = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

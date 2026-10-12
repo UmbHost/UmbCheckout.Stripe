@@ -7,48 +7,101 @@ using Umbraco.Cms.Persistence.EFCore.Scoping;
 namespace UmbCheckout.Stripe.Services
 {
     /// <inheritdoc />
-    internal sealed class StripeWebhookEventStore(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider) : IStripeWebhookEventStore
+    internal sealed class StripeWebhookEventStore : IStripeWebhookEventStore
     {
         /// <summary>Well past Stripe's 3-day retry window.</summary>
         private static readonly TimeSpan Retention = TimeSpan.FromDays(30);
 
-        /// <inheritdoc />
-        public async Task<bool> TryBeginAsync(string eventId, CancellationToken cancellationToken = default)
+        /// <summary>How long a delivery owns an event before another may take it over (well past Stripe's request timeout).</summary>
+        private static readonly TimeSpan DefaultLease = TimeSpan.FromMinutes(10);
+
+        private readonly IEFCoreScopeProvider<UmbCheckoutStripeDbContext> _scopeProvider;
+        private readonly TimeSpan _lease;
+
+        public StripeWebhookEventStore(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider)
+            : this(scopeProvider, DefaultLease)
         {
-            using var scope = scopeProvider.CreateScope();
-            bool begun;
+        }
+
+        internal StripeWebhookEventStore(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, TimeSpan lease)
+        {
+            _scopeProvider = scopeProvider;
+            _lease = lease;
+        }
+
+        /// <inheritdoc />
+        public async Task<StripeWebhookEventClaim> TryClaimAsync(string eventId, CancellationToken cancellationToken = default)
+        {
             try
             {
-                begun = await scope.ExecuteWithContextAsync(async db =>
+                using var scope = _scopeProvider.CreateScope();
+                var claim = await scope.ExecuteWithContextAsync(async db =>
                 {
-                    var cutoff = DateTime.UtcNow - Retention;
-                    await db.WebhookEvents.Where(x => x.ReceivedUtc < cutoff).ExecuteDeleteAsync(cancellationToken);
-                    if (await db.WebhookEvents.AnyAsync(x => x.EventId == eventId, cancellationToken))
+                    var now = DateTime.UtcNow;
+                    await db.WebhookEvents.Where(x => x.ReceivedUtc < now - Retention).ExecuteDeleteAsync(cancellationToken);
+
+                    var existing = await db.WebhookEvents.AsNoTracking().SingleOrDefaultAsync(x => x.EventId == eventId, cancellationToken);
+                    if (existing == null)
                     {
-                        return false;
+                        db.WebhookEvents.Add(new UmbCheckoutStripeWebhookEvent
+                        {
+                            EventId = eventId, ReceivedUtc = now, Status = UmbCheckoutStripeWebhookEvent.Processing, LeaseUntilUtc = now + _lease
+                        });
+                        await db.SaveChangesAsync(cancellationToken);
+                        return StripeWebhookEventClaim.Claimed;
                     }
 
-                    db.WebhookEvents.Add(new UmbCheckoutStripeWebhookEvent { EventId = eventId, ReceivedUtc = DateTime.UtcNow });
-                    await db.SaveChangesAsync(cancellationToken);
-                    return true;
+                    if (existing.Status == UmbCheckoutStripeWebhookEvent.Done)
+                    {
+                        return StripeWebhookEventClaim.AlreadyHandled;
+                    }
+
+                    // Take over an attempt whose lease has expired; the conditional update lets only one delivery win.
+                    var takenOver = await db.WebhookEvents
+                        .Where(x => x.EventId == eventId && x.Status == UmbCheckoutStripeWebhookEvent.Processing && x.LeaseUntilUtc <= now)
+                        .ExecuteUpdateAsync(set => set.SetProperty(x => x.LeaseUntilUtc, now + _lease), cancellationToken);
+                    return takenOver == 1 ? StripeWebhookEventClaim.Claimed : StripeWebhookEventClaim.InProgress;
                 });
+                scope.Complete();
+                return claim;
             }
             catch (DbUpdateException)
             {
-                // Another server (or a concurrent delivery) recorded it between the check and the insert.
-                return false;
-            }
+                // Another delivery inserted it between the check and the insert: it is running the handlers now. Any other
+                // save failure (deadlock, timeout, lost connection) surfaces, so the webhook answers 500 and Stripe retries.
+                if (await ExistsAsync(eventId, cancellationToken))
+                {
+                    return StripeWebhookEventClaim.InProgress;
+                }
 
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task CompleteAsync(string eventId, CancellationToken cancellationToken = default)
+        {
+            using var scope = _scopeProvider.CreateScope();
+            await scope.ExecuteWithContextAsync(db => db.WebhookEvents.Where(x => x.EventId == eventId)
+                .ExecuteUpdateAsync(set => set.SetProperty(x => x.Status, UmbCheckoutStripeWebhookEvent.Done).SetProperty(x => x.LeaseUntilUtc, (DateTime?)null), cancellationToken));
             scope.Complete();
-            return begun;
         }
 
         /// <inheritdoc />
         public async Task ForgetAsync(string eventId, CancellationToken cancellationToken = default)
         {
-            using var scope = scopeProvider.CreateScope();
+            using var scope = _scopeProvider.CreateScope();
             await scope.ExecuteWithContextAsync(db => db.WebhookEvents.Where(x => x.EventId == eventId).ExecuteDeleteAsync(cancellationToken));
             scope.Complete();
+        }
+
+        /// <summary>A fresh scope: the failed one has been rolled back.</summary>
+        private async Task<bool> ExistsAsync(string eventId, CancellationToken cancellationToken)
+        {
+            using var scope = _scopeProvider.CreateScope();
+            var exists = await scope.ExecuteWithContextAsync(db => db.WebhookEvents.AnyAsync(x => x.EventId == eventId, cancellationToken));
+            scope.Complete();
+            return exists;
         }
     }
 }
