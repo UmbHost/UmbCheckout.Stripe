@@ -16,11 +16,11 @@ namespace UmbCheckout.Stripe.ViewComponents
         {
             _currencyService = currencyService;
         }
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        /// <param name="currencyNodeKey">Ignored: the button shows the currency checkout charges.</param>
         public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var currencyCode = await _currencyService.GetCurrencyAsync(currencyNodeKey);
+            // The currency checkout charges (product's site root, then Configuration); currencyNodeKey no longer applies here.
+            var currencyCode = await _currencyService.GetCurrencyForContentAsync(product);
 
             var model = new StripeAddToBasketButtonViewModel
             {
