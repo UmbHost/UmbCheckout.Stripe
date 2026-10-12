@@ -145,8 +145,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     .WithDetail("The shipping rate could not be found.")
                     .Build()),
                 ShippingRateOperationStatus.DuplicateValue => BadRequest(problemDetails
-                    .WithTitle(UmbCheckoutProblemDetails.InvalidValueTitle)
-                    .WithDetail("A shipping rate with this Stripe ID already exists.")
+                    .WithTitle("A shipping rate with this Stripe ID already exists")
+                    .WithDetail("Choose a different Stripe shipping rate ID.")
                     .Build()),
                 _ => BadRequest(problemDetails
                     .WithTitle("Shipping rate not saved")
