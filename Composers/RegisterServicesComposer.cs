@@ -21,9 +21,6 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
             builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
-            // One cached settings row per process, cleared on save here and on every other server by its cache refresher.
-            builder.Services.AddSingleton<UmbCheckout.Shared.Persistence.SettingsCache<UmbCheckout.Stripe.Pocos.UmbCheckoutStripeSettings>>();
-            builder.CacheRefreshers().Add<UmbCheckout.Stripe.Cache.UmbCheckoutStripeSettingsCacheRefresher>();
             builder.Services.AddTransient<IUmbCheckoutStripeClientFactory, UmbCheckoutStripeClientFactory>();
 
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();
