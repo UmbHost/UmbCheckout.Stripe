@@ -19,6 +19,7 @@ namespace UmbCheckout.Stripe.Composers
                 (_, options, connectionString, providerName) => options.UseUmbCheckoutProvider(providerName, connectionString, UmbCheckoutStripeDbContext.HistoryTable),
                 shareUmbracoConnection: true);
             builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, UmbCheckoutStripeDatabaseMigrator>();
+            builder.Services.AddTransient<IUmbCheckoutTablesMigrator, UmbCheckoutStripeDatabaseMigrator>();
         }
     }
 }
