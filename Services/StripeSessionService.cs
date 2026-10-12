@@ -61,6 +61,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
         public Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null)
         {
             try
@@ -78,7 +79,7 @@ namespace UmbCheckout.Stripe.Services
                 return session;
 
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -86,23 +87,25 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<Session> GetSessionAsync(string id)
+        public Task<Session> GetSessionAsync(string id) => GetSessionAsync(id, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<Session> GetSessionAsync(string id, CancellationToken cancellationToken)
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id));
+                await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id), cancellationToken);
 
-                var stripeClient = _stripeClientFactory.CreateAsync().GetAwaiter().GetResult();
-
-                var service = new SessionService(stripeClient);
-                var session = await service.GetAsync(id);
+                var service = new SessionService(await _stripeClientFactory.CreateAsync());
+                var session = await service.GetAsync(id, cancellationToken: cancellationToken);
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
 
                 return session;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -110,6 +113,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
         public Session CreateSession(Basket basket)
         {
             try
@@ -127,7 +131,7 @@ namespace UmbCheckout.Stripe.Services
 
                 return session;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -135,24 +139,28 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<Session> CreateSessionAsync(Basket basket)
+        public Task<Session> CreateSessionAsync(Basket basket) => CreateSessionAsync(basket, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<Session> CreateSessionAsync(Basket basket, CancellationToken cancellationToken)
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket));
+                await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket), cancellationToken);
 
                 var stripeClient = await _stripeClientFactory.CreateAsync();
 
                 var service = new SessionService(stripeClient);
-                var session = await service.CreateAsync(await CreateSessionOptions(basket));
+                var session = await service.CreateAsync(await CreateSessionOptions(basket), cancellationToken: cancellationToken);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
                 return session;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -160,6 +168,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
         public void ClearSession(string id)
         {
             try
@@ -174,7 +183,7 @@ namespace UmbCheckout.Stripe.Services
 
                 scope.Notifications.Publish(new OnProviderSessionClearedNotification(id));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -182,19 +191,23 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task ClearSessionAsync(string id)
+        public Task ClearSessionAsync(string id) => ClearSessionAsync(id, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task ClearSessionAsync(string id, CancellationToken cancellationToken)
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderClearSessionStartedNotification(id));
+                await _eventAggregator.PublishAsync(new OnProviderClearSessionStartedNotification(id), cancellationToken);
 
                 var service = new SessionService(await _stripeClientFactory.CreateAsync());
-                await service.ExpireAsync(id);
+                await service.ExpireAsync(id, cancellationToken: cancellationToken);
 
                 scope.Notifications.Publish(new OnProviderSessionClearedNotification(id));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -433,7 +446,7 @@ namespace UmbCheckout.Stripe.Services
 
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;

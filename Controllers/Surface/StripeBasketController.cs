@@ -183,7 +183,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
+                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket, HttpContext?.RequestAborted ?? default);
 
                 // The success page clears this basket only when it returns from this checkout session. Bookkeeping, not a
                 // shopper's change, so a site's Saving handlers can't refuse it (or the paid basket would never clear).
@@ -194,6 +194,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 return Redirect(stripeSession.Url);
+            }
+            catch (OperationCanceledException) when (HttpContext?.RequestAborted.IsCancellationRequested == true)
+            {
+                // The shopper left: nobody is waiting for a response, and it isn't an error.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
