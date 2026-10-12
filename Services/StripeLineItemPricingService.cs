@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Stripe.Interfaces;
@@ -11,11 +11,13 @@ namespace UmbCheckout.Stripe.Services
     internal class StripeLineItemPricingService : IStripeLineItemPricingService
     {
         private readonly ICurrencyService _currencyService;
+        private readonly IBasketContext _basketContext;
         private readonly ILogger<StripeLineItemPricingService> _logger;
 
-        public StripeLineItemPricingService(ICurrencyService currencyService, ILogger<StripeLineItemPricingService> logger)
+        public StripeLineItemPricingService(ICurrencyService currencyService, IBasketContext basketContext, ILogger<StripeLineItemPricingService> logger)
         {
             _currencyService = currencyService;
+            _basketContext = basketContext;
             _logger = logger;
         }
 
@@ -35,6 +37,15 @@ namespace UmbCheckout.Stripe.Services
             if (!StripeCurrency.IsSupported(currency))
             {
                 _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which Stripe does not support; check the site root's {PropertyAlias} or the Configuration currency. It was not added to the basket", product.Key, currency, Shared.Consts.PropertyAlias.CurrencyCode);
+                return null;
+            }
+
+            // The basket shown on this page is in the page's currency: a product sold in another currency (e.g. from another
+            // site or a shared product library) would go to a basket the customer never sees here.
+            var pageCurrency = await _basketContext.GetCurrencyAsync();
+            if (pageCurrency != null && !string.Equals(pageCurrency, currency, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Product {ProductKey} is sold in {CurrencyCode} but this page sells in {PageCurrencyCode}; it was not added to the basket", product.Key, currency, pageCurrency);
                 return null;
             }
 
