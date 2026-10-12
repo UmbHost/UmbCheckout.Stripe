@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Core.Models;
+using UmbCheckout.Shared.Extensions;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
 using Umbraco.Cms.Core.Cache;
@@ -45,6 +46,15 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 var price = await _pricingService.GetPriceAsync(product);
                 if (price == null)
                 {
+                    TempData[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] = basketAdd.Key;
+                    return RedirectToCurrentUmbracoPage();
+                }
+
+                // A Checkout session takes one currency: refuse a line that would mix currencies (e.g. a basket saved before the upgrade).
+                var basket = await _basketService.Get();
+                if (!basket.LineItems.AcceptsCurrency(price.CurrencyCode))
+                {
+                    _logger.LogWarning("Product {ProductKey} is priced in {CurrencyCode} but the basket holds other currencies ({BasketCurrencies}); it was not added", product.Key, price.CurrencyCode, string.Join(", ", basket.LineItems.Select(lineItem => lineItem.CurrencyCode).Distinct()));
                     TempData[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] = basketAdd.Key;
                     return RedirectToCurrentUmbracoPage();
                 }

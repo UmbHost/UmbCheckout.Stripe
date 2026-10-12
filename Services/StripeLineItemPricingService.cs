@@ -22,7 +22,9 @@ namespace UmbCheckout.Stripe.Services
         /// <inheritdoc />
         public async Task<LineItemPrice?> GetPriceAsync(IPublishedContent product)
         {
-            var price = ReadPrice(product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias)?.GetValue());
+            // An empty Decimal field converts to 0m, so emptiness is checked before the value is read.
+            var property = product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias);
+            var price = property?.HasValue() == true ? ReadPrice(property.GetValue()) : null;
             if (price is not { } amount || amount < 0)
             {
                 _logger.LogError("Product {ProductKey} has no valid price in {PropertyAlias}; it was not added to the basket", product.Key, Shared.Consts.PropertyAlias.PriceAlias);
@@ -30,9 +32,9 @@ namespace UmbCheckout.Stripe.Services
             }
 
             var currency = await _currencyService.GetCurrencyForContentAsync(product);
-            if (!StripeCurrency.IsCurrencyCode(currency))
+            if (!StripeCurrency.IsSupported(currency))
             {
-                _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which is not an ISO 4217 code; it was not added to the basket", product.Key, currency);
+                _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which Stripe does not support; check the site root's {PropertyAlias} or the Configuration currency. It was not added to the basket", product.Key, currency, Shared.Consts.PropertyAlias.CurrencyCode);
                 return null;
             }
 
