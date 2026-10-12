@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-	  <StaticWebAssetBasePath>App_Plugins/UmbCheckout.Stripe</StaticWebAssetBasePath>
+	  <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
 	  <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -63,6 +63,11 @@
   <ItemGroup>
     <ProjectReference Include="..\UmbCheckout.Core\UmbCheckout.Core.csproj" />
     <ProjectReference Include="..\UmbCheckout.Shared\UmbCheckout.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Client\**" />
+    <None Remove="Client\**" />
   </ItemGroup>
 
 </Project>
