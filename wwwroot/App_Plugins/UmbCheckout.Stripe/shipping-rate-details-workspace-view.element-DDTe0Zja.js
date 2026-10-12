@@ -3,7 +3,7 @@ import { UmbLitElement as W } from "@umbraco-cms/backoffice/lit-element";
 import { tryExecute as D } from "@umbraco-cms/backoffice/resources";
 import { UMB_WORKSPACE_CONTEXT as M } from "@umbraco-cms/backoffice/workspace";
 import { formatMoney as $ } from "@umbcheckout/core";
-import { S as N } from "./sdk.gen-DEbZmfQN.js";
+import { S as N } from "./sdk.gen-CWaSkarI.js";
 import "./shipping-rates-help.element-BHyeEPx2.js";
 var O = Object.defineProperty, A = Object.getOwnPropertyDescriptor, y = (t) => {
   throw TypeError(t);
@@ -137,4 +137,4 @@ export {
   p as UmbCheckoutShippingRateDetailsWorkspaceViewElement,
   Y as default
 };
-//# sourceMappingURL=shipping-rate-details-workspace-view.element--vxgf8h6.js.map
+//# sourceMappingURL=shipping-rate-details-workspace-view.element-DDTe0Zja.js.map

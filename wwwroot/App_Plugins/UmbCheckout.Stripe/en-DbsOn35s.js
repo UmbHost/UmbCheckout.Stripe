@@ -6,6 +6,8 @@ const e = {
     settings_saved_message: "The Stripe settings have been saved successfully",
     settings_save_failed_title: "Stripe settings failed to save",
     settings_save_failed_message: "There was an issue trying to save the Stripe settings",
+    use_live_api_details_label: "Use live API details",
+    use_live_api_details: "Whether to use the payment providers live API details",
     shipping_rates: "Stripe Shipping Rates",
     shipping_rate: "Stripe Shipping Rate",
     create_shipping_rate: "Create Shipping Rate",
@@ -60,4 +62,4 @@ const e = {
 export {
   e as default
 };
-//# sourceMappingURL=en-BcE1oaSe.js.map
+//# sourceMappingURL=en-DbsOn35s.js.map

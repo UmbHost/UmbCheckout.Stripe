@@ -1,9 +1,9 @@
 import { UMB_WORKSPACE_CONTEXT as E, UmbEntityDetailWorkspaceContextBase as y, UmbWorkspaceIsNewRedirectController as f, UmbWorkspaceIsNewRedirectControllerAlias as P } from "@umbraco-cms/backoffice/workspace";
-import { a as S, b as U, c as T, U as O, d as w, e as A } from "./bundle.manifests-Djgyi0RL.js";
+import { a as S, b as U, c as T, U as O, d as w, e as A } from "./bundle.manifests-5bNtKFqe.js";
 import { html as u, css as _, state as h, customElement as m } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as d } from "@umbraco-cms/backoffice/lit-element";
 import { tryExecute as I } from "@umbraco-cms/backoffice/resources";
-import { S as R } from "./sdk.gen-DEbZmfQN.js";
+import { S as R } from "./sdk.gen-CWaSkarI.js";
 import "./shipping-rates-help.element-BHyeEPx2.js";
 var N = Object.defineProperty, g = Object.getOwnPropertyDescriptor, l = (t, e, a, r) => {
   for (var s = r > 1 ? void 0 : r ? g(e, a) : e, i = t.length - 1, o; i >= 0; i--)
@@ -121,4 +121,4 @@ export {
   Y as UmbCheckoutShippingRateWorkspaceContext,
   Y as api
 };
-//# sourceMappingURL=shipping-rate-workspace.context-CzAxVJqs.js.map
+//# sourceMappingURL=shipping-rate-workspace.context-Bht9wGyM.js.map

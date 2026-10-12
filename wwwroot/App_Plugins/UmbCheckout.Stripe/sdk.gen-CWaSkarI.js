@@ -1,5 +1,5 @@
 import { c as t } from "./client.gen-C2rnZBGa.js";
-class a {
+class i {
   static getShippingRates(e) {
     return (e?.client ?? t).get({
       security: [
@@ -93,7 +93,38 @@ class a {
     });
   }
 }
+class p {
+  static getStripeSettings(e) {
+    return (e?.client ?? t).get({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http"
+        }
+      ],
+      url: "/umbraco/management/api/v1/umbcheckout/stripe-settings",
+      ...e
+    });
+  }
+  static updateStripeSettings(e) {
+    return (e?.client ?? t).put({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http"
+        }
+      ],
+      url: "/umbraco/management/api/v1/umbcheckout/stripe-settings",
+      ...e,
+      headers: {
+        "Content-Type": "application/json",
+        ...e?.headers
+      }
+    });
+  }
+}
 export {
-  a as S
+  i as S,
+  p as a
 };
-//# sourceMappingURL=sdk.gen-DEbZmfQN.js.map
+//# sourceMappingURL=sdk.gen-CWaSkarI.js.map

@@ -49,4 +49,10 @@ declare module "@umbcheckout/core" {
   export type UmbCheckoutMoney = { amount: number; currency: string };
   /** Formats money in the user's culture; never divides by a hard-coded 100. */
   export function formatMoney(localize: import("@umbraco-cms/backoffice/localization-api").UmbLocalizationController, money: UmbCheckoutMoney | undefined | null): string;
+
+  /** Umbraco's delete entity action with a v13 "… deleted" toast; the class is the `api` of a `kind: "delete"` entity action. */
+  export function createUmbCheckoutDeleteAction(
+    deletedTitleKey: string,
+    deletedMessageKey: string,
+  ): new (...args: Array<any>) => import("@umbraco-cms/backoffice/entity-action").UmbEntityActionBase<import("@umbraco-cms/backoffice/entity-action").MetaEntityActionDeleteKind>;
 }
