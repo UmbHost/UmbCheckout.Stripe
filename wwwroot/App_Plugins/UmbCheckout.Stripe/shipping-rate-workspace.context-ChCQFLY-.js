@@ -1,5 +1,5 @@
 import { UmbEntityDetailWorkspaceContextBase as p, UmbWorkspaceIsNewRedirectController as c, UmbWorkspaceIsNewRedirectControllerAlias as u } from "@umbraco-cms/backoffice/workspace";
-import { a as l, U as m, b as h, c as _ } from "./bundle.manifests-WznIAHn2.js";
+import { a as l, U as m, b as h, c as _ } from "./bundle.manifests-BOpaj8Y2.js";
 import { html as d, customElement as C } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as E } from "@umbraco-cms/backoffice/lit-element";
 var b = Object.getOwnPropertyDescriptor, T = (o, e, t, r) => {
@@ -53,4 +53,4 @@ export {
   k as UmbCheckoutShippingRateWorkspaceContext,
   k as api
 };
-//# sourceMappingURL=shipping-rate-workspace.context-BGr-F0L2.js.map
+//# sourceMappingURL=shipping-rate-workspace.context-ChCQFLY-.js.map

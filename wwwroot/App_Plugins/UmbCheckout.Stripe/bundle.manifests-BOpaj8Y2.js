@@ -1,6 +1,6 @@
-import { UmbSubmitWorkspaceAction as s } from "@umbraco-cms/backoffice/workspace";
-import { UMBCHECKOUT_SETTINGS_MENU_ALIAS as m } from "@umbcheckout/core";
-const l = [
+import { UMBCHECKOUT_SETTINGS_MENU_ALIAS as s, UMBCHECKOUT_STRIPE_MENU_ALIAS as m } from "@umbcheckout/core";
+import { UmbSubmitWorkspaceAction as l } from "@umbraco-cms/backoffice/workspace";
+const r = [
   {
     name: "UmbCheckout.Stripe.Entrypoint",
     alias: "UmbCheckout.Stripe.Entrypoint",
@@ -15,38 +15,48 @@ const l = [
     js: () => import("./en-CU3-f1_k.js"),
     meta: { culture: "en" }
   }
-], a = "umbcheckout-shipping-rate", n = "umbcheckout-shipping-rate-root", p = "UmbCheckout.Repository.ShippingRate.Detail", r = "UmbCheckout.Store.ShippingRate.Detail", c = "UmbCheckout.Repository.ShippingRate.Item", C = "UmbCheckout.Store.ShippingRate.Item", i = "UmbCheckout.Repository.ShippingRate.Collection", e = "UmbCheckout.Collection.ShippingRate", t = "UmbCheckout.Workspace.ShippingRate", o = "UmbCheckout.Workspace.ShippingRateRoot", S = [
+], C = [
+  {
+    type: "menuItem",
+    alias: "UmbCheckout.MenuItem.Stripe",
+    name: "UmbCheckout Stripe Menu Item",
+    // Below Configuration (weight 400), as in v13.
+    weight: 300,
+    element: () => import("./stripe-menu-item.element-CP8G9Na8.js"),
+    meta: { label: "#umbcheckoutStripe_stripe", icon: "icon-credit-card", menus: [s] }
+  }
+], a = "umbcheckout-shipping-rate", n = "umbcheckout-shipping-rate-root", p = "UmbCheckout.Repository.ShippingRate.Detail", S = "UmbCheckout.Store.ShippingRate.Detail", c = "UmbCheckout.Repository.ShippingRate.Item", k = "UmbCheckout.Store.ShippingRate.Item", i = "UmbCheckout.Repository.ShippingRate.Collection", e = "UmbCheckout.Collection.ShippingRate", t = "UmbCheckout.Workspace.ShippingRate", o = "UmbCheckout.Workspace.ShippingRateRoot", u = [
   {
     type: "repository",
     alias: p,
     name: "UmbCheckout Shipping Rate Detail Repository",
-    api: () => import("./shipping-rate-detail.repository-1qkPMrb2.js")
+    api: () => import("./shipping-rate-detail.repository-C1vScCuk.js")
   },
   {
     type: "store",
-    alias: r,
+    alias: S,
     name: "UmbCheckout Shipping Rate Detail Store",
     api: () => import("./shipping-rate-detail.store-DxFU_GlC.js")
   }
-], k = [
+], b = [
   {
     type: "repository",
     alias: c,
     name: "UmbCheckout Shipping Rate Item Repository",
-    api: () => import("./shipping-rate-item.repository-B6NyatbT.js")
+    api: () => import("./shipping-rate-item.repository-BEk7v8PI.js")
   },
   {
     type: "itemStore",
-    alias: C,
+    alias: k,
     name: "UmbCheckout Shipping Rate Item Store",
     api: () => import("./shipping-rate-item.store-BGZlqPk2.js")
   }
-], R = [
+], U = [
   {
     type: "repository",
     alias: i,
     name: "UmbCheckout Shipping Rate Collection Repository",
-    api: () => import("./shipping-rate-collection.repository-DaVKWrRQ.js")
+    api: () => import("./shipping-rate-collection.repository-DppFdUpK.js")
   },
   {
     type: "collection",
@@ -71,7 +81,7 @@ const l = [
     meta: { label: "#umbcheckoutStripe_create_shipping_rate", href: "section/umbcheckout/workspace/umbcheckout-shipping-rate/create" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: e }]
   }
-], b = [
+], _ = [
   {
     // Same pattern as Umbraco's own webhook root: a default-kind workspace plus a collection-kind workspace view.
     type: "workspace",
@@ -93,7 +103,7 @@ const l = [
     kind: "routable",
     alias: t,
     name: "UmbCheckout Shipping Rate Workspace",
-    api: () => import("./shipping-rate-workspace.context-BGr-F0L2.js"),
+    api: () => import("./shipping-rate-workspace.context-ChCQFLY-.js"),
     meta: { entityType: a }
   },
   {
@@ -110,11 +120,11 @@ const l = [
     kind: "default",
     alias: "UmbCheckout.WorkspaceAction.ShippingRate.Save",
     name: "Save Shipping Rate",
-    api: s,
+    api: l,
     meta: { look: "primary", color: "positive", label: "#buttons_save" },
     conditions: [{ alias: "Umb.Condition.WorkspaceAlias", match: t }]
   }
-], u = [
+], R = [
   {
     type: "entityAction",
     kind: "delete",
@@ -126,7 +136,7 @@ const l = [
       itemRepositoryAlias: c
     }
   }
-], _ = [
+], I = [
   {
     type: "menuItem",
     alias: "UmbCheckout.MenuItem.ShippingRates",
@@ -139,12 +149,12 @@ const l = [
       menus: [m]
     }
   }
-], U = [...S, ...k, ...R, ...b, ...u, ..._], A = [...l, ...h, ...U];
+], T = [...u, ...b, ...U, ..._, ...R, ...I], y = [...r, ...h, ...C, ...T];
 export {
   a as U,
   p as a,
   t as b,
   n as c,
-  A as m
+  y as m
 };
-//# sourceMappingURL=bundle.manifests-WznIAHn2.js.map
+//# sourceMappingURL=bundle.manifests-BOpaj8Y2.js.map
