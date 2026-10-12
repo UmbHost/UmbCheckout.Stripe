@@ -25,7 +25,7 @@ namespace UmbCheckout.Stripe
                 {
                     Id = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
                     Name = $"{Shared.Consts.PackageName}.{Consts.AppSettingsSectionName}",
-                    Version = UmbCheckoutVersion.Version.ToString(3),
+                    Version = UmbCheckoutVersion.PackageVersion,
                     AllowTelemetry = true,
                     Extensions =
                     [
