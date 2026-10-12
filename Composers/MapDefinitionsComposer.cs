@@ -35,7 +35,7 @@ namespace UmbCheckout.Stripe.Composers
 
         private static void Map(UmbCheckoutStripeShipping source, ShippingRate target, MapperContext context)
         {
-            target.Key = source.Key;
+            target.Key = source.Key ?? Guid.Empty;
             target.Id = source.Id;
             target.Name = source.Name;
             target.Value = source.Value;
@@ -43,7 +43,7 @@ namespace UmbCheckout.Stripe.Composers
 
         private static void Map(Pocos.UmbCheckoutStripeSettings source, Models.UmbCheckoutStripeSettings target, MapperContext context)
         {
-            target.Key = source.Key;
+            target.Key = source.Key ?? Guid.Empty;
             target.Id = source.Id;
             target.UseLiveApiDetails = source.UseLiveApiDetails;
             target.ShippingAllowedCountries = source.ShippingAllowedCountries;

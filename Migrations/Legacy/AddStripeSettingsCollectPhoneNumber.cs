@@ -1,16 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
-using UmbCheckout.Stripe.Pocos;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Infrastructure.Migrations;
 
-namespace UmbCheckout.Stripe.Migrations
+namespace UmbCheckout.Stripe.Migrations.Legacy
 {
-    internal class AddStripeSettingsCollectPhoneNumber : MigrationBase
+    /// <summary>Frozen pre-v17 step: only runs on installs that started the NPoco plan. Never change it.</summary>
+    internal class AddStripeSettingsCollectPhoneNumber : AsyncMigrationBase
     {
         public AddStripeSettingsCollectPhoneNumber(IMigrationContext context) : base(context)
         {
         }
 
-        protected override void Migrate()
+        protected override Task MigrateAsync()
         {
             Logger.LogDebug("Running migration {MigrationStep}", "UmbCheckoutAddStripeSettingsCollectPhoneNumber");
 
@@ -22,6 +22,8 @@ namespace UmbCheckout.Stripe.Migrations
             {
                 Logger.LogDebug("The database column {DbColumn} already exists, skipping", "CollectPhoneNumber");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

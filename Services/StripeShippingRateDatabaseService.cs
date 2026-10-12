@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Pocos;
@@ -141,7 +141,7 @@ namespace UmbCheckout.Stripe.Services
                     shippingRatePoco!.Id = existingShippingRate.Id;
                     shippingRatePoco.Key = existingShippingRate.Key;
                     var result = await scope.Database.UpdateAsync(shippingRatePoco);
-                    var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);
+                    var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key ?? Guid.Empty);
 
                     scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
 
