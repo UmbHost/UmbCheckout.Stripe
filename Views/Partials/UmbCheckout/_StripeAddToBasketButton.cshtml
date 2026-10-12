@@ -38,8 +38,6 @@
             <input type="hidden" name="key" value="@Model.Product.Key" />
         }
 
-        <input type="hidden" name="currencyCode" value="@Model.CurrencyCode" />
-
         if (Model.ReturnGuid.HasValue)
         {
             <input type="hidden" name="redirectGuid" value="@Model.ReturnGuid.Value" />

@@ -18,41 +18,47 @@ namespace UmbCheckout.Stripe.Controllers.Surface
     {
         private readonly IBasketService _basketService;
         private readonly IStripeSessionService _sessionService;
+        private readonly IStripeLineItemPricingService _pricingService;
         private readonly ILogger<StripeBasketController> _logger;
 
-        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, ILogger<StripeBasketController> logger)
+        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, ILogger<StripeBasketController> logger)
             : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _basketService = basketService;
             _sessionService = sessionService;
+            _pricingService = pricingService;
             _logger = logger;
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(BasketAdd basketAdd, Guid? redirectGuid = null)
+        public async Task<IActionResult> Add(BasketAdd basketAdd, Guid? redirectGuid = null)
         {
             try
             {
-                var lineItem = new LineItem();
-
                 var product = UmbracoContext.Content?.GetById(basketAdd.Key);
-                if (product != null)
-                {
-                    lineItem.Key = product.Key;
-                    lineItem.Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty;
-                    lineItem.Price = Convert.ToDecimal(product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias)?.GetValue());
-                    lineItem.CurrencyCode = basketAdd.CurrencyCode;
-                    lineItem.Quantity = basketAdd.Quantity;
-
-                    _basketService.Add(lineItem);
-
-                    TempData[Shared.Consts.TempData.UmbCheckoutAddedToBasket] = basketAdd.Key;
-                }
-                else
+                if (product == null)
                 {
                     return RedirectToCurrentUmbracoPage();
                 }
+
+                var price = await _pricingService.GetPriceAsync(product);
+                if (price == null)
+                {
+                    TempData[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] = basketAdd.Key;
+                    return RedirectToCurrentUmbracoPage();
+                }
+
+                await _basketService.Add(new LineItem
+                {
+                    Key = product.Key,
+                    Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty,
+                    Price = price.Price,
+                    CurrencyCode = price.CurrencyCode,
+                    Quantity = basketAdd.Quantity
+                });
+
+                TempData[Shared.Consts.TempData.UmbCheckoutAddedToBasket] = basketAdd.Key;
 
                 if (redirectGuid.HasValue)
                 {
@@ -63,7 +69,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Adding {ProductKey} to the basket failed", basketAdd.Key);
                 return StatusCode(500);
             }
         }
