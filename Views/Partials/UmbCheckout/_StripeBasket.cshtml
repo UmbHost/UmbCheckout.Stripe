@@ -26,9 +26,10 @@
                 var lineItemContent = Umbraco.Content(lineItem.Key);
                 if (lineItemContent != null)
                 {
+                    var parent = lineItemContent.Parent();
                     <tr>
                         <th scope="row">
-                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : lineItemContent.Parent?.Url())">
+                            <a class="@Model.ProductAnchorLinkCssClass" href="@(lineItemContent.HasTemplate() ? lineItemContent.Url() : parent?.Url())">
                                 @if (lineItemContent.HasTemplate())
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))
@@ -40,11 +41,11 @@
                                         @lineItemContent.Name
                                     }
                                 }
-                                else if (lineItemContent.Parent != null)
+                                else if (parent != null)
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductNameAlias))
                                     {
-                                        @(lineItemContent.Parent.Value<string>(Model.ProductNameAlias)) <text> - </text>
+                                        @(parent.Value<string>(Model.ProductNameAlias)) <text> - </text>
                                         if (!string.IsNullOrEmpty(Model.ProductNameAlias))
                                         {
                                             @(lineItemContent.Value<string>(Model.ProductNameAlias))
@@ -52,7 +53,7 @@
                                     }
                                     else
                                     {
-                                        @lineItemContent.Parent.Name <text> - </text> @lineItemContent.Name
+                                        @parent.Name <text> - </text> @lineItemContent.Name
                                     }
                                 }
                                 else
