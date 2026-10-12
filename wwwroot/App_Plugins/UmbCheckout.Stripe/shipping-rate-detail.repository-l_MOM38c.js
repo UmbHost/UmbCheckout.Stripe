@@ -3,7 +3,7 @@ import { UMB_NOTIFICATION_CONTEXT as u } from "@umbraco-cms/backoffice/notificat
 import { UmbDetailRepositoryBase as p } from "@umbraco-cms/backoffice/repository";
 import { tryExecute as i } from "@umbraco-cms/backoffice/resources";
 import { S as r } from "./sdk.gen-CWaSkarI.js";
-import { U as n } from "./bundle.manifests-5bNtKFqe.js";
+import { U as n } from "./bundle.manifests-DwSTaJfz.js";
 import { UMBCHECKOUT_SHIPPING_RATE_DETAIL_STORE_CONTEXT as c } from "./shipping-rate-detail.store-DxFU_GlC.js";
 class h {
   #t;
@@ -68,4 +68,4 @@ export {
   T as UmbCheckoutShippingRateDetailRepository,
   T as api
 };
-//# sourceMappingURL=shipping-rate-detail.repository-B85QqOu0.js.map
+//# sourceMappingURL=shipping-rate-detail.repository-l_MOM38c.js.map

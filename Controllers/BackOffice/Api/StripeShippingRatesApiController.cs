@@ -65,7 +65,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 
             var created = await _database.CreateShippingRateAsync(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value });
             return created is null
-                ? StatusResult(ShippingRateOperationStatus.SaveFailed)
+                ? UmbCheckoutCancellation.Result(HttpContext) ?? StatusResult(ShippingRateOperationStatus.SaveFailed)
                 : CreatedAtId<StripeShippingRatesApiController>(controller => nameof(controller.GetShippingRateById), created.Key);
         }
 
@@ -89,14 +89,19 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 
             existing.Name = model.Name;
             existing.Value = model.Value;
-            return await _database.UpdateShippingRateAsync(existing, HttpContext?.RequestAborted ?? default) is null ? StatusResult(ShippingRateOperationStatus.SaveFailed) : Ok();
+            return await _database.UpdateShippingRateAsync(existing, HttpContext?.RequestAborted ?? default) is null
+                ? UmbCheckoutCancellation.Result(HttpContext) ?? StatusResult(ShippingRateOperationStatus.SaveFailed)
+                : Ok();
         }
 
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteShippingRate(Guid id)
-            => await _database.DeleteShippingRateAsync(id, HttpContext?.RequestAborted ?? default) ? Ok() : StatusResult(ShippingRateOperationStatus.NotFound);
+            => await _database.DeleteShippingRateAsync(id, HttpContext?.RequestAborted ?? default)
+                ? Ok()
+                : UmbCheckoutCancellation.Result(HttpContext) ?? StatusResult(ShippingRateOperationStatus.NotFound);
 
         [HttpGet("stripe")]
         [ProducesResponseType(typeof(IEnumerable<StripeShippingRateResponseModel>), StatusCodes.Status200OK)]

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UmbCheckout.Core.ManagementApi;
 using UmbCheckout.Stripe.Composers;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
@@ -60,7 +61,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 
             return updated
                 ? Ok()
-                : OperationStatusResult(StripeSettingsOperationStatus.SaveFailed, problemDetails => BadRequest(problemDetails
+                : UmbCheckoutCancellation.Result(HttpContext) ?? OperationStatusResult(StripeSettingsOperationStatus.SaveFailed, problemDetails => BadRequest(problemDetails
                     .WithTitle("Stripe settings not saved")
                     .WithDetail("The Stripe settings could not be saved.")
                     .Build()));

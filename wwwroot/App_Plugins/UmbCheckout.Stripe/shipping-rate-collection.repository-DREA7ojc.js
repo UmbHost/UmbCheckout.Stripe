@@ -1,7 +1,7 @@
 import { UmbRepositoryBase as a } from "@umbraco-cms/backoffice/repository";
 import { tryExecute as s } from "@umbraco-cms/backoffice/resources";
 import { S as n } from "./sdk.gen-CWaSkarI.js";
-import { U as p } from "./bundle.manifests-5bNtKFqe.js";
+import { U as p } from "./bundle.manifests-DwSTaJfz.js";
 class c {
   #t;
   constructor(t) {
@@ -33,4 +33,4 @@ export {
   C as UmbCheckoutShippingRateCollectionRepository,
   C as api
 };
-//# sourceMappingURL=shipping-rate-collection.repository-CK0Iv_BS.js.map
+//# sourceMappingURL=shipping-rate-collection.repository-DREA7ojc.js.map

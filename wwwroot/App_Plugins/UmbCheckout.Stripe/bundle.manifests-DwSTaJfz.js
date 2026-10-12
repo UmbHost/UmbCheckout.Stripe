@@ -30,7 +30,7 @@ const r = [
     type: "repository",
     alias: p,
     name: "UmbCheckout Shipping Rate Detail Repository",
-    api: () => import("./shipping-rate-detail.repository-B85QqOu0.js")
+    api: () => import("./shipping-rate-detail.repository-l_MOM38c.js")
   },
   {
     type: "store",
@@ -43,7 +43,7 @@ const r = [
     type: "repository",
     alias: c,
     name: "UmbCheckout Shipping Rate Item Repository",
-    api: () => import("./shipping-rate-item.repository-0YiWdb-y.js")
+    api: () => import("./shipping-rate-item.repository-BFDUjlVT.js")
   },
   {
     type: "itemStore",
@@ -56,7 +56,7 @@ const r = [
     type: "repository",
     alias: a,
     name: "UmbCheckout Shipping Rate Collection Repository",
-    api: () => import("./shipping-rate-collection.repository-CK0Iv_BS.js")
+    api: () => import("./shipping-rate-collection.repository-DREA7ojc.js")
   },
   {
     type: "collection",
@@ -69,7 +69,7 @@ const r = [
     type: "collectionView",
     alias: "UmbCheckout.CollectionView.ShippingRate.Table",
     name: "UmbCheckout Shipping Rate Table View",
-    element: () => import("./shipping-rate-table-collection-view.element-oYg1WJDL.js"),
+    element: () => import("./shipping-rate-table-collection-view.element-Co7t7R_f.js"),
     meta: { label: "Table", icon: "icon-list", pathName: "table" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: t }]
   },
@@ -87,7 +87,7 @@ const r = [
     kind: "routable",
     alias: e,
     name: "UmbCheckout Shipping Rate Workspace",
-    api: () => import("./shipping-rate-workspace.context-Bht9wGyM.js"),
+    api: () => import("./shipping-rate-workspace.context-IMayuMHy.js"),
     // One workspace for the list (""), create and edit, so the menu item stays highlighted on a shipping rate.
     meta: { entityType: o }
   },
@@ -141,7 +141,7 @@ const r = [
     type: "repository",
     alias: A,
     name: "UmbCheckout Stripe Settings Repository",
-    api: () => import("./stripe-settings.repository-D9TezFod.js")
+    api: () => import("./stripe-settings.repository-BVIPqUDa.js")
   },
   {
     type: "store",
@@ -155,7 +155,7 @@ const r = [
     kind: "routable",
     alias: i,
     name: "UmbCheckout Stripe Settings Workspace",
-    api: () => import("./stripe-settings-workspace.context-CVpY_uoy.js"),
+    api: () => import("./stripe-settings-workspace.context-2DvLWVtm.js"),
     meta: { entityType: m }
   },
   {
@@ -204,4 +204,4 @@ export {
   i,
   w as m
 };
-//# sourceMappingURL=bundle.manifests-5bNtKFqe.js.map
+//# sourceMappingURL=bundle.manifests-DwSTaJfz.js.map
