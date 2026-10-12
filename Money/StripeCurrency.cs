@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace UmbCheckout.Stripe.Money
 {
     /// <summary>
@@ -21,6 +23,40 @@ namespace UmbCheckout.Stripe.Money
             "bhd", "jod", "kwd", "omr", "tnd"
         };
 
+        /// <summary>
+        /// Zero-decimal currencies Stripe still represents as two-decimal values (5 ISK is sent as 500).
+        /// Docs: "You can't charge fractions of ISK" / UGX likewise.
+        /// </summary>
+        private static readonly HashSet<string> WholeUnitsOnly = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "isk", "ugx"
+        };
+
+        /// <summary>The number of decimal places a charge in <paramref name="currency"/> may have.</summary>
+        public static int ChargeableDigits(string currency)
+            => WholeUnitsOnly.Contains(currency) ? 0 : MinorUnitDigits(currency);
+
+        /// <summary>
+        /// UmbCheckout's single rounding policy: round to the currency's chargeable digits, half away from zero.
+        /// </summary>
+        public static decimal Round(decimal amount, string currency)
+            => Math.Round(amount, ChargeableDigits(currency), MidpointRounding.AwayFromZero);
+
+        /// <summary>True when <paramref name="currency"/> is shaped like an ISO 4217 code (three ASCII letters).</summary>
+        public static bool IsCurrencyCode([NotNullWhen(true)] string? currency)
+            => currency is { Length: 3 } && currency.All(char.IsAsciiLetter);
+
+        /// <summary>The code as Stripe's API expects it (lowercase). Throws for anything that is not a currency code.</summary>
+        public static string ApiCode(string currency)
+        {
+            if (!IsCurrencyCode(currency))
+            {
+                throw new ArgumentException($"'{currency}' is not a three-letter ISO 4217 currency code.", nameof(currency));
+            }
+
+            return currency.ToLowerInvariant();
+        }
+
         /// <summary>The number of decimal places Stripe's API uses for <paramref name="currency"/> amounts.</summary>
         public static int MinorUnitDigits(string currency)
         {
@@ -36,17 +72,16 @@ namespace UmbCheckout.Stripe.Money
 
         /// <summary>
         /// Converts major units (10.99) to a Stripe amount (1099).
-        /// Throws when <paramref name="amount"/> has more decimal places than the currency allows: rounding money must be a deliberate choice by the caller.
+        /// Throws when <paramref name="amount"/> has more decimal places than the currency can be charged in: rounding money must be a deliberate choice by the caller (see <see cref="Round"/>).
         /// </summary>
         public static long ToMinorUnits(decimal amount, string currency)
         {
-            var scaled = amount * Factor(currency);
-            if (scaled != decimal.Truncate(scaled))
+            if (Math.Round(amount, ChargeableDigits(currency)) != amount)
             {
-                throw new ArgumentException($"{amount} has more decimal places than {currency.ToUpperInvariant()} allows ({MinorUnitDigits(currency)}).", nameof(amount));
+                throw new ArgumentException($"{amount} has more decimal places than {currency.ToUpperInvariant()} can be charged in ({ChargeableDigits(currency)}).", nameof(amount));
             }
 
-            return (long)scaled;
+            return (long)(amount * Factor(currency));
         }
 
         private static decimal Factor(string currency) => MinorUnitDigits(currency) switch
