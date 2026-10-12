@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -200,7 +200,7 @@ namespace UmbCheckout.Stripe.Services
             {
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 {
-                    var configuration = await _configurationService.GetConfiguration();
+                    var configuration = await _configurationService.GetConfigurationAsync();
                     var stripeSettings = await _stripeSettingsService.GetStripeSettings();
                     Uri? successUri = null;
                     Uri? cancelUri = null;
