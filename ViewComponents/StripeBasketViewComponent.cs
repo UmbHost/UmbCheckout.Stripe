@@ -12,10 +12,12 @@ namespace UmbCheckout.Stripe.ViewComponents
     public class StripeBasketViewComponent : ViewComponent
     {
         private readonly IBasketService _basketService;
+        private readonly ICurrencyService _currencyService;
 
-        public StripeBasketViewComponent(IBasketService basketService)
+        public StripeBasketViewComponent(IBasketService basketService, ICurrencyService currencyService)
         {
             _basketService = basketService;
+            _currencyService = currencyService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(
@@ -35,7 +37,7 @@ namespace UmbCheckout.Stripe.ViewComponents
             string? emptyBasketText  = "Your basket is empty!",
             string? emptyBasketButtonText = "Empty basket",
             string? subTotalText = "Sub Total:",
-            string? formatCurrency = "GBP",
+            Guid? currencyNodeKey = null,
             string? subTotalInformationText = "Coupons, Shipping and Tax are calculated on the next checkout step",
             string? checkoutButtonCssClass = null,
             string? productNameAlias = null,
@@ -43,6 +45,8 @@ namespace UmbCheckout.Stripe.ViewComponents
             string checkoutButtonText = "Checkout")
         {
             var basket = await _basketService.Get();
+
+            var currencyCode = await _currencyService.GetCurrencyAsync(currencyNodeKey);
 
             var model = new StripeBasketViewModel
             {
@@ -64,7 +68,7 @@ namespace UmbCheckout.Stripe.ViewComponents
                 EmptyBasketText = emptyBasketText,
                 EmptyBasketButtonText = emptyBasketButtonText,
                 SubTotalText = subTotalText,
-                FormatCurrency = formatCurrency,
+                FormatCurrency = currencyCode,
                 SubtotalInformationText = subTotalInformationText,
                 Basket = basket,
                 SubTotal = await _basketService.SubTotal(),

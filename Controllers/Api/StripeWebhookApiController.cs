@@ -104,6 +104,12 @@ namespace UmbCheckout.Stripe.Controllers.Api
                             scope.Notifications.Publish(new OnPaymentIntentPaymentFailedNotification(stripeEvent));
                             break;
                         }
+                    case "consent.promotions":
+                    {
+                        using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                        scope.Notifications.Publish(new OnPromotionalEmailConsentNotification(stripeEvent));
+                        break;
+                    }
                     default:
                         _logger.LogWarning("Unhandled event type: {0}", stripeEvent.Type);
                         break;

@@ -70,7 +70,15 @@
         "umbcheckoutstripe_allowed_shipping_countries": "Allowed shipping countries in two letter ISO format, separate multiple countries with a comma",
         "umbcheckoutstripe_collect_phone_number_label": "Collect Phone Number",
         "umbcheckoutstripe_collect_phone_number": "When enabled the field to collect a phone number is shown on the payment form",
-        "umbcheckoutstripe_viewinstripe": "View In Stripe Dashboard"
+        "umbcheckoutstripe_viewinstripe": "View In Stripe Dashboard",
+        "umbcheckoutstripe_collect_promotional_emails_consent_label": "Collect Promotional Emails Consent",
+        "umbcheckoutstripe_collect_promotional_emails_consent": "US only: When enabled a checkbox to collect promotinal emails consent is shown on the payment form",
+        "umbcheckoutstripe_allow_promotional_codes_label": "Allow Promotional Codes",
+        "umbcheckoutstripe_allow_promotional_codes": "When enabled a text box for promotional codes is shown on the payment form",
+        "umbcheckoutstripe_enable_abandoned_cart_recovery_label": "Enable Abandoned Cart Recovery",
+        "umbcheckoutstripe_enable_abandoned_cart_recovery": "US only: When enabled this will allow you to send cart abandonment emails. Requires \"Promotional Emails Consent\" to be enabled.",
+        "umbcheckoutstripe_allow_promotional_codes_on_recovered_carts_label": "Allow Promotional Codes On Recovered Carts",
+        "umbcheckoutstripe_allow_promotional_codes_on_recovered_carts": "US only: When enabled a text box for promotional codes is shown on the payment form when an abandoned cart has been recovered. Requires \"Abandoned Cart Recovery\" to be enabled.."
       }
     }
   ]

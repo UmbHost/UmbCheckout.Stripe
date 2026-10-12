@@ -48,6 +48,10 @@ namespace UmbCheckout.Stripe.Composers
             target.UseLiveApiDetails = source.UseLiveApiDetails;
             target.ShippingAllowedCountries = source.ShippingAllowedCountries;
             target.CollectPhoneNumber = source.CollectPhoneNumber;
+            target.CollectPromotionalEmailsConsent = source.CollectPromotionalConsent;
+            target.AllowPromotionalCodes = source.AllowPromotionalCodes;
+            target.AllowPromotionalCodesOnRecoveredCarts = source.AllowPromotionalCodesOnRecoveredCarts;
+            target.EnableAbandonedCartRecovery = source.EnableAbandonedCartRecovery;
         }
 
         private static void Map(Models.UmbCheckoutStripeSettings source, Pocos.UmbCheckoutStripeSettings target, MapperContext context)
@@ -57,6 +61,10 @@ namespace UmbCheckout.Stripe.Composers
             target.UseLiveApiDetails = source.UseLiveApiDetails;
             target.ShippingAllowedCountries = source.ShippingAllowedCountries;
             target.CollectPhoneNumber = source.CollectPhoneNumber;
+            target.CollectPromotionalConsent = source.CollectPromotionalEmailsConsent;
+            target.AllowPromotionalCodes = source.AllowPromotionalCodes;
+            target.AllowPromotionalCodesOnRecoveredCarts = source.AllowPromotionalCodesOnRecoveredCarts;
+            target.EnableAbandonedCartRecovery = source.EnableAbandonedCartRecovery;
         }
     }
 }

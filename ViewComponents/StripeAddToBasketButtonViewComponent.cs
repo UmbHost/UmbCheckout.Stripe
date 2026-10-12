@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Stripe.ViewModels;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
@@ -10,10 +11,17 @@ namespace UmbCheckout.Stripe.ViewComponents
     [ViewComponent(Name = "StripeAddToBasketButton")]
     public class StripeAddToBasketButtonViewComponent : ViewComponent
     {
+        private readonly ICurrencyService _currencyService;
+        public StripeAddToBasketButtonViewComponent(ICurrencyService currencyService)
+        {
+            _currencyService = currencyService;
+        }
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, string? currencyCode = null)
+        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            var currencyCode = await _currencyService.GetCurrencyAsync(currencyNodeKey);
+
             var model = new StripeAddToBasketButtonViewModel
             {
                 ShowQuantity = showQuantity,
