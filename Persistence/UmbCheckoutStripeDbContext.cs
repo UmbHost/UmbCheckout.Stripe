@@ -12,10 +12,13 @@ public sealed class UmbCheckoutStripeDbContext(DbContextOptions<UmbCheckoutStrip
 
     internal DbSet<UmbCheckoutStripeShipping> ShippingRates => Set<UmbCheckoutStripeShipping>();
 
+    internal DbSet<UmbCheckoutStripeWebhookEvent> WebhookEvents => Set<UmbCheckoutStripeWebhookEvent>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var isSqlite = Database.IsSqlite();
         modelBuilder.ApplyConfiguration(new UmbCheckoutStripeSettingsConfiguration(isSqlite));
         modelBuilder.ApplyConfiguration(new UmbCheckoutStripeShippingConfiguration(isSqlite));
+        modelBuilder.ApplyConfiguration(new UmbCheckoutStripeWebhookEventConfiguration());
     }
 }

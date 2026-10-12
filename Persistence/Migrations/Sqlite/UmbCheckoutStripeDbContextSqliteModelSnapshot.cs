@@ -89,6 +89,24 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.Sqlite
 
                     b.ToTable("UmbCheckoutStripeShipping", (string)null);
                 });
+
+            modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripeWebhookEvent", b =>
+                {
+                    b.Property<string>("EventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReceivedUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("EventId")
+                        .HasName("PK_UmbCheckoutStripeWebhookEvents");
+
+                    b.HasIndex("ReceivedUtc")
+                        .HasDatabaseName("IX_UmbCheckoutStripeWebhookEvents_ReceivedUtc");
+
+                    b.ToTable("UmbCheckoutStripeWebhookEvents", (string)null);
+                });
 #pragma warning restore 612, 618
         }
     }

@@ -95,6 +95,24 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.SqlServer
 
                     b.ToTable("UmbCheckoutStripeShipping", (string)null);
                 });
+
+            modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripeWebhookEvent", b =>
+                {
+                    b.Property<string>("EventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("ReceivedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("EventId")
+                        .HasName("PK_UmbCheckoutStripeWebhookEvents");
+
+                    b.HasIndex("ReceivedUtc")
+                        .HasDatabaseName("IX_UmbCheckoutStripeWebhookEvents_ReceivedUtc");
+
+                    b.ToTable("UmbCheckoutStripeWebhookEvents", (string)null);
+                });
 #pragma warning restore 612, 618
         }
     }
