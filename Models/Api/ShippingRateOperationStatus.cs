@@ -5,6 +5,8 @@ namespace UmbCheckout.Stripe.Models.Api
         NotFound,
         DuplicateValue,
         SaveFailed,
-        StripeError
+        StripeError,
+        StripeNotConfigured,
+        StripeUnreachable
     }
 }

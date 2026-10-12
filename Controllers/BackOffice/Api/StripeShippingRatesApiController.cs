@@ -108,6 +108,10 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             {
                 return StripeErrorResult(ex);
             }
+            catch (Exception ex) when (IsStripeUnavailable(ex))
+            {
+                return StripeUnavailableResult(ex);
+            }
         }
 
         [HttpGet("stripe/{stripeId}")]
@@ -127,7 +131,22 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             {
                 return StripeErrorResult(ex);
             }
+            catch (Exception ex) when (IsStripeUnavailable(ex))
+            {
+                return StripeUnavailableResult(ex);
+            }
         }
+
+        /// <summary>Stripe has no API key for the active mode, or could not be reached (network failure or timeout).</summary>
+        private bool IsStripeUnavailable(Exception ex)
+            => ex is StripeNotConfiguredException
+               || (ex is HttpRequestException or TaskCanceledException && HttpContext?.RequestAborted.IsCancellationRequested != true);
+
+        private IActionResult StripeUnavailableResult(Exception ex) => ex is StripeNotConfiguredException
+            ? OperationStatusResult(ShippingRateOperationStatus.StripeNotConfigured, problemDetails => BadRequest(problemDetails
+                .WithTitle(UmbCheckoutProblemDetails.StripeNotConfiguredTitle).WithDetail(ex.Message).Build()))
+            : OperationStatusResult(ShippingRateOperationStatus.StripeUnreachable, problemDetails => StatusCode(StatusCodes.Status502BadGateway, problemDetails
+                .WithTitle(UmbCheckoutProblemDetails.StripeUnreachableTitle).WithDetail(ex.Message).Build()));
 
         private static ShippingRateResponseModel ToResponse(ShippingRate rate) => new() { Id = rate.Key, Name = rate.Name, Value = rate.Value };
 

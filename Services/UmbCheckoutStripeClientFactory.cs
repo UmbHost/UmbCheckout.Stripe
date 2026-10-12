@@ -22,7 +22,13 @@ namespace UmbCheckout.Stripe.Services
         {
             var settings = await _stripeSettingsService.GetStripeSettings();
             // Live keys are used only when live mode has been explicitly saved.
-            var keys = settings?.UseLiveApiDetails == true ? _stripeSettings.CurrentValue.Live : _stripeSettings.CurrentValue.Test;
+            var live = settings?.UseLiveApiDetails == true;
+            var keys = live ? _stripeSettings.CurrentValue.Live : _stripeSettings.CurrentValue.Test;
+            if (string.IsNullOrWhiteSpace(keys.ApiKey))
+            {
+                throw new StripeNotConfiguredException(live);
+            }
+
             return new StripeClient(keys.ApiKey);
         }
     }
