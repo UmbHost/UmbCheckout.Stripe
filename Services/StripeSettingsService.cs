@@ -6,6 +6,9 @@ using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Persistence;
 using UmbHost.Licensing.Services;
 using UmbCheckout.Shared.Notifications;
+using UmbCheckout.Shared.Persistence;
+using UmbCheckout.Stripe.Cache;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Persistence.EFCore.Scoping;
@@ -22,10 +25,14 @@ namespace UmbCheckout.Stripe.Services
         private readonly ILogger<StripeSettingsService> _logger;
         private readonly IEventAggregator _eventAggregator;
         private readonly IEventMessagesFactory _eventMessagesFactory;
+        private readonly SettingsCache<Pocos.UmbCheckoutStripeSettings> _cache;
+        private readonly DistributedCache? _distributedCache;
 
         public StripeSettingsService(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, LicenseService licenseService,
-            IEventAggregator eventAggregator, IEventMessagesFactory eventMessagesFactory)
+            IEventAggregator eventAggregator, IEventMessagesFactory eventMessagesFactory, SettingsCache<Pocos.UmbCheckoutStripeSettings> cache, DistributedCache? distributedCache = null)
         {
+            _cache = cache;
+            _distributedCache = distributedCache;
             _scopeProvider = scopeProvider;
             _logger = logger;
             _mapper = mapper;
@@ -46,11 +53,16 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <summary>The stored Stripe settings, without publishing Loaded.</summary>
+        /// <summary>The stored settings (cached), without publishing Loaded: a fresh model each time, mapped from the cached row.</summary>
         private async Task<UmbCheckoutStripeSettings?> ReadAsync(CancellationToken cancellationToken)
         {
-            using var scope = _scopeProvider.CreateScope();
-            var entity = await scope.ExecuteWithContextAsync(db => db.StripeSettings.AsNoTracking().SingleOrDefaultAsync(cancellationToken));
-            scope.Complete();
+            if (!_cache.TryGet(out var entity))
+            {
+                using var scope = _scopeProvider.CreateScope();
+                entity = await scope.ExecuteWithContextAsync(db => db.StripeSettings.AsNoTracking().SingleOrDefaultAsync(cancellationToken));
+                scope.Complete();
+                _cache.Set(entity);
+            }
 
             return _mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(entity);
         }
@@ -92,6 +104,10 @@ namespace UmbCheckout.Stripe.Services
 
             scope.Notifications.Publish(new OnStripeSettingsSavedNotification(_mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(saved)));
             scope.Complete();
+
+            // This server's copy now, every other server's through Umbraco's distributed cache (load balancing).
+            _cache.Clear();
+            _distributedCache?.RefreshAll(UmbCheckoutStripeSettingsCacheRefresher.UniqueId);
             _logger.LogDebug("UmbCheckout Stripe settings saved");
             return true;
         }
