@@ -12,6 +12,7 @@ namespace UmbCheckout.Stripe.Composers
         public void Compose(IUmbracoBuilder builder)
         {
             builder.Services.AddTransient<IStripeSessionService, StripeSessionService>();
+            builder.Services.AddTransient<IUmbCheckoutSuccessPageMatcher, UmbCheckoutSuccessPageMatcher>();
             builder.Services.AddTransient<IStripeLineItemPricingService, StripeLineItemPricingService>();
             builder.Services.AddTransient<IStripeBasketPricingService, StripeBasketPricingService>();
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
