@@ -20,6 +20,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     [MapToApi(StripeApiComposer.DocumentName)]
     // Settings > UmbCheckout: changing these requires Settings section access, not just a back-office login.
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    // Editors manage what is stored: reads here skip the Loaded hooks, so display changes aren't saved back.
+    [SuppressLoadedHooks]
     public class StripeSettingsApiController : ManagementApiControllerBase
     {
         private readonly IStripeSettingsService _stripeSettingsService;

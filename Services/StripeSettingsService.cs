@@ -5,6 +5,7 @@ using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Persistence;
 using UmbHost.Licensing.Services;
+using UmbCheckout.Shared.Notifications;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Persistence.EFCore.Scoping;
@@ -37,7 +38,7 @@ namespace UmbCheckout.Stripe.Services
         public async Task<UmbCheckoutStripeSettings?> GetStripeSettingsAsync(CancellationToken cancellationToken = default)
         {
             var settings = await ReadAsync(cancellationToken);
-            if (settings != null)
+            if (settings != null && !UmbCheckoutHooks.LoadedSuppressed)
             {
                 await _eventAggregator.PublishAsync(new OnStripeSettingsLoadedNotification(settings, _eventMessagesFactory.Get()), cancellationToken);
             }
@@ -59,7 +60,7 @@ namespace UmbCheckout.Stripe.Services
         public async Task<bool> UpdateStripeSettingsAsync(UmbCheckoutStripeSettings stripeSettings, CancellationToken cancellationToken = default)
         {
             var saving = new OnStripeSettingsSavingNotification(stripeSettings, await ReadAsync(cancellationToken), _eventMessagesFactory.Get());
-            if (await _eventAggregator.PublishCancelableAsync(saving))
+            if (await _eventAggregator.PublishCancellingAsync(saving, _eventMessagesFactory.Get()))
             {
                 return false;
             }

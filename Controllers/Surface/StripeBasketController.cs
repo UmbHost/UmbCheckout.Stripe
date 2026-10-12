@@ -4,6 +4,7 @@ using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Core.ManagementApi;
 using UmbCheckout.Core.Models;
 using UmbCheckout.Shared.Models;
+using UmbCheckout.Shared.Notifications;
 using UmbCheckout.Stripe.Interfaces;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
@@ -155,7 +156,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                var basket = await _basketService.Get();
+                // Checkout charges the stored basket: a site's Loaded hooks shape what shoppers see, never what is charged.
+                Basket basket;
+                using (UmbCheckoutHooks.SuppressLoaded())
+                {
+                    basket = await _basketService.Get();
+                }
+
                 if (!basket.LineItems.Any())
                 {
                     TempData[Shared.Consts.TempData.UmbCheckoutEmptyBasket] = true;
@@ -178,13 +185,12 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
 
-                // The success page clears this basket only when it returns from this checkout session.
+                // The success page clears this basket only when it returns from this checkout session. Bookkeeping, not a
+                // shopper's change, so a site's Saving handlers can't refuse it (or the paid basket would never clear).
                 repricing.Basket.CheckoutSessionId = stripeSession.Id;
-                await _umbCheckoutSessionService.Update(repricing.Basket);
-                if (UmbCheckoutCancellation.Message(HttpContext) is { } cancelled)
+                using (UmbCheckoutHooks.SuppressSaving())
                 {
-                    // The Stripe session exists, so checkout goes ahead; without the id the success page won't clear this basket.
-                    _logger.LogWarning("A notification handler cancelled recording checkout session {CheckoutSessionId} on the basket: {Reason}", stripeSession.Id, cancelled);
+                    await _umbCheckoutSessionService.Update(repricing.Basket);
                 }
 
                 return Redirect(stripeSession.Url);
@@ -214,6 +220,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             try
             {
                 await _basketService.Clear();
+                Cancelled();
                 return RedirectToCurrentUmbracoPage();
             }
             catch (Exception ex)

@@ -4,6 +4,7 @@ using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
 using UmbCheckout.Stripe.Persistence;
 using UmbCheckout.Stripe.Pocos;
+using UmbCheckout.Shared.Notifications;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Persistence.EFCore.Scoping;
@@ -52,7 +53,7 @@ namespace UmbCheckout.Stripe.Services
         /// <inheritdoc />
         public async Task<ShippingRate?> CreateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default)
         {
-            if (await _eventAggregator.PublishCancelableAsync(new OnShippingRateSavingNotification(shippingRate, null, _eventMessagesFactory.Get())))
+            if (await _eventAggregator.PublishCancellingAsync(new OnShippingRateSavingNotification(shippingRate, null, _eventMessagesFactory.Get()), _eventMessagesFactory.Get()))
             {
                 return null;
             }
@@ -74,7 +75,7 @@ namespace UmbCheckout.Stripe.Services
             // The row this update will change, matched as the update below matches it: by Key, then by Stripe ID.
             var stored = (shippingRate.Key == Guid.Empty ? null : await FindAsync(shippingRate.Key, cancellationToken))
                          ?? await FindAsync(shippingRate.Value, cancellationToken);
-            if (await _eventAggregator.PublishCancelableAsync(new OnShippingRateSavingNotification(shippingRate, stored, _eventMessagesFactory.Get())))
+            if (await _eventAggregator.PublishCancellingAsync(new OnShippingRateSavingNotification(shippingRate, stored, _eventMessagesFactory.Get()), _eventMessagesFactory.Get()))
             {
                 return null;
             }
@@ -136,7 +137,7 @@ namespace UmbCheckout.Stripe.Services
         public async Task<bool> DeleteShippingRateAsync(Guid key, CancellationToken cancellationToken = default)
         {
             var stored = await FindAsync(key, cancellationToken);
-            if (stored != null && await _eventAggregator.PublishCancelableAsync(new OnShippingRateDeletingNotification(stored, _eventMessagesFactory.Get())))
+            if (stored != null && await _eventAggregator.PublishCancellingAsync(new OnShippingRateDeletingNotification(stored, _eventMessagesFactory.Get()), _eventMessagesFactory.Get()))
             {
                 return false;
             }
@@ -185,6 +186,11 @@ namespace UmbCheckout.Stripe.Services
         /// <summary>Publishes Loaded for what a list read is about to return.</summary>
         private async Task<List<ShippingRate>> LoadedAsync(IEnumerable<ShippingRate> rates, CancellationToken cancellationToken)
         {
+            if (UmbCheckoutHooks.LoadedSuppressed)
+            {
+                return rates.ToList();
+            }
+
             var notification = new OnShippingRatesLoadedNotification(rates.ToList(), _eventMessagesFactory.Get());
             await _eventAggregator.PublishAsync(notification, cancellationToken);
             return notification.Items;
@@ -192,7 +198,16 @@ namespace UmbCheckout.Stripe.Services
 
         /// <summary>Publishes Loaded for a single read; null if there was nothing to return or a handler removed the rate.</summary>
         private async Task<ShippingRate?> LoadedAsync(ShippingRate? rate, CancellationToken cancellationToken)
-            => rate == null ? null : (await LoadedAsync([rate], cancellationToken)).SingleOrDefault();
+        {
+            if (rate == null)
+            {
+                return null;
+            }
+
+            // The same rate, possibly changed or replaced (matched by key); null when a handler removed it.
+            var items = await LoadedAsync([rate], cancellationToken);
+            return items.FirstOrDefault(r => ReferenceEquals(r, rate)) ?? items.FirstOrDefault(r => r.Key == rate.Key);
+        }
 
         private async Task<ShippingRate?> InsertAsync(UmbCheckoutStripeDbContext db, ShippingRate shippingRate, CancellationToken cancellationToken)
         {
