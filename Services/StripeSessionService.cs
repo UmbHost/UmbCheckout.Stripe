@@ -356,7 +356,12 @@ namespace UmbCheckout.Stripe.Services
 
                     if (configuration is { EnableShipping: true })
                     {
-                        options.ShippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
+                        // Stripe rejects an empty shipping_options list (sent as an empty string): only set it when a rate applies.
+                        var shippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
+                        if (shippingOptions.Count > 0)
+                        {
+                            options.ShippingOptions = shippingOptions;
+                        }
 
                         options.BillingAddressCollection = "required";
 
