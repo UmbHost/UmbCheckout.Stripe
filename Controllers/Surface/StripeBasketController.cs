@@ -19,14 +19,18 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         private readonly IBasketService _basketService;
         private readonly IStripeSessionService _sessionService;
         private readonly IStripeLineItemPricingService _pricingService;
+        private readonly IStripeBasketPricingService _basketPricingService;
+        private readonly ISessionService _umbCheckoutSessionService;
         private readonly ILogger<StripeBasketController> _logger;
 
-        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, ILogger<StripeBasketController> logger)
+        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, IStripeBasketPricingService basketPricingService, ISessionService umbCheckoutSessionService, ILogger<StripeBasketController> logger)
             : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _basketService = basketService;
             _sessionService = sessionService;
             _pricingService = pricingService;
+            _basketPricingService = basketPricingService;
+            _umbCheckoutSessionService = umbCheckoutSessionService;
             _logger = logger;
         }
 
@@ -144,12 +148,21 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var stripeSession = await _sessionService.CreateSessionAsync(basket);
+                // Checkout charges current published prices; if anything changed the customer sees it before paying.
+                var repricing = await _basketPricingService.RepriceAsync(basket);
+                if (repricing.Changes.Count > 0)
+                {
+                    await _umbCheckoutSessionService.Update(repricing.Basket);
+                    TempData[Shared.Consts.TempData.UmbCheckoutBasketRepriced] = string.Join(", ", repricing.Changes.Select(change => change.Name).Distinct());
+                    return RedirectToCurrentUmbracoPage();
+                }
+
+                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
                 return Redirect(stripeSession.Url);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Checkout failed");
                 return StatusCode(500);
             }
         }
