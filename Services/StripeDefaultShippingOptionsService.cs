@@ -32,7 +32,7 @@ public class StripeDefaultShippingOptionsService : IStripeShippingOptionsService
         var currency = basket.CurrencyCode ?? basket.LineItems.SingleCurrency();
         var options = new List<SessionShippingOptionOptions>();
 
-        foreach (var configured in await _stripeDatabaseService.GetShippingRates())
+        foreach (var configured in await _stripeDatabaseService.GetShippingRatesAsync())
         {
             ShippingRate rate;
             try

@@ -1,9 +1,10 @@
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Notifications;
+using UmbCheckout.Stripe.Persistence;
 using UmbCheckout.Stripe.Pocos;
 using Umbraco.Cms.Core.Mapping;
-using Umbraco.Cms.Infrastructure.Scoping;
+using Umbraco.Cms.Persistence.EFCore.Scoping;
 using ShippingRate = UmbCheckout.Stripe.Models.ShippingRate;
 
 namespace UmbCheckout.Stripe.Services
@@ -13,176 +14,125 @@ namespace UmbCheckout.Stripe.Services
     /// </summary>
     internal class StripeShippingRateDatabaseService : IStripeShippingRateDatabaseService
     {
-        private readonly IScopeProvider _scopeProvider;
+        private readonly IEFCoreScopeProvider<UmbCheckoutStripeDbContext> _scopeProvider;
         private readonly IUmbracoMapper _mapper;
-        private readonly ILogger<StripeShippingRateDatabaseService> _logger;
 
-        public StripeShippingRateDatabaseService(IScopeProvider scopeProvider, IUmbracoMapper mapper, ILogger<StripeShippingRateDatabaseService> logger)
+        public StripeShippingRateDatabaseService(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, IUmbracoMapper mapper)
         {
             _scopeProvider = scopeProvider;
             _mapper = mapper;
-            _logger = logger;
-        }
-        
-        /// <inheritdoc />
-        public async Task<IEnumerable<ShippingRate>> GetShippingRates()
-        {
-            try
-            { 
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var results = await scope.Database.FetchAsync<UmbCheckoutStripeShipping>();
-
-                return _mapper.MapEnumerable<UmbCheckoutStripeShipping, ShippingRate>(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Gets a Shipping Rate by id
-        /// </summary>
-        /// <param name="id">Id of the Stripe Shipping Rate</param>
-        /// <returns>The Stripe Shipping Rate</returns>
-        private async Task<ShippingRate?> GetShippingRate(long id)
-        {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Id == id);
-
-                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
         }
 
         /// <inheritdoc />
-        public async Task<ShippingRate?> GetShippingRate(Guid key)
+        public async Task<IEnumerable<ShippingRate>> GetShippingRatesAsync(CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Key == key);
-
-                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+            using var scope = _scopeProvider.CreateScope();
+            var rows = await scope.ExecuteWithContextAsync(db => db.ShippingRates.AsNoTracking().OrderBy(x => x.Id).ToListAsync(cancellationToken));
+            scope.Complete();
+            return _mapper.MapEnumerable<UmbCheckoutStripeShipping, ShippingRate>(rows);
         }
 
         /// <inheritdoc />
-        public async Task<ShippingRate?> GetShippingRate(string value)
+        public async Task<ShippingRate?> GetShippingRateAsync(Guid key, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var results = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Value == value);
-
-                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+            using var scope = _scopeProvider.CreateScope();
+            var row = await scope.ExecuteWithContextAsync(db => db.ShippingRates.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key, cancellationToken));
+            scope.Complete();
+            return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(row);
         }
 
         /// <inheritdoc />
-        public async Task<ShippingRate?> CreateShippingRate(ShippingRate shippingRate)
+        public async Task<ShippingRate?> GetShippingRateAsync(string value, CancellationToken cancellationToken = default)
         {
-            try
+            using var scope = _scopeProvider.CreateScope();
+            var row = await scope.ExecuteWithContextAsync(db => db.ShippingRates.AsNoTracking().SingleOrDefaultAsync(x => x.Value == value, cancellationToken));
+            scope.Complete();
+            return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(row);
+        }
+
+        /// <inheritdoc />
+        public async Task<ShippingRate?> CreateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default)
+        {
+            using var scope = _scopeProvider.CreateScope();
+            var created = await scope.ExecuteWithContextAsync(db => InsertAsync(db, shippingRate, cancellationToken));
+            if (created != null)
             {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
+                scope.Notifications.Publish(new OnShippingRateSavedNotification(created));
+            }
 
-                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
+            scope.Complete();
+            return created;
+        }
 
-                var existingShippingRate = await GetShippingRate(shippingRate.Value);
-
-                if (existingShippingRate == null)
+        /// <inheritdoc />
+        public async Task<ShippingRate?> UpdateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default)
+        {
+            using var scope = _scopeProvider.CreateScope();
+            var saved = await scope.ExecuteWithContextAsync(async db =>
+            {
+                var existing = await db.ShippingRates.SingleOrDefaultAsync(x => x.Value == shippingRate.Value, cancellationToken);
+                if (existing == null)
                 {
-                    var result = (long)await scope.Database.InsertAsync(shippingRatePoco);
-                    var updatedShippingRate = await GetShippingRate(result);
-                    scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
-
-                    return updatedShippingRate;
+                    return await InsertAsync(db, shippingRate, cancellationToken);
                 }
 
+                existing.Name = shippingRate.Name;
+                existing.Key ??= Guid.NewGuid();
+                await db.SaveChangesAsync(cancellationToken);
+                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(existing);
+            });
+
+            if (saved != null)
+            {
+                scope.Notifications.Publish(new OnShippingRateSavedNotification(saved));
+            }
+
+            scope.Complete();
+            return saved;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> DeleteShippingRateAsync(Guid key, CancellationToken cancellationToken = default)
+        {
+            using var scope = _scopeProvider.CreateScope();
+            var deleted = await scope.ExecuteWithContextAsync(async db =>
+            {
+                var existing = await db.ShippingRates.SingleOrDefaultAsync(x => x.Key == key, cancellationToken);
+                if (existing == null)
+                {
+                    return null;
+                }
+
+                db.ShippingRates.Remove(existing);
+                await db.SaveChangesAsync(cancellationToken);
+                return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(existing);
+            });
+
+            if (deleted != null)
+            {
+                scope.Notifications.Publish(new OnShippingRateDeletedNotification(deleted));
+            }
+
+            scope.Complete();
+            return deleted != null;
+        }
+
+        private async Task<ShippingRate?> InsertAsync(UmbCheckoutStripeDbContext db, ShippingRate shippingRate, CancellationToken cancellationToken)
+        {
+            if (await db.ShippingRates.AnyAsync(x => x.Value == shippingRate.Value, cancellationToken))
+            {
                 return null;
             }
-            catch (Exception ex)
+
+            var row = new UmbCheckoutStripeShipping
             {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
-        public async Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate)
-        {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-
-                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
-
-                var existingShippingRate = await GetShippingRate(shippingRate.Value);
-
-                if (existingShippingRate != null)
-                {
-                    shippingRatePoco!.Id = existingShippingRate.Id;
-                    shippingRatePoco.Key = existingShippingRate.Key;
-                    var result = await scope.Database.UpdateAsync(shippingRatePoco);
-                    var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key ?? Guid.Empty);
-
-                    scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
-
-                    return updatedShippingRate;
-                }
-
-                return await CreateShippingRate(shippingRate);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
-        public async Task<bool> DeleteShippingRate(Guid key)
-        {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-
-                var shippingRate = await GetShippingRate(key);
-                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
-
-                if (shippingRatePoco == null)
-                {
-                    return false;
-                }
-
-                _ = await scope.Database.DeleteAsync(shippingRatePoco);
-
-                scope.Notifications.Publish(new OnShippingRateDeletedNotification(shippingRate));
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+                Name = shippingRate.Name,
+                Value = shippingRate.Value,
+                Key = shippingRate.Key == Guid.Empty ? Guid.NewGuid() : shippingRate.Key,
+            };
+            db.ShippingRates.Add(row);
+            await db.SaveChangesAsync(cancellationToken);
+            return _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(row);
         }
     }
 }

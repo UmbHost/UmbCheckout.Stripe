@@ -20,7 +20,7 @@ namespace UmbCheckout.Stripe.Services
         /// <inheritdoc />
         public async Task<IStripeClient> CreateAsync()
         {
-            var settings = await _stripeSettingsService.GetStripeSettings();
+            var settings = await _stripeSettingsService.GetStripeSettingsAsync();
             // Live keys are used only when live mode has been explicitly saved.
             var live = settings?.UseLiveApiDetails == true;
             var keys = live ? _stripeSettings.CurrentValue.Live : _stripeSettings.CurrentValue.Test;

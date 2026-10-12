@@ -1,109 +1,75 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications;
+using UmbCheckout.Stripe.Persistence;
 using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Mapping;
-using Umbraco.Cms.Core.Scoping;
-using IScopeProvider = Umbraco.Cms.Infrastructure.Scoping.IScopeProvider;
+using Umbraco.Cms.Persistence.EFCore.Scoping;
 
 namespace UmbCheckout.Stripe.Services
 {
     /// <summary>
-    /// A service which Gets or Updates the configuration
+    /// A service which Gets or Updates the Stripe settings
     /// </summary>
     internal class StripeSettingsService : IStripeSettingsService
     {
-        private readonly IScopeProvider _scopeProvider;
-        private readonly ICoreScopeProvider _coreScopeProvider;
+        private readonly IEFCoreScopeProvider<UmbCheckoutStripeDbContext> _scopeProvider;
         private readonly IUmbracoMapper _mapper;
         private readonly ILogger<StripeSettingsService> _logger;
 
-        public StripeSettingsService(IScopeProvider scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, ICoreScopeProvider coreScopeProvider, LicenseService licenseService)
+        public StripeSettingsService(IEFCoreScopeProvider<UmbCheckoutStripeDbContext> scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, LicenseService licenseService)
         {
             _scopeProvider = scopeProvider;
             _logger = logger;
             _mapper = mapper;
-            _coreScopeProvider = coreScopeProvider;
             licenseService.RunLicenseCheck();
         }
 
         /// <inheritdoc />
-        public async Task<UmbCheckoutStripeSettings?> GetStripeSettings()
+        public async Task<UmbCheckoutStripeSettings?> GetStripeSettingsAsync(CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var result = await scope.Database.QueryAsync<Pocos.UmbCheckoutStripeSettings>().SingleOrDefault();
+            using var scope = _scopeProvider.CreateScope();
+            var entity = await scope.ExecuteWithContextAsync(db => db.StripeSettings.AsNoTracking().SingleOrDefaultAsync(cancellationToken));
+            scope.Complete();
 
-                return _mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+            return _mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(entity);
         }
 
         /// <inheritdoc />
-        public async Task<bool> UpdateStripeSettings(UmbCheckoutStripeSettings stripeSettings)
+        public async Task<bool> UpdateStripeSettingsAsync(UmbCheckoutStripeSettings stripeSettings, CancellationToken cancellationToken = default)
         {
-            try
+            var incoming = _mapper.Map<UmbCheckoutStripeSettings, Pocos.UmbCheckoutStripeSettings>(stripeSettings);
+            if (incoming == null)
             {
-                using var coreScope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                var stripeSettingsPoco = _mapper.Map<UmbCheckoutStripeSettings, Pocos.UmbCheckoutStripeSettings>(stripeSettings);
-                var existingConfiguration = await GetStripeSettings();
-                if (existingConfiguration != null)
-                {
-                    if (stripeSettingsPoco != null)
-                    {
-                        stripeSettingsPoco.Id = existingConfiguration.Id;
-                        stripeSettingsPoco.Key = existingConfiguration.Key;
-                        using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                        var db = scope.Database;
-                        var result = await db.UpdateAsync(stripeSettingsPoco);
-                        var updatedConfiguration = await GetStripeSettings();
-                        scope.Notifications.Publish(new OnStripeSettingsSavedNotification(updatedConfiguration));
-                        return result != 0;
-                    }
-                }
-
-                if (stripeSettingsPoco != null)
-                {
-                    var created = await CreateStripeSettings(stripeSettingsPoco);
-
-                    return created;
-                }
-
                 return false;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
-        }
 
-        /// <summary>
-        /// Inserts the initial Stripe settings
-        /// </summary>
-        /// <param name="stripeSettings">The Stripe settings</param>
-        /// <returns>true is inserted successfully false if not</returns>
-        private async Task<bool> CreateStripeSettings(Pocos.UmbCheckoutStripeSettings stripeSettings)
-        {
-            try
+            using var scope = _scopeProvider.CreateScope();
+            var saved = await scope.ExecuteWithContextAsync(async db =>
             {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
-                var db = scope.Database;
-                var result = (long?)await db.InsertAsync(stripeSettings);
+                var existing = await db.StripeSettings.SingleOrDefaultAsync(cancellationToken);
+                if (existing == null)
+                {
+                    incoming.Id = 0;
+                    incoming.Key = incoming.Key is null || incoming.Key == Guid.Empty ? Guid.NewGuid() : incoming.Key;
+                    db.StripeSettings.Add(incoming);
+                    await db.SaveChangesAsync(cancellationToken);
+                    return incoming;
+                }
 
-                return result is not null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+                incoming.Id = existing.Id;
+                incoming.Key = existing.Key ?? Guid.NewGuid();
+                db.Entry(existing).CurrentValues.SetValues(incoming);
+                await db.SaveChangesAsync(cancellationToken);
+                return existing;
+            });
+
+            scope.Notifications.Publish(new OnStripeSettingsSavedNotification(_mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(saved)));
+            scope.Complete();
+            _logger.LogDebug("UmbCheckout Stripe settings saved");
+            return true;
         }
     }
 }

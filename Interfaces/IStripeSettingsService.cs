@@ -1,4 +1,4 @@
-﻿namespace UmbCheckout.Stripe.Interfaces
+namespace UmbCheckout.Stripe.Interfaces
 {
     /// <summary>
     /// A service which Gets or Updates the Stripe settings
@@ -8,14 +8,14 @@
         /// <summary>
         /// Gets the Stripe settings
         /// </summary>
-        /// <returns>The configuration</returns>
-        Task<Models.UmbCheckoutStripeSettings?> GetStripeSettings();
+        /// <returns>The Stripe settings, or null before they are first saved</returns>
+        Task<Models.UmbCheckoutStripeSettings?> GetStripeSettingsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Updates the Stripe settings
+        /// Inserts or updates the Stripe settings
         /// </summary>
         /// <param name="stripeSettings">The Stripe settings</param>
-        /// <returns>true if update was successful false if not</returns>
-        Task<bool> UpdateStripeSettings(Models.UmbCheckoutStripeSettings stripeSettings);
+        /// <returns>true when saved</returns>
+        Task<bool> UpdateStripeSettingsAsync(Models.UmbCheckoutStripeSettings stripeSettings, CancellationToken cancellationToken = default);
     }
 }

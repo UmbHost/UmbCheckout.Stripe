@@ -29,7 +29,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(StripeSettingsResponseModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetStripeSettings()
         {
-            var settings = await _stripeSettingsService.GetStripeSettings() ?? new UmbCheckoutStripeSettings();
+            var settings = await _stripeSettingsService.GetStripeSettingsAsync(HttpContext?.RequestAborted ?? default) ?? new UmbCheckoutStripeSettings();
             return Ok(new StripeSettingsResponseModel
             {
                 UseLiveApiDetails = settings.UseLiveApiDetails,
@@ -47,7 +47,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateStripeSettings([FromBody] UpdateStripeSettingsRequestModel model)
         {
-            var updated = await _stripeSettingsService.UpdateStripeSettings(new UmbCheckoutStripeSettings
+            var updated = await _stripeSettingsService.UpdateStripeSettingsAsync(new UmbCheckoutStripeSettings
             {
                 UseLiveApiDetails = model.UseLiveApiDetails,
                 CollectPhoneNumber = model.CollectPhoneNumber,

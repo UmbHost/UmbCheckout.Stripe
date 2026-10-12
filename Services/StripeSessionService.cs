@@ -201,7 +201,7 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 {
                     var configuration = await _configurationService.GetConfigurationAsync();
-                    var stripeSettings = await _stripeSettingsService.GetStripeSettings();
+                    var stripeSettings = await _stripeSettingsService.GetStripeSettingsAsync();
                     Uri? successUri = null;
                     Uri? cancelUri = null;
                     if (configuration != null)

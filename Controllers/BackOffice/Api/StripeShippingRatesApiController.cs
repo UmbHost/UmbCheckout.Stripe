@@ -36,7 +36,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(PagedViewModel<ShippingRateResponseModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetShippingRates(int skip = 0, int take = 100)
         {
-            var all = (await _database.GetShippingRates()).ToList();
+            var all = (await _database.GetShippingRatesAsync(HttpContext?.RequestAborted ?? default)).ToList();
             return Ok(new PagedViewModel<ShippingRateResponseModel>
             {
                 Total = all.Count,
@@ -49,7 +49,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetShippingRateById(Guid id)
         {
-            var rate = await _database.GetShippingRate(id);
+            var rate = await _database.GetShippingRateAsync(id, HttpContext?.RequestAborted ?? default);
             return rate is null ? StatusResult(ShippingRateOperationStatus.NotFound) : Ok(ToResponse(rate));
         }
 
@@ -58,12 +58,12 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateShippingRate([FromBody] CreateShippingRateRequestModel model)
         {
-            if (await _database.GetShippingRate(model.Value) is not null)
+            if (await _database.GetShippingRateAsync(model.Value, HttpContext?.RequestAborted ?? default) is not null)
             {
                 return StatusResult(ShippingRateOperationStatus.DuplicateValue);
             }
 
-            var created = await _database.CreateShippingRate(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value });
+            var created = await _database.CreateShippingRateAsync(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value });
             return created is null
                 ? StatusResult(ShippingRateOperationStatus.SaveFailed)
                 : CreatedAtId<StripeShippingRatesApiController>(controller => nameof(controller.GetShippingRateById), created.Key);
@@ -75,13 +75,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateShippingRate(Guid id, [FromBody] UpdateShippingRateRequestModel model)
         {
-            var existing = await _database.GetShippingRate(id);
+            var existing = await _database.GetShippingRateAsync(id, HttpContext?.RequestAborted ?? default);
             if (existing is null)
             {
                 return StatusResult(ShippingRateOperationStatus.NotFound);
             }
 
-            var duplicate = await _database.GetShippingRate(model.Value);
+            var duplicate = await _database.GetShippingRateAsync(model.Value, HttpContext?.RequestAborted ?? default);
             if (duplicate is not null && duplicate.Key != id)
             {
                 return StatusResult(ShippingRateOperationStatus.DuplicateValue);
@@ -89,14 +89,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 
             existing.Name = model.Name;
             existing.Value = model.Value;
-            return await _database.UpdateShippingRate(existing) is null ? StatusResult(ShippingRateOperationStatus.SaveFailed) : Ok();
+            return await _database.UpdateShippingRateAsync(existing, HttpContext?.RequestAborted ?? default) is null ? StatusResult(ShippingRateOperationStatus.SaveFailed) : Ok();
         }
 
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteShippingRate(Guid id)
-            => await _database.DeleteShippingRate(id) ? Ok() : StatusResult(ShippingRateOperationStatus.NotFound);
+            => await _database.DeleteShippingRateAsync(id, HttpContext?.RequestAborted ?? default) ? Ok() : StatusResult(ShippingRateOperationStatus.NotFound);
 
         [HttpGet("stripe")]
         [ProducesResponseType(typeof(IEnumerable<StripeShippingRateResponseModel>), StatusCodes.Status200OK)]

@@ -33,7 +33,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
             {
 
                 var webHookSecret = string.Empty;
-                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
+                var stripeSettings = _stripeSettingsService.GetStripeSettingsAsync().Result;
                 if (stripeSettings != null)
                 {
                     webHookSecret = stripeSettings.UseLiveApiDetails ? _settings.Live.WebHookSecret : _settings.Test.WebHookSecret;
