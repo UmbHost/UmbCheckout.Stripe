@@ -8,6 +8,7 @@ import { formatMoney } from "@umbcheckout/core";
 import { ShippingRatesService } from "../../../api/sdk.gen.js";
 import type { DeliveryEstimateResponseModel, StripeShippingRateResponseModel } from "../../../api/types.gen.js";
 import type { UmbCheckoutShippingRateWorkspaceContext } from "../shipping-rate-workspace.context.js";
+import "../../shared/shipping-rates-help.element.js";
 
 const KEY = "umbcheckoutStripe_";
 
@@ -65,16 +66,7 @@ export class UmbCheckoutShippingRateDetailsWorkspaceViewElement extends UmbLitEl
   }
 
   #renderHelp() {
-    const dashboard = (this._stripeRates?.[0]?.dashboardUrl ?? "https://dashboard.stripe.com/test/shipping-rates/").replace(/[^/]+$/, "");
-    return html`<uui-box headline=${this.localize.term("umbcheckout_help_support")}>
-      <p class="muted">
-        <umb-icon name="icon-info"></umb-icon>
-        ${this.localize.term(KEY + "shipping_help_before")}
-        <a href=${dashboard} target="_blank" rel="noopener">${this.localize.term(KEY + "shipping_help_link")}</a>
-        ${this.localize.term(KEY + "shipping_help_after")}
-      </p>
-      <umbcheckout-unlicensed-alert></umbcheckout-unlicensed-alert>
-    </uui-box>`;
+    return html`<umbcheckout-shipping-rates-help .dashboardUrl=${this._stripeRates?.[0]?.dashboardUrl}></umbcheckout-shipping-rates-help>`;
   }
 
   #renderProperties() {
@@ -157,11 +149,6 @@ export class UmbCheckoutShippingRateDetailsWorkspaceViewElement extends UmbLitEl
       .muted {
         color: var(--uui-color-text-alt);
         margin-top: 0;
-      }
-      .muted umb-icon {
-        display: inline-block;
-        vertical-align: text-bottom;
-        margin-right: var(--uui-size-space-1);
       }
     `,
   ];

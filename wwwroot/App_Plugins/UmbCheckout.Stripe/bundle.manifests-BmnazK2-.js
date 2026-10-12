@@ -30,7 +30,7 @@ const m = [
     type: "repository",
     alias: o,
     name: "UmbCheckout Shipping Rate Detail Repository",
-    api: () => import("./shipping-rate-detail.repository-BC8UmFZz.js")
+    api: () => import("./shipping-rate-detail.repository-C1TIWAB9.js")
   },
   {
     type: "store",
@@ -43,7 +43,7 @@ const m = [
     type: "repository",
     alias: n,
     name: "UmbCheckout Shipping Rate Item Repository",
-    api: () => import("./shipping-rate-item.repository-E6vC0ZNW.js")
+    api: () => import("./shipping-rate-item.repository-tImzaeje.js")
   },
   {
     type: "itemStore",
@@ -56,7 +56,7 @@ const m = [
     type: "repository",
     alias: a,
     name: "UmbCheckout Shipping Rate Collection Repository",
-    api: () => import("./shipping-rate-collection.repository-CXcITiE4.js")
+    api: () => import("./shipping-rate-collection.repository-lUOSu6x5.js")
   },
   {
     type: "collection",
@@ -69,7 +69,7 @@ const m = [
     type: "collectionView",
     alias: "UmbCheckout.CollectionView.ShippingRate.Table",
     name: "UmbCheckout Shipping Rate Table View",
-    element: () => import("./shipping-rate-table-collection-view.element-Dc8wrBFi.js"),
+    element: () => import("./shipping-rate-table-collection-view.element-Dt_SLEHu.js"),
     meta: { label: "Table", icon: "icon-list", pathName: "table" },
     conditions: [{ alias: "Umb.Condition.CollectionAlias", match: e }]
   },
@@ -87,7 +87,7 @@ const m = [
     kind: "routable",
     alias: t,
     name: "UmbCheckout Shipping Rate Workspace",
-    api: () => import("./shipping-rate-workspace.context-dPJ1dEQq.js"),
+    api: () => import("./shipping-rate-workspace.context-YVAIQQK4.js"),
     // One workspace for the list (""), create and edit, so the menu item stays highlighted on a shipping rate.
     meta: { entityType: i }
   },
@@ -95,7 +95,7 @@ const m = [
     type: "workspaceView",
     alias: "UmbCheckout.WorkspaceView.ShippingRate.Details",
     name: "UmbCheckout Shipping Rate Details View",
-    element: () => import("./shipping-rate-details-workspace-view.element-C0FrsUWs.js"),
+    element: () => import("./shipping-rate-details-workspace-view.element--vxgf8h6.js"),
     weight: 100,
     meta: { label: "#general_details", pathname: "details", icon: "icon-truck" },
     conditions: [{ alias: "Umb.Condition.WorkspaceAlias", match: t }]
@@ -144,4 +144,4 @@ export {
   i as e,
   y as m
 };
-//# sourceMappingURL=bundle.manifests-MLL5cmAF.js.map
+//# sourceMappingURL=bundle.manifests-BmnazK2-.js.map

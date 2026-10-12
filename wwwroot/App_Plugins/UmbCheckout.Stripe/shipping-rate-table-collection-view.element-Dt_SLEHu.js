@@ -1,7 +1,7 @@
 import { html as c, state as _, customElement as p } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as v } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_COLLECTION_CONTEXT as f } from "@umbraco-cms/backoffice/collection";
-import { a as C } from "./bundle.manifests-MLL5cmAF.js";
+import { a as C } from "./bundle.manifests-BmnazK2-.js";
 var b = Object.defineProperty, d = Object.getOwnPropertyDescriptor, m = (e) => {
   throw TypeError(e);
 }, u = (e, t, a, o) => {
@@ -45,4 +45,4 @@ export {
   s as UmbCheckoutShippingRateTableCollectionViewElement,
   U as default
 };
-//# sourceMappingURL=shipping-rate-table-collection-view.element-Dc8wrBFi.js.map
+//# sourceMappingURL=shipping-rate-table-collection-view.element-Dt_SLEHu.js.map

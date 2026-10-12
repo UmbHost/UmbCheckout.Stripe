@@ -1,7 +1,7 @@
 import { UmbItemRepositoryBase as o } from "@umbraco-cms/backoffice/repository";
 import { tryExecute as a } from "@umbraco-cms/backoffice/resources";
 import { S as m } from "./sdk.gen-DEbZmfQN.js";
-import { U as p } from "./bundle.manifests-MLL5cmAF.js";
+import { U as p } from "./bundle.manifests-BmnazK2-.js";
 import { UMBCHECKOUT_SHIPPING_RATE_ITEM_STORE_CONTEXT as n } from "./shipping-rate-item.store-BGZlqPk2.js";
 class c {
   #t;
@@ -22,4 +22,4 @@ export {
   R as UmbCheckoutShippingRateItemRepository,
   R as api
 };
-//# sourceMappingURL=shipping-rate-item.repository-E6vC0ZNW.js.map
+//# sourceMappingURL=shipping-rate-item.repository-tImzaeje.js.map
