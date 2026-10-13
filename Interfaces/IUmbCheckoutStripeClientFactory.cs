@@ -11,5 +11,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <summary>Creates the Stripe client for the saved mode (live only when live mode has been saved).</summary>
         /// <exception cref="StripeNotConfiguredException">The mode's API key is missing or empty.</exception>
         Task<IStripeClient> CreateAsync();
+
+        /// <summary>As <see cref="CreateAsync()"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task<IStripeClient> CreateAsync(CancellationToken cancellationToken) => CreateAsync();
     }
 }

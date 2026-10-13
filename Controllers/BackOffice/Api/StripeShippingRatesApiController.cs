@@ -54,7 +54,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                var shippingRates = await _stripeShippingRateApiService.GetShippingRates();
+                var shippingRates = await _stripeShippingRateApiService.GetShippingRates(HttpContext?.RequestAborted ?? CancellationToken.None);
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
                 // The response is serialised as before; each rate gains fixedAmountMoney (the amount in major units).
@@ -105,7 +105,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id);
+                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id, HttpContext?.RequestAborted ?? CancellationToken.None);
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
                 // The response is serialised as before, plus fixedAmountMoney (the amount in major units).

@@ -10,4 +10,8 @@ namespace UmbCheckout.Stripe.Interfaces;
 public interface IStripeShippingOptionsService
 {
     Task<List<SessionShippingOptionOptions>> GetShippingOptions(Basket basket);
+
+    /// <summary>As <see cref="GetShippingOptions(Basket)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+    /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+    Task<List<SessionShippingOptionOptions>> GetShippingOptions(Basket basket, CancellationToken cancellationToken) => GetShippingOptions(basket);
 }

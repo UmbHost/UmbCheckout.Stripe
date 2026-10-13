@@ -19,19 +19,25 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<StripeList<ShippingRate>> GetShippingRates()
-        {
-            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync());
+        public Task<StripeList<ShippingRate>> GetShippingRates() => GetShippingRates(CancellationToken.None);
 
-            return await service.ListAsync();
+        /// <inheritdoc />
+        public async Task<StripeList<ShippingRate>> GetShippingRates(CancellationToken cancellationToken)
+        {
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync(cancellationToken));
+
+            return await service.ListAsync(cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<ShippingRate> GetShippingRate(string id)
-        {
-            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync());
+        public Task<ShippingRate> GetShippingRate(string id) => GetShippingRate(id, CancellationToken.None);
 
-            return await service.GetAsync(id);
+        /// <inheritdoc />
+        public async Task<ShippingRate> GetShippingRate(string id, CancellationToken cancellationToken)
+        {
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync(cancellationToken));
+
+            return await service.GetAsync(id, cancellationToken: cancellationToken);
         }
     }
 }

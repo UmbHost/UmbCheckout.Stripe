@@ -18,8 +18,12 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<IStripeClient> CreateAsync()
+        public Task<IStripeClient> CreateAsync() => CreateAsync(CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<IStripeClient> CreateAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var settings = await _stripeSettingsService.GetStripeSettings();
             // Live keys are used only when live mode has been explicitly saved.
             var live = settings?.UseLiveApiDetails == true;

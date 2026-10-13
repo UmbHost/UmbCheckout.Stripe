@@ -24,6 +24,10 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <returns>The Stripe Session</returns>
         Task<Session> GetSessionAsync(string id);
 
+        /// <summary>As <see cref="GetSessionAsync(string)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task<Session> GetSessionAsync(string id, CancellationToken cancellationToken) => GetSessionAsync(id);
+
         /// <summary>
         /// Creates a Stripe Session
         /// </summary>
@@ -38,6 +42,10 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <returns>The Stripe Session</returns>
         Task<Session> CreateSessionAsync(Basket basket);
 
+        /// <summary>As <see cref="CreateSessionAsync(Basket)"/>, stopping when <paramref name="cancellationToken"/> is cancelled. Once the request is sent, Stripe may still create the session.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task<Session> CreateSessionAsync(Basket basket, CancellationToken cancellationToken) => CreateSessionAsync(basket);
+
         /// <summary>
         /// Clears a Stripe Session
         /// </summary>
@@ -49,5 +57,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
         Task ClearSessionAsync(string id);
+
+        /// <summary>As <see cref="ClearSessionAsync(string)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task ClearSessionAsync(string id, CancellationToken cancellationToken) => ClearSessionAsync(id);
     }
 }

@@ -104,7 +104,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             Session stripeSession;
             try
             {
-                stripeSession = await _stripeSessionService.GetSessionAsync(sessionId);
+                stripeSession = await _stripeSessionService.GetSessionAsync(sessionId, cancellationToken);
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
@@ -134,19 +134,19 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                     culture = string.IsNullOrEmpty(culture) ? null : culture;
 
                     // Only the basket this checkout session paid for: not one started after paying, nor a stale or shared link.
-                    var current = await _sessionService.Get(culture, currency);
+                    var current = await _sessionService.Get(culture, currency, cancellationToken);
                     if (!string.Equals(current.Basket.CheckoutSessionId, sessionId, StringComparison.Ordinal))
                     {
                         _logger.LogInformation("The current {Culture} {Currency} basket was not paid for by checkout session {CheckoutSessionId}; it is kept", culture, currency, sessionId);
                         return;
                     }
 
-                    await _sessionService.Clear(culture, currency);
+                    await _sessionService.Clear(culture, currency, cancellationToken);
                     _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId}", culture, currency, sessionId);
                     return;
                 }
 
-                await ClearPreUpgradeBasketAsync(request, stripeSession);
+                await ClearPreUpgradeBasketAsync(request, stripeSession, cancellationToken);
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
@@ -162,7 +162,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         /// cleared only while the session is recent enough to be this return, so a stale link to an old session clears nothing.
         /// A basket sent to another checkout session is kept.
         /// </summary>
-        private async Task ClearPreUpgradeBasketAsync(IPublishedRequestBuilder request, Session stripeSession)
+        private async Task ClearPreUpgradeBasketAsync(IPublishedRequestBuilder request, Session stripeSession, CancellationToken cancellationToken)
         {
             var currency = stripeSession.Currency?.ToUpperInvariant();
             if (string.IsNullOrEmpty(currency))
@@ -172,7 +172,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             }
 
             var culture = _routedPageCulture(request);
-            var current = await _sessionService.Get(culture, currency);
+            var current = await _sessionService.Get(culture, currency, cancellationToken);
             var recorded = current.Basket.CheckoutSessionId;
             if (!string.Equals(recorded, stripeSession.Id, StringComparison.Ordinal))
             {
@@ -189,7 +189,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 }
             }
 
-            await _sessionService.Clear(culture, currency);
+            await _sessionService.Clear(culture, currency, cancellationToken);
             _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId} (no basket details on the session)", culture, currency, stripeSession.Id);
         }
     }

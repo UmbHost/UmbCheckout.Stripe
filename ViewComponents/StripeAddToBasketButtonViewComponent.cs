@@ -42,11 +42,12 @@ namespace UmbCheckout.Stripe.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
         {
             // The currency checkout charges (the product's site root, then Configuration); a null product renders nothing, as before.
-            var currencyCode = product is null ? null : await _currencyService.GetCurrencyForContentAsync(product);
+            var cancellationToken = HttpContext?.RequestAborted ?? CancellationToken.None;
+            var currencyCode = product is null ? null : await _currencyService.GetCurrencyForContentAsync(product, cancellationToken);
 
             if (currencyNodeKey is not null && currencyCode is not null && Volatile.Read(ref _currencyNodeKeyWarned) == 0)
             {
-                await WarnIfCurrencyNodeKeyDiffersAsync(currencyNodeKey.Value, currencyCode);
+                await WarnIfCurrencyNodeKeyDiffersAsync(currencyNodeKey.Value, currencyCode, cancellationToken);
             }
 
             var model = new StripeAddToBasketButtonViewModel
@@ -73,14 +74,14 @@ namespace UmbCheckout.Stripe.ViewComponents
         /// Sites upgraded from an earlier 13.x may pass a currencyNodeKey to show another currency; checkout now charges the product's own,
         /// so say so once. Never breaks the render.
         /// </summary>
-        private async Task WarnIfCurrencyNodeKeyDiffersAsync(Guid currencyNodeKey, string chargedCurrency)
+        private async Task WarnIfCurrencyNodeKeyDiffersAsync(Guid currencyNodeKey, string chargedCurrency, CancellationToken cancellationToken)
         {
             string? nodeCurrency;
             try
             {
-                nodeCurrency = (await _currencyService.GetCurrencyAsync(currencyNodeKey))?.Trim();
+                nodeCurrency = (await _currencyService.GetCurrencyAsync(currencyNodeKey, cancellationToken))?.Trim();
             }
-            catch (Exception)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 // GetCurrencyAsync logs its own failure; the button still renders in the charged currency.
                 return;

@@ -37,8 +37,12 @@ namespace UmbCheckout.Stripe.Services
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
         private readonly LicenseService _licenseService;
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
+        private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
+
+        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService,
+            IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
+            _stripeClientFactory = stripeClientFactory;
             _snapshotAccessor = snapshotAccessor;
             _coreScopeProvider = coreScopeProvider;
             _eventAggregator = eventAggregator;
@@ -129,6 +133,12 @@ namespace UmbCheckout.Stripe.Services
                 return session;
 
             }
+            catch (OperationCanceledException ex)
+            {
+                // No caller token here: a cancellation is Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Getting Stripe checkout session {SessionId} timed out", id);
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
@@ -137,31 +147,35 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<Session> GetSessionAsync(string id)
+        public Task<Session> GetSessionAsync(string id) => GetSessionAsync(id, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<Session> GetSessionAsync(string id, CancellationToken cancellationToken)
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id));
+                await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id), cancellationToken);
 
-                var apiKey = string.Empty;
-                var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-                if (stripeSettings != null)
-                {
-                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-                }
-
-                var stripeClient = new StripeClient(apiKey);
+                // The client for the saved mode (live keys only when live mode is saved), as every other Stripe call.
+                var stripeClient = await _stripeClientFactory.CreateAsync(cancellationToken);
 
                 var service = new SessionService(stripeClient);
-                var session = await service.GetAsync(id);
+                var session = await service.GetAsync(id, cancellationToken: cancellationToken);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
 
                 return session;
             }
-            catch (Exception ex)
+            catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // Not the caller's cancellation (that stays silent): Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Getting Stripe checkout session {SessionId} timed out", id);
+                throw;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -186,12 +200,18 @@ namespace UmbCheckout.Stripe.Services
                 var stripeClient = new StripeClient(apiKey);
 
                 var service = new SessionService(stripeClient);
-                var session = service.Create(CreateSessionOptions(basket).Result);
+                var session = service.Create(CreateSessionOptions(basket, CancellationToken.None).Result);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
                 return session;
+            }
+            catch (OperationCanceledException ex)
+            {
+                // No caller token here: a cancellation is Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Creating a Stripe checkout session for a basket of {LineItemCount} lines in {CurrencyCode} timed out", basket.LineItems.Count(), basket.CurrencyCode);
+                throw;
             }
             catch (Exception ex)
             {
@@ -201,31 +221,42 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<Session> CreateSessionAsync(Basket basket)
+        public Task<Session> CreateSessionAsync(Basket basket) => CreateSessionAsync(basket, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<Session> CreateSessionAsync(Basket basket, CancellationToken cancellationToken)
         {
             try
             {
-                using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket));
+                cancellationToken.ThrowIfCancellationRequested();
 
-                var apiKey = string.Empty;
+                // Read before opening a scope: a read inside a scope is never cached (it may yet roll back), so checkout would
+                // otherwise never fill a cold settings cache.
+                var configuration = await _configurationService.GetConfiguration();
                 var stripeSettings = await _stripeSettingsService.GetStripeSettings();
-                if (stripeSettings != null)
-                {
-                    apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
 
-                var stripeClient = new StripeClient(apiKey);
+                using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket), cancellationToken);
+
+                // The client for the saved mode (live keys only when live mode is saved), as every other Stripe call.
+                var stripeClient = await _stripeClientFactory.CreateAsync(cancellationToken);
 
                 var service = new SessionService(stripeClient);
-                var session = await service.CreateAsync(await CreateSessionOptions(basket));
+                var session = await service.CreateAsync(await CreateSessionOptions(basket, configuration, stripeSettings, cancellationToken), cancellationToken: cancellationToken);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
                 return session;
             }
-            catch (Exception ex)
+            catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // Not the caller's cancellation (that stays silent): Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Creating a Stripe checkout session for a basket of {LineItemCount} lines in {CurrencyCode} timed out", basket.LineItems.Count(), basket.CurrencyCode);
+                throw;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -254,6 +285,12 @@ namespace UmbCheckout.Stripe.Services
 
                 scope.Notifications.Publish(new OnProviderSessionClearedNotification(id));
             }
+            catch (OperationCanceledException ex)
+            {
+                // No caller token here: a cancellation is Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Expiring Stripe checkout session {SessionId} timed out", id);
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
@@ -262,19 +299,30 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task ClearSessionAsync(string id)
+        public Task ClearSessionAsync(string id) => ClearSessionAsync(id, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task ClearSessionAsync(string id, CancellationToken cancellationToken)
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
-                await _eventAggregator.PublishAsync(new OnProviderClearSessionStartedNotification(id));
+                await _eventAggregator.PublishAsync(new OnProviderClearSessionStartedNotification(id), cancellationToken);
 
-                var service = new SessionService();
-                await service.ExpireAsync(id);
+                // The site's own client (this used Stripe.net's global client, which UmbCheckout never configures).
+                var service = new SessionService(await _stripeClientFactory.CreateAsync(cancellationToken));
+                await service.ExpireAsync(id, cancellationToken: cancellationToken);
 
                 scope.Notifications.Publish(new OnProviderSessionClearedNotification(id));
             }
-            catch (Exception ex)
+            catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // Not the caller's cancellation (that stays silent): Stripe's HTTP timeout.
+                _logger.LogWarning(ex, "Expiring Stripe checkout session {SessionId} timed out", id);
+                throw;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;
@@ -286,7 +334,13 @@ namespace UmbCheckout.Stripe.Services
         /// </summary>
         /// <param name="basket">The Basket to the converted</param>
         /// <returns>The Stripe SessionCreateOptions</returns>
-        private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket)
+        private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket, CancellationToken cancellationToken)
+            => await CreateSessionOptions(basket, await _configurationService.GetConfiguration(), await _stripeSettingsService.GetStripeSettings(), cancellationToken);
+
+        /// <summary>
+        /// Converts the Basket into the Stripe SessionCreateOptions, with the configuration and Stripe settings already read
+        /// </summary>
+        private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket, Shared.Models.UmbCheckoutConfiguration? configuration, UmbCheckoutStripeSettings? stripeSettings, CancellationToken cancellationToken)
         {
             try
             {
@@ -294,8 +348,6 @@ namespace UmbCheckout.Stripe.Services
                 var hasPublishedSnapshot = _snapshotAccessor.TryGetPublishedSnapshot(out var publishedSnapshot);
                 if (hasPublishedSnapshot)
                 {
-                    var configuration = await _configurationService.GetConfiguration();
-                    var stripeSettings = await _stripeSettingsService.GetStripeSettings();
                     Uri? successUri = null;
                     Uri? cancelUri = null;
                     if (configuration != null)
@@ -436,7 +488,7 @@ namespace UmbCheckout.Stripe.Services
                     if (configuration is { EnableShipping: true })
                     {
                         // Only the rates that charge in the basket's currency; none is sent when none applies (Stripe rejects an empty list).
-                        options.ShippingOptions = ShippingOptionsToSend(await _stripeShippingOptionsService.GetShippingOptions(basket));
+                        options.ShippingOptions = ShippingOptionsToSend(await _stripeShippingOptionsService.GetShippingOptions(basket, cancellationToken));
 
                         options.BillingAddressCollection = "required";
 
@@ -496,7 +548,7 @@ namespace UmbCheckout.Stripe.Services
 
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, ex.Message);
                 throw;

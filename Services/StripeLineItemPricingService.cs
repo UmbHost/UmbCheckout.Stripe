@@ -22,8 +22,12 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<LineItemPrice?> GetPriceAsync(IPublishedContent product)
+        public Task<LineItemPrice?> GetPriceAsync(IPublishedContent product) => GetPriceAsync(product, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<LineItemPrice?> GetPriceAsync(IPublishedContent product, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             // An empty Decimal field converts to 0m, so emptiness is checked before the value is read. A typed 0 is a free product.
             var property = product.GetProperty(Shared.Consts.PropertyAlias.PriceAlias);
             var price = property?.HasValue() == true ? ReadPrice(property.GetValue()) : null;
@@ -33,7 +37,7 @@ namespace UmbCheckout.Stripe.Services
                 return null;
             }
 
-            var currency = await _currencyService.GetCurrencyForContentAsync(product);
+            var currency = await _currencyService.GetCurrencyForContentAsync(product, cancellationToken);
             if (!StripeCurrency.IsSupported(currency))
             {
                 _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which Stripe does not support; check the site root's {PropertyAlias} or the Configuration currency. It can't be sold", product.Key, currency, Shared.Consts.PropertyAlias.CurrencyCode);
@@ -42,7 +46,7 @@ namespace UmbCheckout.Stripe.Services
 
             // The basket shown on this page is in the page's currency: a product sold in another currency (e.g. from another
             // site or a shared product library) would go to a basket the customer never sees here.
-            var pageCurrency = await _basketContext.GetCurrencyAsync();
+            var pageCurrency = await _basketContext.GetCurrencyAsync(cancellationToken);
             if (pageCurrency != null && !string.Equals(pageCurrency.Trim(), currency, StringComparison.OrdinalIgnoreCase))
             {
                 _logger.LogWarning("Product {ProductKey} is sold in {CurrencyCode} but this page sells in {PageCurrencyCode}; it can't be sold on this page", product.Key, currency, pageCurrency);

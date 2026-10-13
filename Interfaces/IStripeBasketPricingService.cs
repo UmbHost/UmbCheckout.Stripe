@@ -22,5 +22,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// updated in place and returned.
         /// </summary>
         Task<BasketRepricing> RepriceAsync(Basket basket);
+
+        /// <summary>As <see cref="RepriceAsync(Basket)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task<BasketRepricing> RepriceAsync(Basket basket, CancellationToken cancellationToken) => RepriceAsync(basket);
     }
 }

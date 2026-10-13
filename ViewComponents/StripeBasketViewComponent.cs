@@ -47,11 +47,12 @@ namespace UmbCheckout.Stripe.ViewComponents
             string addToBasketFailedText = "That item could not be added to your basket.",
             string pricesChangedText = "Your basket was updated to current prices before checkout; please check it and continue:")
         {
-            var basket = await _basketService.Get();
+            var cancellationToken = HttpContext?.RequestAborted ?? CancellationToken.None;
+            var basket = await _basketService.Get(cancellationToken);
 
             // The subtotal is shown in the basket's own currency (what it is charged in); the configured chain only applies to an
             // empty basket saved before baskets were per currency.
-            var currencyCode = basket.CurrencyCode ?? basket.LineItems.SingleCurrency() ?? await _currencyService.GetCurrencyAsync(currencyNodeKey);
+            var currencyCode = basket.CurrencyCode ?? basket.LineItems.SingleCurrency() ?? await _currencyService.GetCurrencyAsync(currencyNodeKey, cancellationToken);
 
             var notices = new List<string>();
             if (TempData?[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] != null)
@@ -87,8 +88,8 @@ namespace UmbCheckout.Stripe.ViewComponents
                 FormatCurrency = currencyCode,
                 SubtotalInformationText = subTotalInformationText,
                 Basket = basket,
-                SubTotal = await _basketService.SubTotal(),
-                TotalItems = await _basketService.TotalItems(),
+                SubTotal = await _basketService.SubTotal(cancellationToken),
+                TotalItems = await _basketService.TotalItems(cancellationToken),
                 ProductNameAlias = productNameAlias,
                 ProductAnchorLinkCssClass = productAnchorLinkCssClass,
                 Notices = notices

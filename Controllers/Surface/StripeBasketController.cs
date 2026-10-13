@@ -69,7 +69,8 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var price = await _pricingService.GetPriceAsync(product);
+                var cancellationToken = HttpContext.RequestAborted;
+                var price = await _pricingService.GetPriceAsync(product, cancellationToken);
                 if (price == null)
                 {
                     _logger.LogWarning("Product {ProductKey} could not be priced; it was not added to the basket", product.Key);
@@ -86,7 +87,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                         Price = price.Price,
                         CurrencyCode = price.CurrencyCode,
                         Quantity = basketAdd.Quantity
-                    });
+                    }, cancellationToken);
                 }
                 catch (ArgumentException ex)
                 {
@@ -104,6 +105,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 return RedirectToCurrentUmbracoPage();
             }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // The customer left (closed the tab or navigated away): nothing to show and nothing to log.
+                return new EmptyResult();
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Adding {ProductKey} to the basket failed", basketAdd.Key);
@@ -117,7 +123,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Reduce(key);
+                await _basketService.Reduce(key, HttpContext.RequestAborted);
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketReduced] = key;
 
@@ -127,6 +133,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 return RedirectToCurrentUmbracoPage();
+            }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // The customer left (closed the tab or navigated away): nothing to show and nothing to log.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -141,7 +152,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Remove(key);
+                await _basketService.Remove(key, HttpContext.RequestAborted);
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketRemoved] = key;
 
@@ -151,6 +162,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 return RedirectToCurrentUmbracoPage();
+            }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // The customer left (closed the tab or navigated away): nothing to show and nothing to log.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -170,7 +186,8 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                var basket = await _basketService.Get();
+                var cancellationToken = HttpContext.RequestAborted;
+                var basket = await _basketService.Get(cancellationToken);
                 if (!basket.LineItems.Any())
                 {
                     TempData[Shared.Consts.TempData.UmbCheckoutEmptyBasket] = true;
@@ -178,22 +195,28 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 // Checkout charges current published prices; if anything changed the customer sees it before paying.
-                var repricing = await _basketPricingService.RepriceAsync(basket);
+                var repricing = await _basketPricingService.RepriceAsync(basket, cancellationToken);
                 if (repricing.Changes.Count > 0)
                 {
-                    await _umbCheckoutSessionService.Update(repricing.Basket);
+                    await _umbCheckoutSessionService.Update(repricing.Basket, cancellationToken);
                     TempData[Shared.Consts.TempData.UmbCheckoutBasketRepriced] = string.Join(", ", repricing.Changes.Select(change => change.Name).Distinct());
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
+                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket, cancellationToken);
 
                 // The success page clears this basket only when it returns from this checkout session (not a basket started
                 // later, nor a stale or shared success link).
+                // Once Stripe has the session, it is recorded on the basket even if the customer has left meanwhile.
                 repricing.Basket.CheckoutSessionId = stripeSession.Id;
-                await _umbCheckoutSessionService.Update(repricing.Basket);
+                await _umbCheckoutSessionService.Update(repricing.Basket, CancellationToken.None);
 
                 return Redirect(stripeSession.Url);
+            }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // The customer left (closed the tab or navigated away): nothing to show and nothing to log.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -207,8 +230,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Clear();
+                await _basketService.Clear(HttpContext.RequestAborted);
                 return RedirectToCurrentUmbracoPage();
+            }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // The customer left (closed the tab or navigated away): nothing to show and nothing to log.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {

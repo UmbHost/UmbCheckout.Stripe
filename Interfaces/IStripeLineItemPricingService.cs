@@ -13,5 +13,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// currency, or a currency other than the current page's (its basket would not be the one shown on this page).
         /// </summary>
         Task<LineItemPrice?> GetPriceAsync(IPublishedContent product);
+
+        /// <summary>As <see cref="GetPriceAsync(IPublishedContent)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+        Task<LineItemPrice?> GetPriceAsync(IPublishedContent product, CancellationToken cancellationToken) => GetPriceAsync(product);
     }
 }

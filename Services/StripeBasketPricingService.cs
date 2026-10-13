@@ -20,7 +20,10 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<BasketRepricing> RepriceAsync(Basket basket)
+        public Task<BasketRepricing> RepriceAsync(Basket basket) => RepriceAsync(basket, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<BasketRepricing> RepriceAsync(Basket basket, CancellationToken cancellationToken)
         {
             _snapshotAccessor.TryGetPublishedSnapshot(out var snapshot);
             var lines = new List<LineItem>();
@@ -36,7 +39,7 @@ namespace UmbCheckout.Stripe.Services
                 }
 
                 var product = snapshot?.Content?.GetById(line.Key);
-                var current = product == null ? null : await _pricingService.GetPriceAsync(product);
+                var current = product == null ? null : await _pricingService.GetPriceAsync(product, cancellationToken);
                 var currency = basket.CurrencyCode ?? line.CurrencyCode;
 
                 if (current == null || !string.Equals(current.CurrencyCode, currency, StringComparison.OrdinalIgnoreCase))
