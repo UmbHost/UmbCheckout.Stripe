@@ -114,6 +114,10 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("LeaseToken")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("LeaseUntilUtc")
                         .HasColumnType("TEXT");
 

@@ -15,5 +15,8 @@ namespace UmbCheckout.Stripe.Pocos
 
         /// <summary>While processing: when another delivery may take the event over (the first attempt is presumed dead).</summary>
         public DateTime? LeaseUntilUtc { get; set; }
+
+        /// <summary>While processing: the token of the delivery holding the lease, so only that delivery completes or releases it.</summary>
+        public string? LeaseToken { get; set; }
     }
 }
