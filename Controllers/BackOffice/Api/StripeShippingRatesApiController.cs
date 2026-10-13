@@ -103,7 +103,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         public async Task<IActionResult> DeleteShippingRate(Guid id)
             => await _database.DeleteShippingRateAsync(id, HttpContext?.RequestAborted ?? default)
                 ? Ok()
-                : UmbCheckoutCancellation.Result(HttpContext) ?? StatusResult(ShippingRateOperationStatus.NotFound);
+                : UmbCheckoutCancellation.Result(HttpContext, UmbCheckoutProblemDetails.DeleteCancelledTitle) ?? StatusResult(ShippingRateOperationStatus.NotFound);
 
         [HttpGet("stripe")]
         [ProducesResponseType(typeof(IEnumerable<StripeShippingRateResponseModel>), StatusCodes.Status200OK)]

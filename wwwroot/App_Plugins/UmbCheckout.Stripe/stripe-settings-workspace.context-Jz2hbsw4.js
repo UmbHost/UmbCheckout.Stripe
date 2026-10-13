@@ -1,5 +1,5 @@
 import { UmbEntityDetailWorkspaceContextBase as m } from "@umbraco-cms/backoffice/workspace";
-import { h as p, g as n, i as u, f as l } from "./bundle.manifests-DwSTaJfz.js";
+import { h as p, g as n, i as u, f as l } from "./bundle.manifests-ClTqBx9r.js";
 import { html as E, customElement as _ } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as T } from "@umbraco-cms/backoffice/lit-element";
 var S = Object.getOwnPropertyDescriptor, h = (s, e, t, i) => {
@@ -41,4 +41,4 @@ export {
   I as UmbCheckoutStripeSettingsWorkspaceContext,
   I as api
 };
-//# sourceMappingURL=stripe-settings-workspace.context-2DvLWVtm.js.map
+//# sourceMappingURL=stripe-settings-workspace.context-Jz2hbsw4.js.map

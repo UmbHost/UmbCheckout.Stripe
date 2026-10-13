@@ -1,9 +1,9 @@
 import { UmbLocalizationController as s } from "@umbraco-cms/backoffice/localization-api";
 import { UMB_NOTIFICATION_CONTEXT as n } from "@umbraco-cms/backoffice/notification";
 import { UmbDetailRepositoryBase as l } from "@umbraco-cms/backoffice/repository";
-import { tryExecute as r, UmbApiError as c } from "@umbraco-cms/backoffice/resources";
-import { a as i } from "./sdk.gen-CWaSkarI.js";
-import { f as m, g as p } from "./bundle.manifests-DwSTaJfz.js";
+import { tryExecute as i, UmbApiError as c } from "@umbraco-cms/backoffice/resources";
+import { a as r } from "./sdk.gen-CWaSkarI.js";
+import { f as m, g as p } from "./bundle.manifests-ClTqBx9r.js";
 import { UMBCHECKOUT_STRIPE_SETTINGS_STORE_CONTEXT as u } from "./stripe-settings.store-BE9uC4MY.js";
 class d {
   #e;
@@ -14,7 +14,7 @@ class d {
     return this.read();
   }
   async read() {
-    const { data: e, error: t } = await r(this.#e, i.getStripeSettings());
+    const { data: e, error: t } = await i(this.#e, r.getStripeSettings());
     return t || !e ? { error: t } : { data: {
       entityType: p,
       unique: m,
@@ -31,9 +31,9 @@ class d {
     return this.update(e);
   }
   async update(e) {
-    const { error: t } = await r(
+    const { error: t } = await i(
       this.#e,
-      i.updateStripeSettings({
+      r.updateStripeSettings({
         body: {
           useLiveApiDetails: e.useLiveApiDetails,
           collectPhoneNumber: e.collectPhoneNumber,
@@ -68,7 +68,7 @@ class _ extends l {
     return await this.#t(t.error), t;
   }
   async #t(e) {
-    const t = e ? "umbcheckoutStripe_settings_save_failed" : "umbcheckoutStripe_settings_saved", o = c.isUmbApiError(e) && e.problemDetails?.type === C ? e.problemDetails.title : void 0;
+    const t = e ? "umbcheckoutStripe_settings_save_failed" : "umbcheckoutStripe_settings_saved", o = c.isUmbApiError(e) && e.problemDetails?.type === C ? e.problemDetails.detail ?? e.problemDetails.title : void 0;
     (await this.getContext(n))?.peek(e ? "danger" : "positive", {
       data: { headline: this.#e.term(`${t}_title`), message: o ?? this.#e.term(`${t}_message`) }
     });
@@ -78,4 +78,4 @@ export {
   _ as UmbCheckoutStripeSettingsRepository,
   _ as api
 };
-//# sourceMappingURL=stripe-settings.repository-BVIPqUDa.js.map
+//# sourceMappingURL=stripe-settings.repository-BxKA6mOO.js.map

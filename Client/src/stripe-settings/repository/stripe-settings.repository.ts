@@ -7,7 +7,7 @@ import type { UmbCheckoutStripeSettingsModel } from "../types.js";
 import { UmbCheckoutStripeSettingsServerDataSource } from "./stripe-settings.server.data-source.js";
 import { UMBCHECKOUT_STRIPE_SETTINGS_STORE_CONTEXT } from "./stripe-settings.store.js";
 
-/** The ProblemDetails type the server gives a save a notification handler cancelled (UmbCheckoutProblemDetails.CancelledType). */
+/** The ProblemDetails type the server gives a save a notification handler cancelled (UmbCheckoutProblemDetails.CancelledType); its detail is the handler's message. */
 const CANCELLED_TYPE = "urn:umbcheckout:cancelled";
 
 export class UmbCheckoutStripeSettingsRepository extends UmbDetailRepositoryBase<UmbCheckoutStripeSettingsModel> {
@@ -33,7 +33,7 @@ export class UmbCheckoutStripeSettingsRepository extends UmbDetailRepositoryBase
   async #notify(error: unknown) {
     const key = error ? "umbcheckoutStripe_settings_save_failed" : "umbcheckoutStripe_settings_saved";
     // A site's notification handler refused the save: its reason replaces v13's generic "not saved" message.
-    const cancelled = UmbApiError.isUmbApiError(error) && error.problemDetails?.type === CANCELLED_TYPE ? error.problemDetails.title : undefined;
+    const cancelled = UmbApiError.isUmbApiError(error) && error.problemDetails?.type === CANCELLED_TYPE ? (error.problemDetails.detail ?? error.problemDetails.title) : undefined;
     const notifications = await this.getContext(UMB_NOTIFICATION_CONTEXT);
     notifications?.peek(error ? "danger" : "positive", {
       data: { headline: this.#localize.term(`${key}_title`), message: cancelled ?? this.#localize.term(`${key}_message`) },
