@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Services;
 using Umbraco.Cms.Core.Composing;
@@ -20,7 +21,7 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
             builder.Services.AddTransient<IUmbCheckoutStripeClientFactory, UmbCheckoutStripeClientFactory>();
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
-            builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
+            builder.Services.TryAddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>(); // a site's own calculator wins, whichever composer runs first (#7)
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
             builder.Services.AddTransient<IStripeWebhookSecretProvider, StripeWebhookSecretProvider>();
             builder.Services.AddTransient<IStripeWebhookEventStore, StripeWebhookEventStore>();
