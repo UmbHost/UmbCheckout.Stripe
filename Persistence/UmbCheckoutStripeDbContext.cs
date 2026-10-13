@@ -14,11 +14,14 @@ public sealed class UmbCheckoutStripeDbContext(DbContextOptions<UmbCheckoutStrip
 
     internal DbSet<UmbCheckoutStripeWebhookEvent> WebhookEvents => Set<UmbCheckoutStripeWebhookEvent>();
 
+    internal DbSet<UmbCheckoutStripePaidSession> PaidSessions => Set<UmbCheckoutStripePaidSession>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var isSqlite = Database.IsSqlite();
         modelBuilder.ApplyConfiguration(new UmbCheckoutStripeSettingsConfiguration(isSqlite));
         modelBuilder.ApplyConfiguration(new UmbCheckoutStripeShippingConfiguration(isSqlite));
         modelBuilder.ApplyConfiguration(new UmbCheckoutStripeWebhookEventConfiguration());
+        modelBuilder.ApplyConfiguration(new UmbCheckoutStripePaidSessionConfiguration());
     }
 }

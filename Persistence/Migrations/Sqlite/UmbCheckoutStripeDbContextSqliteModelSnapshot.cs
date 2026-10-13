@@ -17,6 +17,24 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.Sqlite
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
+            modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripePaidSession", b =>
+                {
+                    b.Property<string>("CheckoutSessionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("PaidUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CheckoutSessionId")
+                        .HasName("PK_UmbCheckoutStripePaidSessions");
+
+                    b.HasIndex("PaidUtc")
+                        .HasDatabaseName("IX_UmbCheckoutStripePaidSessions_PaidUtc");
+
+                    b.ToTable("UmbCheckoutStripePaidSessions", (string)null);
+                });
+
             modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripeSettings", b =>
                 {
                     b.Property<long>("Id")

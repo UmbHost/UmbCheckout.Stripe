@@ -22,6 +22,24 @@ namespace UmbCheckout.Stripe.Persistence.Migrations.SqlServer
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripePaidSession", b =>
+                {
+                    b.Property<string>("CheckoutSessionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("PaidUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CheckoutSessionId")
+                        .HasName("PK_UmbCheckoutStripePaidSessions");
+
+                    b.HasIndex("PaidUtc")
+                        .HasDatabaseName("IX_UmbCheckoutStripePaidSessions_PaidUtc");
+
+                    b.ToTable("UmbCheckoutStripePaidSessions", (string)null);
+                });
+
             modelBuilder.Entity("UmbCheckout.Stripe.Pocos.UmbCheckoutStripeSettings", b =>
                 {
                     b.Property<long>("Id")
