@@ -257,6 +257,13 @@ namespace UmbCheckout.Stripe.Services
             }
         }
 
+        /// <summary>Which basket a session pays for: its culture and its trimmed, upper-case currency (the basket's own, else the session's).</summary>
+        internal static Dictionary<string, string> BasketMetadata(Basket basket, string currency) => new()
+        {
+            [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
+            [Consts.SessionMetadata.BasketCurrency] = (string.IsNullOrWhiteSpace(basket.CurrencyCode) ? currency : basket.CurrencyCode).Trim().ToUpperInvariant()
+        };
+
         /// <summary>
         /// Converts the Basket into the Stripe SessionCreateOptions
         /// </summary>
@@ -390,11 +397,7 @@ namespace UmbCheckout.Stripe.Services
                     SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
                     CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty,
                     // Which basket this session pays for: the success handler runs before the page's culture is known.
-                    Metadata = new Dictionary<string, string>
-                    {
-                        [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
-                        [Consts.SessionMetadata.BasketCurrency] = basket.CurrencyCode ?? currency.ToUpperInvariant()
-                    }
+                    Metadata = BasketMetadata(basket, currency)
                 };
 
                 // Published now, not with a scope (which queues them until it ends, after Stripe has the options): handlers change the session.

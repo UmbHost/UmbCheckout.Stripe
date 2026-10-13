@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.ManagementApi;
+using UmbCheckout.Stripe.Helpers;
 using UmbCheckout.Stripe.Composers;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
@@ -162,10 +165,20 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         private static ShippingRateResponseModel ToResponse(ShippingRate rate) => new() { Id = rate.Key, Name = rate.Name, Value = rate.Value };
 
         private IActionResult StripeErrorResult(global::Stripe.StripeException ex)
-            => OperationStatusResult(ShippingRateOperationStatus.StripeError, problemDetails => BadRequest(problemDetails
+        {
+            // A rejected key's message echoes the key's last 4 characters: a fixed detail is shown and logged instead.
+            var detail = StripeKeyRejection.DetailFor(ex);
+            if (StripeKeyRejection.IsRejected(ex))
+            {
+                HttpContext?.RequestServices?.GetService<ILoggerFactory>()?.CreateLogger<StripeShippingRatesApiController>()
+                    .LogWarning("Stripe request failed in {Controller}: {StripeError}", nameof(StripeShippingRatesApiController), detail);
+            }
+
+            return OperationStatusResult(ShippingRateOperationStatus.StripeError, problemDetails => BadRequest(problemDetails
                 .WithTitle(UmbCheckoutProblemDetails.StripeErrorTitle)
-                .WithDetail(ex.StripeError?.Message ?? ex.Message)
+                .WithDetail(detail)
                 .Build()));
+        }
 
         private IActionResult StatusResult(ShippingRateOperationStatus status)
             => OperationStatusResult(status, problemDetails => status switch
