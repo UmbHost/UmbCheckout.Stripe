@@ -27,6 +27,7 @@ public class StripeDefaultShippingOptionsService : IStripeShippingOptionsService
     }
 
     /// <summary>The configured shipping rates that are active and charge in the basket's currency (at most five).</summary>
+    [Obsolete("Use GetShippingOptions(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
     public Task<List<SessionShippingOptionOptions>> GetShippingOptions(Basket basket) => GetShippingOptions(basket, CancellationToken.None);
 
     /// <summary>The configured shipping rates that are active and charge in the basket's currency (at most five), stopping when <paramref name="cancellationToken"/> is cancelled.</summary>

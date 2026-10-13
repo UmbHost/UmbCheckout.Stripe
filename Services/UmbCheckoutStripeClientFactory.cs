@@ -18,6 +18,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Use CreateAsync(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
         public Task<IStripeClient> CreateAsync() => CreateAsync(CancellationToken.None);
 
         /// <inheritdoc />

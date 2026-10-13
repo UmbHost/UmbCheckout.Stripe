@@ -7,10 +7,13 @@ namespace UmbCheckout.Stripe.Interfaces
     /// </summary>
     public interface IUmbCheckoutStripeClientFactory
     {
+        [Obsolete("Use CreateAsync(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
         Task<IStripeClient> CreateAsync();
 
         /// <summary>Creates the Stripe client, stopping when <paramref name="cancellationToken"/> is cancelled (it reads the saved settings).</summary>
         /// <remarks>Implementations written before this overload existed ignore the token.</remarks>
+#pragma warning disable CS0618 // forwards to the old overload so implementations written before the token overload keep working
         Task<IStripeClient> CreateAsync(CancellationToken cancellationToken) => CreateAsync();
+#pragma warning restore CS0618
     }
 }
