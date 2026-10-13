@@ -29,7 +29,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     }
 
     // Formats a money object from the server ({ minorUnits, amount, currency }; amount is in major units). Without one (an
-    // older API, or no currency) the raw Stripe value is shown with its currency code: never a guessed conversion.
+    // older API, or no currency) the raw Stripe value is shown, labelled as minor units, with its currency code: never a guessed conversion.
     function formatMoney(money, rawAmount, rawCurrency) {
         if (money && money.amount !== null && money.amount !== undefined && money.currency) {
             try {
@@ -43,7 +43,8 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
             return "";
         }
 
-        return rawAmount + (rawCurrency ? " " + String(rawCurrency).toUpperCase() : "");
+        // Labelled: a raw Stripe amount is in minor units (495 is 4.95 GBP), so a bare "495 GBP" would read as 100 times the value.
+        return rawAmount + " (minor units)" + (rawCurrency ? " " + String(rawCurrency).toUpperCase() : "");
     }
 
     function clickItem(item) {

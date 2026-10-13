@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -8,6 +8,7 @@ using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Helpers;
 using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Models;
@@ -359,29 +360,11 @@ namespace UmbCheckout.Stripe.Services
                             stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                         }
 
-                        var metaData = lineItem.MetaData;
-                        if (metaData.ContainsKey("nodeKey"))
-                        {
-                            metaData.Add("nodeKey", product.Key.ToString());
-                        }
-
-                        if (metaData.Any())
-                        {
-                            if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
-                            {
-                                var productMetaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
-
-                                if (productMetaData != null)
-                                {
-                                    foreach (var pm in productMetaData.Where(pm => metaData.ContainsKey(pm.Key)))
-                                    {
-                                        metaData.Add(pm.Key, pm.Value);
-                                    }
-                                }
-                            }
-
-                            stripeLineItem.PriceData.ProductData.Metadata = metaData;
-                        }
+                        // The line's values, then the product's for keys the line doesn't set, then the node key: duplicates never throw (as v17).
+                        var productMetaData = product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias)
+                            ? product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias)
+                            : null;
+                        stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
 
                         if (UmbCheckoutSettings.IsLicensed)
                         {
