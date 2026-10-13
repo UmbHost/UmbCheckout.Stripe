@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Stripe.Interfaces;
@@ -29,14 +29,14 @@ namespace UmbCheckout.Stripe.Services
             var price = property?.HasValue() == true ? ReadPrice(property.GetValue()) : null;
             if (price is not { } amount || amount < 0)
             {
-                _logger.LogError("Product {ProductKey} has no valid price in {PropertyAlias}; it was not added to the basket", product.Key, Shared.Consts.PropertyAlias.PriceAlias);
+                _logger.LogError("Product {ProductKey} has no valid price in {PropertyAlias}; it can't be sold", product.Key, Shared.Consts.PropertyAlias.PriceAlias);
                 return null;
             }
 
             var currency = await _currencyService.GetCurrencyForContentAsync(product);
             if (!StripeCurrency.IsSupported(currency))
             {
-                _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which Stripe does not support; check the site root's {PropertyAlias} or the Configuration currency. It was not added to the basket", product.Key, currency, Shared.Consts.PropertyAlias.CurrencyCode);
+                _logger.LogError("Product {ProductKey} resolves to currency {CurrencyCode}, which Stripe does not support; check the site root's {PropertyAlias} or the Configuration currency. It can't be sold", product.Key, currency, Shared.Consts.PropertyAlias.CurrencyCode);
                 return null;
             }
 
@@ -45,7 +45,7 @@ namespace UmbCheckout.Stripe.Services
             var pageCurrency = await _basketContext.GetCurrencyAsync();
             if (pageCurrency != null && !string.Equals(pageCurrency.Trim(), currency, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning("Product {ProductKey} is sold in {CurrencyCode} but this page sells in {PageCurrencyCode}; it was not added to the basket", product.Key, currency, pageCurrency);
+                _logger.LogWarning("Product {ProductKey} is sold in {CurrencyCode} but this page sells in {PageCurrencyCode}; it can't be sold on this page", product.Key, currency, pageCurrency);
                 return null;
             }
 

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
 using Umbraco.Cms.Core.PublishedCache;
@@ -28,6 +28,13 @@ namespace UmbCheckout.Stripe.Services
 
             foreach (var line in basket.LineItems)
             {
+                // Stripe refuses a quantity outside 1 to 999,999, and more than 100 line items; legacy baskets may hold either.
+                if (line.Quantity < 1 || line.Quantity > Shared.Consts.MaxLineQuantity || lines.Count >= Shared.Consts.MaxLineItems)
+                {
+                    changes.Add(new RepricedLine(line.Key, line.Name, line.Price, null));
+                    continue;
+                }
+
                 var product = snapshot?.Content?.GetById(line.Key);
                 var current = product == null ? null : await _pricingService.GetPriceAsync(product);
                 var currency = basket.CurrencyCode ?? line.CurrencyCode;
