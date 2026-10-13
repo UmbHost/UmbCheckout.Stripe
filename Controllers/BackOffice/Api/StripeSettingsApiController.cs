@@ -10,6 +10,8 @@ using UmbHost.Licensing.Services;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
@@ -17,6 +19,8 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
     /// UmbracoAuthorizedApiController to retrieve the Stripe settings for the backoffice
     /// </summary>
     [PluginController(Shared.Consts.PackageName)]
+    // Settings section users only (the screens live in the Settings tree), as v17
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class StripeSettingsApiController : UmbracoAuthorizedApiController
     {
         private readonly IStripeSettingsService _stripeSettingsService;

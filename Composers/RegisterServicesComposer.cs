@@ -17,6 +17,7 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeSessionService, StripeSessionService>();
             builder.Services.AddTransient<IStripeLineItemPricingService, StripeLineItemPricingService>();
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
+            builder.Services.AddTransient<IUmbCheckoutStripeClientFactory, UmbCheckoutStripeClientFactory>();
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
             builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
