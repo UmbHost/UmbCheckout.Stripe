@@ -16,10 +16,16 @@ namespace UmbCheckout.Stripe.Composers
         public void Compose(IUmbracoBuilder builder)
         {
             builder.Services.AddTransient<IStripeSessionService, StripeSessionService>();
+            builder.Services.AddTransient<IStripeLineItemPricingService, StripeLineItemPricingService>();
+            builder.Services.AddTransient<IStripeBasketPricingService, StripeBasketPricingService>();
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
+            builder.Services.AddTransient<IUmbCheckoutStripeClientFactory, UmbCheckoutStripeClientFactory>();
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
             builder.Services.TryAddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>(); // a site's own calculator wins, whichever composer runs first (#7)
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
+            builder.Services.AddTransient<IStripeWebhookSecretProvider, StripeWebhookSecretProvider>();
+            builder.Services.AddTransient<IStripeWebhookEventStore, StripeWebhookEventStore>();
+            builder.Services.AddTransient<IUmbCheckoutSuccessPageMatcher, UmbCheckoutSuccessPageMatcher>();
 
 #if NET8_0_OR_GREATER
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();

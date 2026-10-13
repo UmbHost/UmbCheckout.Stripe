@@ -11,49 +11,35 @@ namespace UmbCheckout.Stripe.Services
     /// </summary>
     internal class StripeShippingRateApiService : IStripeShippingRateApiService
     {
-        private readonly StripeSettings _stripeSettings;
-        private readonly IStripeSettingsService _stripeSettingsService;
+        private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
 
-        public StripeShippingRateApiService(IOptionsMonitor<StripeSettings> stripeSettings, IStripeSettingsService stripeSettingsService)
+        public StripeShippingRateApiService(IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
-            _stripeSettingsService = stripeSettingsService;
-            _stripeSettings = _stripeSettings = stripeSettings.CurrentValue;
+            _stripeClientFactory = stripeClientFactory;
         }
 
         /// <inheritdoc />
-        public async Task<StripeList<ShippingRate>> GetShippingRates()
+        [Obsolete("Use GetShippingRates(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        public Task<StripeList<ShippingRate>> GetShippingRates() => GetShippingRates(CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<StripeList<ShippingRate>> GetShippingRates(CancellationToken cancellationToken)
         {
-            var apiKey = string.Empty;
-            var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-            if (stripeSettings != null)
-            {
-                apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-            }
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync(cancellationToken));
 
-            var stripeClient = new StripeClient(apiKey);
-            var service = new ShippingRateService(stripeClient);
-
-            var shippingRates = await service.ListAsync();
-
-            return shippingRates;
+            return await service.ListAsync(cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<ShippingRate> GetShippingRate(string id)
+        [Obsolete("Use GetShippingRate(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        public Task<ShippingRate> GetShippingRate(string id) => GetShippingRate(id, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<ShippingRate> GetShippingRate(string id, CancellationToken cancellationToken)
         {
-            var apiKey = string.Empty;
-            var stripeSettings = _stripeSettingsService.GetStripeSettings().Result;
-            if (stripeSettings != null)
-            {
-                apiKey = stripeSettings.UseLiveApiDetails ? _stripeSettings.Live.ApiKey : _stripeSettings.Test.ApiKey;
-            }
+            var service = new ShippingRateService(await _stripeClientFactory.CreateAsync(cancellationToken));
 
-            var stripeClient = new StripeClient(apiKey);
-            var service = new ShippingRateService(stripeClient);
-
-            var shippingRate = await service.GetAsync(id);
-
-            return shippingRate;
+            return await service.GetAsync(id, cancellationToken: cancellationToken);
         }
     }
 }

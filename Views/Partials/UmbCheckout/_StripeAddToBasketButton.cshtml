@@ -1,4 +1,5 @@
 ﻿@using UmbCheckout.Shared
+@using UmbCheckout.Shared.Extensions
 @using UmbCheckout.Stripe.Controllers.Surface
 @using Umbraco.Extensions
 @model UmbCheckout.Stripe.ViewModels.StripeAddToBasketButtonViewModel
@@ -28,7 +29,9 @@
                     <option value="@Model.Product.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? Model.Product.Value<string>(Model.ProductNameAlias) : Model.Product.Name)</option>
                     @foreach (var variant in Model.Product.Children)
                     {
-                        <!option value="@variant.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? variant.Value<string>(Model.ProductNameAlias) : variant.Name) - @(Model.Product.Value<decimal>(Consts.PropertyAlias.PriceAlias).ToString("C"))</!option>
+                        @* Each variant's own price (the one charged) in the charged currency; a variant with no price shows none, because adding it is refused. *@
+                        var variantPrice = variant.Value<decimal?>(Consts.PropertyAlias.PriceAlias);
+                        <!option value="@variant.Key">@(!string.IsNullOrEmpty(Model.ProductNameAlias) ? variant.Value<string>(Model.ProductNameAlias) : variant.Name)@(variantPrice.HasValue ? " - " + variantPrice.Value.FormatCurrency(Model.CurrencyCode) : string.Empty)</!option>
                     }
                 </select>
             </div>
@@ -37,8 +40,6 @@
         {
             <input type="hidden" name="key" value="@Model.Product.Key" />
         }
-
-        <input type="hidden" name="currencyCode" value="@Model.CurrencyCode" />
 
         if (Model.ReturnGuid.HasValue)
         {

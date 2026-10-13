@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <ReferenceUmbHostLicensing>true</ReferenceUmbHostLicensing>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 	  <StaticWebAssetBasePath>App_Plugins</StaticWebAssetBasePath>
 	  <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
@@ -49,8 +50,9 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stripe.net" Version="50.3.0" />
-    <PackageReference Include="UmbHost.Licensing" Version="1.4.0" />
+    <!-- Stripe.net majors move to a new Stripe API version and usually break; a site can upgrade within 50.x -->
+    <PackageReference Include="Stripe.net" Version="[50.3.0, 51)" />
+    <!-- UmbHost.Licensing: see Directory.Build.targets -->
   </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
@@ -66,6 +68,10 @@
 		<PackageReference Include="Umbraco.Cms.Web.Common" Version="[13.5.3, 14)" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[13.5.3, 14)" />
 	</ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UmbCheckout.Tests" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\UmbCheckout.Core\UmbCheckout.Core.csproj" />

@@ -1,4 +1,4 @@
-function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService) {
+function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService, umbCheckoutHelpers) {
     var vm = this;
     vm.shippingRateName;
     vm.deleteButtonState = "init";
@@ -7,6 +7,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
     vm.stripeShippingRate = {};
+    vm.stripeShippingRateAmount = "";
     vm.stripeShippingRateUrl = "";
     vm.shipping_help = "";
 
@@ -16,32 +17,63 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
     vm.clickItem = clickItem;
 
+    function setStripeShippingRate(rate) {
+        vm.stripeShippingRate = rate;
+
+        // The API converts the amount on the server (fixedAmountMoney). Stripe's own field is fixed_amount (Stripe.net's
+        // System.Text.Json names) or fixedAmount (older Stripe.net); it is only shown raw, as a fallback.
+        var fixedAmount = rate ? (rate.fixed_amount || rate.fixedAmount) : null;
+        vm.stripeShippingRateAmount = formatMoney(rate ? rate.fixedAmountMoney : null,
+            fixedAmount ? fixedAmount.amount : null,
+            fixedAmount ? fixedAmount.currency : null);
+    }
+
+    // Formats a money object from the server ({ minorUnits, amount, currency }; amount is in major units). Without one (an
+    // older API, or no currency) the raw Stripe value is shown, labelled as minor units, with its currency code: never a guessed conversion.
+    function formatMoney(money, rawAmount, rawCurrency) {
+        if (money && money.amount !== null && money.amount !== undefined && money.currency) {
+            try {
+                return new Intl.NumberFormat('en', { style: 'currency', currency: money.currency.toUpperCase() }).format(money.amount);
+            } catch (e) {
+                return money.amount + " " + money.currency.toUpperCase();
+            }
+        }
+
+        if (rawAmount === null || rawAmount === undefined) {
+            return "";
+        }
+
+        // Labelled: a raw Stripe amount is in minor units (495 is 4.95 GBP), so a bare "495 GBP" would read as 100 times the value.
+        return rawAmount + " (minor units)" + (rawCurrency ? " " + String(rawCurrency).toUpperCase() : "");
+    }
+
     function clickItem(item) {
 
         vm.properties.forEach(function (v) {
-            if (v.alias == "name") v.value = item.displayName;
+            if (v.alias == "name") v.value = item.display_name; // Stripe.net's own (snake_case) JSON name
             if (v.alias == "value") {
                 v.value = item.id
 
                 umbCheckoutStripeResources.getStripeShippingRate(v.value)
                     .then(function (response) {
 
-                        vm.stripeShippingRate = response.data
+                        setStripeShippingRate(response.data)
                     })
+                    .catch(umbCheckoutHelpers.requestFailed);
             };
         });
     }
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
-            if (response.data.status == "Invalid" || response.data.status == "Unlicensed" || response.data.status == "Expired") {
+            if (response.data.status != "Active" && response.data.status != "Development") { // anything else (Invalid, Expired, Suspended, Unlicensed, Domain not licensed) is unlicensed
                 vm.LicenseState.Valid = false;
 
                 localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
                     vm.LicenseState.Message = value;
                 });
 
-            } else if (response.data.status == "Active") {
+            } else {
                 vm.LicenseState.Valid = true;
             }
         }
@@ -58,29 +90,36 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                         umbCheckoutStripeResources.getStripeShippingRate(v.value)
                             .then(function (response) {
 
-                                vm.stripeShippingRate = response.data
+                                setStripeShippingRate(response.data)
                             })
+                            .catch(umbCheckoutHelpers.requestFailed);
                     }
                 };
             });
-        }
-    );
+        })
+        .catch(function (response) {
+            // Settings section users only (403 for anyone else)
+            umbCheckoutHelpers.requestFailed(response, "umbcheckout_settings_access_denied_message");
+        });
 
     umbCheckoutStripeResources.getStripeShippingRates()
         .then(function (response) {
-            angular.forEach(response.data, function (value, key) {
+            // A Stripe list: the rates are in data, with Stripe.net's own (snake_case) JSON names
+            var rates = (response.data && response.data.data) || [];
+            angular.forEach(rates, function (value, key) {
 
-                value.name = value.displayName
+                value.name = value.display_name
             });
 
-            vm.stripeShippingRates = response.data
-        }
-    );
+            vm.stripeShippingRates = rates
+        })
+        .catch(umbCheckoutHelpers.requestFailed);
 
     umbCheckoutStripeResources.getStripeSettings()
         .then(function (response) {
 
-            if (response.data.useLiveApiDetails) {
+            // The settings API returns a property list; useLiveApiDetails is one of its properties
+            if (umbCheckoutHelpers.isLiveMode(response.data)) {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/shipping-rates/";
             } else {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/test/shipping-rates/";
