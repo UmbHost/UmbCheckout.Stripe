@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using UmbCheckout.Stripe.Interfaces;
+using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.BackOffice.Controllers;
@@ -48,8 +50,19 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRates = await _stripeShippingRateApiService.GetShippingRates();
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-                return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                // The response is serialised as before; each rate gains fixedAmountMoney (the amount in major units).
+                var json = MoneyJson.Serialize(shippingRates, options);
+                if (json?["data"] is JsonArray data && shippingRates?.Data is { } rates)
+                {
+                    for (var i = 0; i < data.Count && i < rates.Count; i++)
+                    {
+                        AddFixedAmountMoney(data[i], rates[i], options);
+                    }
+                }
+
+                return new JsonResult(json, options);
             }
             catch (Exception ex)
             {
@@ -81,8 +94,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id);
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-                return new JsonResult(shippingRate, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                // The response is serialised as before, plus fixedAmountMoney (the amount in major units).
+                var json = MoneyJson.Serialize(shippingRate, options);
+                AddFixedAmountMoney(json, shippingRate, options);
+
+                return new JsonResult(json, options);
             }
             catch (Exception ex)
             {
@@ -136,6 +154,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
 
             return BadRequest();
+        }
+
+        private static void AddFixedAmountMoney(JsonNode? item, global::Stripe.ShippingRate? rate, JsonSerializerOptions options)
+        {
+            if (rate?.FixedAmount is { } fixedAmount)
+            {
+                MoneyJson.Add(item, "fixedAmountMoney", fixedAmount.Amount, fixedAmount.Currency, options);
+            }
         }
 
         private Task<ShippingRateResponse> GetShippingRateProperties(ShippingRate shippingRate)

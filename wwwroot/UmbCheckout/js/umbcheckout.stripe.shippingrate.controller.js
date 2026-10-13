@@ -7,6 +7,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     vm.LicenseState = {};
     vm.stripeShippingRates = [];
     vm.stripeShippingRate = {};
+    vm.stripeShippingRateAmount = "";
     vm.stripeShippingRateUrl = "";
     vm.shipping_help = "";
 
@@ -15,6 +16,35 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     });
 
     vm.clickItem = clickItem;
+
+    function setStripeShippingRate(rate) {
+        vm.stripeShippingRate = rate;
+
+        // The API converts the amount on the server (fixedAmountMoney). Stripe's own field is fixed_amount (Stripe.net's
+        // System.Text.Json names) or fixedAmount (older Stripe.net); it is only shown raw, as a fallback.
+        var fixedAmount = rate ? (rate.fixed_amount || rate.fixedAmount) : null;
+        vm.stripeShippingRateAmount = formatMoney(rate ? rate.fixedAmountMoney : null,
+            fixedAmount ? fixedAmount.amount : null,
+            fixedAmount ? fixedAmount.currency : null);
+    }
+
+    // Formats a money object from the server ({ minorUnits, amount, currency }; amount is in major units). Without one (an
+    // older API, or no currency) the raw Stripe value is shown with its currency code: never a guessed conversion.
+    function formatMoney(money, rawAmount, rawCurrency) {
+        if (money && money.amount !== null && money.amount !== undefined && money.currency) {
+            try {
+                return new Intl.NumberFormat('en', { style: 'currency', currency: money.currency.toUpperCase() }).format(money.amount);
+            } catch (e) {
+                return money.amount + " " + money.currency.toUpperCase();
+            }
+        }
+
+        if (rawAmount === null || rawAmount === undefined) {
+            return "";
+        }
+
+        return rawAmount + (rawCurrency ? " " + String(rawCurrency).toUpperCase() : "");
+    }
 
     function clickItem(item) {
 
@@ -26,7 +56,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                 umbCheckoutStripeResources.getStripeShippingRate(v.value)
                     .then(function (response) {
 
-                        vm.stripeShippingRate = response.data
+                        setStripeShippingRate(response.data)
                     })
             };
         });
@@ -58,7 +88,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
                         umbCheckoutStripeResources.getStripeShippingRate(v.value)
                             .then(function (response) {
 
-                                vm.stripeShippingRate = response.data
+                                setStripeShippingRate(response.data)
                             })
                     }
                 };
