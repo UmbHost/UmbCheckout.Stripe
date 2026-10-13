@@ -18,7 +18,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// Brings every line to its current published price; drops lines whose product is unpublished, deleted, unpriced or
         /// now sold in another currency.
         /// </summary>
-        [Obsolete("Use RepriceAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
+        [Obsolete("Use RepriceAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         Task<BasketRepricing> RepriceAsync(Basket basket);
 
         /// <summary>Re-prices <paramref name="basket"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>

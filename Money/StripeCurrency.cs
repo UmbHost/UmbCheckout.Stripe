@@ -1,40 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
+using UmbCheckout.Shared.Money;
 
 namespace UmbCheckout.Stripe.Money
 {
     /// <summary>
-    /// Converts between Stripe's integer minor-unit amounts and decimal major-unit amounts.
-    /// Source: https://docs.stripe.com/currencies — currencies are two-decimal unless listed otherwise.
+    /// Converts between Stripe's integer minor-unit amounts and decimal major-unit amounts, and holds UmbCheckout's single rounding policy.
+    /// The decimal places per currency come from <see cref="CurrencyDecimals"/> (shared with the display).
     /// </summary>
     public static class StripeCurrency
     {
-        /// <summary>
-        /// Stripe's zero-decimal currencies. ISK and UGX are deliberately absent: although zero-decimal, Stripe's API
-        /// still represents them as two-decimal values (5 ISK is sent as 500), so they use the two-decimal default.
-        /// </summary>
-        private static readonly HashSet<string> ZeroDecimal = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "vnd", "vuv", "xaf", "xof", "xpf"
-        };
-
-        /// <summary>Currencies whose minor unit is a thousandth (ISO 4217 exponent 3).</summary>
-        private static readonly HashSet<string> ThreeDecimal = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "bhd", "jod", "kwd", "omr", "tnd"
-        };
-
-        /// <summary>
-        /// Zero-decimal currencies Stripe still represents as two-decimal values (5 ISK is sent as 500).
-        /// Docs: "You can't charge fractions of ISK" / UGX likewise.
-        /// </summary>
-        private static readonly HashSet<string> WholeUnitsOnly = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "isk", "ugx"
-        };
-
         /// <summary>The number of decimal places a charge in <paramref name="currency"/> may have.</summary>
+        /// <remarks>From <see cref="CurrencyDecimals"/>, the table the basket display uses too.</remarks>
         public static int ChargeableDigits(string currency)
-            => WholeUnitsOnly.Contains(currency) ? 0 : MinorUnitDigits(currency);
+            => CurrencyDecimals.ChargeableDigits(currency);
 
         /// <summary>
         /// UmbCheckout's single rounding policy: round to the currency's chargeable digits, half away from zero.
@@ -76,13 +54,9 @@ namespace UmbCheckout.Stripe.Money
         }
 
         /// <summary>The number of decimal places Stripe's API uses for <paramref name="currency"/> amounts.</summary>
+        /// <remarks>From <see cref="CurrencyDecimals"/>, the table the basket display uses too.</remarks>
         public static int MinorUnitDigits(string currency)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(currency);
-            if (ZeroDecimal.Contains(currency)) return 0;
-            if (ThreeDecimal.Contains(currency)) return 3;
-            return 2;
-        }
+            => CurrencyDecimals.MinorUnitDigits(currency);
 
         /// <summary>Converts a Stripe amount (e.g. 1099 USD cents) to major units (10.99).</summary>
         public static decimal ToMajorUnits(long minorUnits, string currency)

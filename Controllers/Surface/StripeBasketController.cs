@@ -191,7 +191,8 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 var repricing = await _basketPricingService.RepriceAsync(basket, RequestAborted);
                 if (repricing.Changes.Count > 0)
                 {
-                    await _umbCheckoutSessionService.Update(repricing.Basket, RequestAborted);
+                    // Not cancelled with the request: once Stripe has the session it is recorded even if the shopper has left meanwhile.
+                    await _umbCheckoutSessionService.Update(repricing.Basket, CancellationToken.None);
                     if (Cancelled())
                     {
                         return RedirectToCurrentUmbracoPage();
@@ -208,7 +209,8 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 repricing.Basket.CheckoutSessionId = stripeSession.Id;
                 using (UmbCheckoutHooks.SuppressSaving())
                 {
-                    await _umbCheckoutSessionService.Update(repricing.Basket, RequestAborted);
+                    // Not cancelled with the request: once Stripe has the session it is recorded even if the shopper has left meanwhile.
+                    await _umbCheckoutSessionService.Update(repricing.Basket, CancellationToken.None);
                 }
 
                 return Redirect(stripeSession.Url);

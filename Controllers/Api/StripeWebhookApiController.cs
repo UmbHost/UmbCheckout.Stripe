@@ -24,6 +24,12 @@ namespace UmbCheckout.Stripe.Controllers.Api
         /// <summary>API versions already warned about, so a mismatched endpoint logs once per version rather than per event.</summary>
         private static readonly ConcurrentDictionary<string, bool> WarnedApiVersions = new();
 
+        /// <summary>Modes (live or test) whose missing webhook secret has been logged at Error in this process.</summary>
+        private static readonly ConcurrentDictionary<bool, bool> ReportedMissingSecrets = new();
+
+        /// <summary>For tests: forget which missing secrets have been reported.</summary>
+        internal static void ResetMissingSecretReports() => ReportedMissingSecrets.Clear();
+
         private readonly ILogger<StripeWebhookApiController> _logger;
         private readonly IEventAggregator _eventAggregator;
         private readonly IStripeWebhookSecretProvider _secretProvider;
@@ -51,8 +57,17 @@ namespace UmbCheckout.Stripe.Controllers.Api
             var (secret, live) = await _secretProvider.GetAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(secret))
             {
-                // 500 so Stripe keeps retrying until the secret is configured.
-                _logger.LogError("Stripe webhook received but the {Mode} webhook secret is not configured", live ? "live" : "test");
+                // 500 so Stripe keeps retrying until the secret is configured. The secret is checked before the signature, so
+                // anyone can post here: an Error once per mode per process, then Debug, so posts can't flood the log.
+                if (ReportedMissingSecrets.TryAdd(live, true))
+                {
+                    _logger.LogError("Stripe webhook received but the {Mode} webhook secret is not configured", live ? "live" : "test");
+                }
+                else
+                {
+                    _logger.LogDebug("Stripe webhook received but the {Mode} webhook secret is not configured", live ? "live" : "test");
+                }
+
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
@@ -82,7 +97,19 @@ namespace UmbCheckout.Stripe.Controllers.Api
                 return Accepted();
             }
 
-            switch (await _eventStore.TryClaimAsync(stripeEvent.Id, cancellationToken))
+            StripeWebhookEventClaimResult claim;
+            try
+            {
+                claim = await _eventStore.ClaimAsync(stripeEvent.Id, cancellationToken);
+            }
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // e.g. the database is unreachable: 500, so Stripe retries the event later.
+                _logger.LogError(ex, "Could not claim Stripe webhook event {EventId} ({EventType})", stripeEvent.Id, stripeEvent.Type);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            switch (claim.Claim)
             {
                 case StripeWebhookEventClaim.AlreadyHandled:
                     return Ok(); // a redelivery of a handled event
@@ -92,6 +119,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
                     return StatusCode(StatusCodes.Status409Conflict);
             }
 
+            var leaseToken = claim.LeaseToken ?? string.Empty;
             try
             {
                 // Not the request's token: if Stripe drops the connection, handlers still finish rather than stop midway.
@@ -102,7 +130,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
                 _logger.LogError(ex, "Handling Stripe webhook event {EventId} ({EventType}) failed", stripeEvent.Id, stripeEvent.Type);
                 try
                 {
-                    await _eventStore.ForgetAsync(stripeEvent.Id, CancellationToken.None);
+                    await _eventStore.ForgetAsync(stripeEvent.Id, leaseToken, CancellationToken.None);
                 }
                 catch (Exception forgetEx)
                 {
@@ -115,7 +143,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
 
             try
             {
-                await _eventStore.CompleteAsync(stripeEvent.Id, CancellationToken.None);
+                await _eventStore.CompleteAsync(stripeEvent.Id, leaseToken, CancellationToken.None);
             }
             catch (Exception ex)
             {

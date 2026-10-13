@@ -30,6 +30,13 @@ namespace UmbCheckout.Stripe.Services
 
             foreach (var line in basket.LineItems)
             {
+                // Stripe refuses a quantity outside 1 to 999,999, and more than 100 line items; legacy baskets may hold either.
+                if (line.Quantity < 1 || line.Quantity > Shared.Consts.MaxLineQuantity || lines.Count >= Shared.Consts.MaxLineItems)
+                {
+                    changes.Add(new RepricedLine(line.Key, line.Name, line.Price, null));
+                    continue;
+                }
+
                 var product = await _contentCache.GetByIdAsync(line.Key);
                 var current = product == null ? null : await _pricingService.GetPriceAsync(product, cancellationToken);
                 var currency = basket.CurrencyCode ?? line.CurrencyCode;

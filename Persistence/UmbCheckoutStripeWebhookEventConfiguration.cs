@@ -14,6 +14,7 @@ internal sealed class UmbCheckoutStripeWebhookEventConfiguration : IEntityTypeCo
         entity.Property(x => x.EventId).HasMaxLength(255).ValueGeneratedNever();
         entity.Property(x => x.Status).IsRequired();
         entity.Property(x => x.LeaseUntilUtc).IsRequired(false);
+        entity.Property(x => x.LeaseToken).HasMaxLength(64).IsRequired(false);
         entity.HasIndex(x => x.ReceivedUtc).HasDatabaseName("IX_UmbCheckoutStripeWebhookEvents_ReceivedUtc");
     }
 }
