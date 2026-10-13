@@ -30,5 +30,11 @@ namespace UmbCheckout.Stripe.Pocos
         [Column("LeaseUntilUtc")]
         [NullSetting(NullSetting = NullSettings.Null)]
         public DateTime? LeaseUntilUtc { get; set; }
+
+        /// <summary>While processing: the token of the delivery holding the lease, so only that delivery completes or releases it.</summary>
+        [Column("LeaseToken")]
+        [Length(64)]
+        [NullSetting(NullSetting = NullSettings.Null)]
+        public string? LeaseToken { get; set; }
     }
 }

@@ -31,9 +31,10 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<StripeWebhookEventClaim> TryClaimAsync(string eventId, CancellationToken cancellationToken = default)
+        public async Task<StripeWebhookEventClaimResult> TryClaimAsync(string eventId, CancellationToken cancellationToken = default)
         {
             var now = DateTime.UtcNow;
+            var token = Guid.NewGuid().ToString("N");
             UmbCheckoutStripeWebhookEvent? existing;
             using (var scope = _scopeProvider.CreateScope(autoComplete: true))
             {
@@ -43,18 +44,21 @@ namespace UmbCheckout.Stripe.Services
                 {
                     if (existing.Status == UmbCheckoutStripeWebhookEvent.Done)
                     {
-                        return StripeWebhookEventClaim.AlreadyHandled;
+                        return StripeWebhookEventClaimResult.Of(StripeWebhookEventClaim.AlreadyHandled);
                     }
 
-                    // Take over an attempt whose lease has expired; the conditional update lets only one delivery win.
+                    // Take over an attempt whose lease has expired; the conditional update lets only one delivery win, and the new
+                    // token stops the earlier attempt completing or releasing this delivery's claim.
                     var takenOver = await scope.Database.ExecuteAsync(
-                        $"UPDATE {Table} SET LeaseUntilUtc = @0 WHERE EventId = @1 AND Status = @2 AND LeaseUntilUtc <= @3",
-                        now + _lease, eventId, UmbCheckoutStripeWebhookEvent.Processing, now);
-                    return takenOver == 1 ? StripeWebhookEventClaim.Claimed : StripeWebhookEventClaim.InProgress;
+                        $"UPDATE {Table} SET LeaseUntilUtc = @0, LeaseToken = @1 WHERE EventId = @2 AND Status = @3 AND LeaseUntilUtc <= @4",
+                        now + _lease, token, eventId, UmbCheckoutStripeWebhookEvent.Processing, now);
+                    return takenOver == 1
+                        ? new StripeWebhookEventClaimResult(StripeWebhookEventClaim.Claimed, token)
+                        : StripeWebhookEventClaimResult.Of(StripeWebhookEventClaim.InProgress);
                 }
             }
 
-            return await InsertOrReportAsync(eventId, now, cancellationToken);
+            return await InsertOrReportAsync(eventId, now, token, cancellationToken);
         }
 
         /// <summary>
@@ -62,7 +66,7 @@ namespace UmbCheckout.Stripe.Services
         /// row), that delivery is running the handlers: in progress. Any other save failure (deadlock, timeout, lost connection)
         /// surfaces, so the webhook answers 500 and Stripe retries.
         /// </summary>
-        internal async Task<StripeWebhookEventClaim> InsertOrReportAsync(string eventId, DateTime now, CancellationToken cancellationToken)
+        internal async Task<StripeWebhookEventClaimResult> InsertOrReportAsync(string eventId, DateTime now, string token, CancellationToken cancellationToken)
         {
             try
             {
@@ -72,9 +76,10 @@ namespace UmbCheckout.Stripe.Services
                     EventId = eventId,
                     ReceivedUtc = now,
                     Status = UmbCheckoutStripeWebhookEvent.Processing,
-                    LeaseUntilUtc = now + _lease
+                    LeaseUntilUtc = now + _lease,
+                    LeaseToken = token
                 });
-                return StripeWebhookEventClaim.Claimed;
+                return new StripeWebhookEventClaimResult(StripeWebhookEventClaim.Claimed, token);
             }
             catch (DbException)
             {
@@ -83,7 +88,7 @@ namespace UmbCheckout.Stripe.Services
                 var exists = await scope.Database.ExecuteScalarAsync<int>($"SELECT COUNT(*) FROM {Table} WHERE EventId = @0", eventId) > 0;
                 if (exists)
                 {
-                    return StripeWebhookEventClaim.InProgress;
+                    return StripeWebhookEventClaimResult.Of(StripeWebhookEventClaim.InProgress);
                 }
 
                 throw;
@@ -91,17 +96,21 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task CompleteAsync(string eventId, CancellationToken cancellationToken = default)
+        public async Task CompleteAsync(string eventId, string leaseToken, CancellationToken cancellationToken = default)
         {
             using var scope = _scopeProvider.CreateScope(autoComplete: true);
-            await scope.Database.ExecuteAsync($"UPDATE {Table} SET Status = @0, LeaseUntilUtc = NULL WHERE EventId = @1", UmbCheckoutStripeWebhookEvent.Done, eventId);
+            // Only while this delivery holds the claim: an attempt that outlived its lease leaves the takeover's claim alone.
+            await scope.Database.ExecuteAsync($"UPDATE {Table} SET Status = @0, LeaseUntilUtc = NULL, LeaseToken = NULL WHERE EventId = @1 AND Status = @2 AND LeaseToken = @3",
+                UmbCheckoutStripeWebhookEvent.Done, eventId, UmbCheckoutStripeWebhookEvent.Processing, leaseToken);
         }
 
         /// <inheritdoc />
-        public async Task ForgetAsync(string eventId, CancellationToken cancellationToken = default)
+        public async Task ForgetAsync(string eventId, string leaseToken, CancellationToken cancellationToken = default)
         {
             using var scope = _scopeProvider.CreateScope(autoComplete: true);
-            await scope.Database.ExecuteAsync($"DELETE FROM {Table} WHERE EventId = @0", eventId);
+            // Only while this delivery holds the claim: an attempt that outlived its lease leaves the takeover's claim alone.
+            await scope.Database.ExecuteAsync($"DELETE FROM {Table} WHERE EventId = @0 AND Status = @1 AND LeaseToken = @2",
+                eventId, UmbCheckoutStripeWebhookEvent.Processing, leaseToken);
         }
     }
 }

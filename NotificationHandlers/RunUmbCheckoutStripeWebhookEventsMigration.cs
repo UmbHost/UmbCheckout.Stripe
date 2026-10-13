@@ -40,7 +40,8 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         {
             var migrationPlan = new MigrationPlan("UmbCheckoutStripeWebhookEvents");
             migrationPlan.From(string.Empty)
-                .To<AddUmbCheckoutStripeWebhookEventsTable>("3b8f6a52-1d4e-4c79-9e0a-7f2c5d81b6e3");
+                .To<AddUmbCheckoutStripeWebhookEventsTable>("3b8f6a52-1d4e-4c79-9e0a-7f2c5d81b6e3")
+                .To<AddUmbCheckoutStripeWebhookEventLeaseToken>("8d1e4b7c-2f6a-4e93-b5c8-0a7d3f9e1c24");
             return migrationPlan;
         }
     }
