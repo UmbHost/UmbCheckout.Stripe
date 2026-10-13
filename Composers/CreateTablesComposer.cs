@@ -11,6 +11,7 @@ namespace UmbCheckout.Stripe.Composers
         {
             builder.AddNotificationHandler<UmbracoApplicationStartingNotification, RunUmbCheckoutStripeSettingsMigration>();
             builder.AddNotificationHandler<UmbracoApplicationStartingNotification, RunUmbCheckoutStripeShippingMigration>();
+            builder.AddNotificationHandler<UmbracoApplicationStartingNotification, RunUmbCheckoutStripeWebhookEventsMigration>();
         }
     }
 }

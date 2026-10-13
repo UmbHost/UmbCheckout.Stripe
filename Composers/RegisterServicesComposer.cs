@@ -21,6 +21,8 @@ namespace UmbCheckout.Stripe.Composers
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
             builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
+            builder.Services.AddTransient<IStripeWebhookSecretProvider, StripeWebhookSecretProvider>();
+            builder.Services.AddTransient<IStripeWebhookEventStore, StripeWebhookEventStore>();
 
 #if NET8_0_OR_GREATER
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();
