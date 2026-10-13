@@ -187,6 +187,12 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
+
+                // The success page clears this basket only when it returns from this checkout session (not a basket started
+                // later, nor a stale or shared success link).
+                repricing.Basket.CheckoutSessionId = stripeSession.Id;
+                await _umbCheckoutSessionService.Update(repricing.Basket);
+
                 return Redirect(stripeSession.Url);
             }
             catch (Exception ex)
