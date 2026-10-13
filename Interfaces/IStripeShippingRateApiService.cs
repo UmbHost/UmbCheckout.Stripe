@@ -11,7 +11,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// Gets the Shipping Rates from the Stripe API
         /// </summary>
         /// <returns>A list of Shipping Rates from the Stripe API</returns>
-        [Obsolete("Use GetShippingRates(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
+        [Obsolete("Use GetShippingRates(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         Task<StripeList<ShippingRate>> GetShippingRates();
 
         /// <summary>Gets the Shipping Rates from the Stripe API, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
@@ -25,7 +25,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// </summary>
         /// <param name="id">Id of the Stripe Shipping Rate</param>
         /// <returns>The Stripe Shipping Rate from the Stripe API</returns>
-        [Obsolete("Use GetShippingRate(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
+        [Obsolete("Use GetShippingRate(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         Task<ShippingRate> GetShippingRate(string id);
 
         /// <summary>Gets a Shipping Rate from the Stripe API, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>

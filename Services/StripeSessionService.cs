@@ -61,7 +61,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
         public Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null)
         {
             try
@@ -125,7 +125,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
         public Session CreateSession(Basket basket)
         {
             try
@@ -199,7 +199,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in the next major version.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
         public void ClearSession(string id)
         {
             try

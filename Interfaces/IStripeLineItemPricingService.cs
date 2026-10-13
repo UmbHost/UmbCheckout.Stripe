@@ -9,7 +9,7 @@ namespace UmbCheckout.Stripe.Interfaces
     public interface IStripeLineItemPricingService
     {
         /// <summary>The product's rounded price and currency, or null (logged) when it cannot be sold.</summary>
-        [Obsolete("Use GetPriceAsync(IPublishedContent, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in the next major version.")]
+        [Obsolete("Use GetPriceAsync(IPublishedContent, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         Task<LineItemPrice?> GetPriceAsync(IPublishedContent product);
 
         /// <summary>The product's rounded price and currency, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
