@@ -28,7 +28,6 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             _logger = logger;
             _localizedTextService = localizedTextService;
             _stripeSettingsService = stripeSettingsService;
-            licenseService.RunLicenseCheck();
         }
 
         /// <summary>

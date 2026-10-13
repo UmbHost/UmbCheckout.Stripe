@@ -33,6 +33,7 @@ namespace UmbCheckout.Stripe.Services
         private readonly IStripeShippingOptionsService _stripeShippingOptionsService;
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
+        private readonly LicenseService _licenseService;
         public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService)
         {
             _snapshotAccessor = snapshotAccessor;
@@ -44,7 +45,16 @@ namespace UmbCheckout.Stripe.Services
             _stripeShippingOptionsService = stripeShippingOptionsService;
             _stripeSettingsService = stripeSettingsService;
             _stripeSettings = stripeSettings.CurrentValue;
-            licenseService.RunLicenseCheck();
+            _licenseService = licenseService;
+        }
+
+        /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
+        private void ReportLiveMode(Session? session)
+        {
+            if (session != null && (session.Livemode || session.Id?.StartsWith("cs_live_", StringComparison.Ordinal) == true))
+            {
+                _licenseService.ReportLiveModeActivity();
+            }
         }
 
         /// <inheritdoc />
@@ -66,6 +76,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = service.Get(id, options?.ToSessionGetOptions());
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
 
@@ -98,6 +109,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = await service.GetAsync(id);
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
 
@@ -129,6 +141,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = service.Create(CreateSessionOptions(basket).Result);
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 
@@ -160,6 +173,7 @@ namespace UmbCheckout.Stripe.Services
 
                 var service = new SessionService(stripeClient);
                 var session = await service.CreateAsync(await CreateSessionOptions(basket));
+                ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
 

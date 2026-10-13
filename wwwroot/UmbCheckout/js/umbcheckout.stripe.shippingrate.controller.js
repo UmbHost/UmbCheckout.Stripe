@@ -34,14 +34,14 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
-            if (response.data.status == "Invalid" || response.data.status == "Unlicensed" || response.data.status == "Expired") {
+            if (response.data.status != "Active" && response.data.status != "Development") { // anything else (Invalid, Expired, Suspended, Unlicensed, Domain not licensed) is unlicensed
                 vm.LicenseState.Valid = false;
 
                 localizationService.localize("umbcheckout_unlicensed_warning").then(function (value) {
                     vm.LicenseState.Message = value;
                 });
 
-            } else if (response.data.status == "Active") {
+            } else {
                 vm.LicenseState.Valid = true;
             }
         }
