@@ -126,35 +126,69 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        /// <remarks>
+        /// An upsert keyed on <see cref="ShippingRate.Key"/>: the row with that Key gets the new name and Stripe ID (null when the
+        /// Stripe ID belongs to another rate). With no such Key (a key-less update, or uSync from another environment) the row with
+        /// that Stripe ID is renamed; with neither, the rate is inserted.
+        /// </remarks>
         public async Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate)
         {
+            using var scope = _scopeProvider.CreateScope(autoComplete: true);
+            UmbCheckoutStripeShipping? saved;
             try
             {
-                using var scope = _scopeProvider.CreateScope(autoComplete: true);
+                // By Key first: the Stripe ID (Value) is what the editor may have changed.
+                var existing = shippingRate.Key == Guid.Empty
+                    ? null
+                    : await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Key == shippingRate.Key);
+                var byValue = await scope.Database.QueryAsync<UmbCheckoutStripeShipping>().SingleOrDefault(x => x.Value == shippingRate.Value);
 
-                var shippingRatePoco = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate);
-
-                var existingShippingRate = await GetShippingRate(shippingRate.Value);
-
-                if (existingShippingRate != null)
+                if (existing != null)
                 {
-                    shippingRatePoco!.Id = existingShippingRate.Id;
-                    shippingRatePoco.Key = existingShippingRate.Key;
-                    var result = await scope.Database.UpdateAsync(shippingRatePoco);
-                    var updatedShippingRate = await GetShippingRate(shippingRatePoco.Key);
+                    if (byValue != null && byValue.Id != existing.Id)
+                    {
+                        _logger.LogWarning("Shipping rate {ShippingRateKey} was not saved: Stripe shipping rate {StripeShippingRateId} belongs to another shipping rate", shippingRate.Key, shippingRate.Value);
+                        return null;
+                    }
 
-                    scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
-
-                    return updatedShippingRate;
+                    existing.Name = shippingRate.Name;
+                    existing.Value = shippingRate.Value;
+                    await scope.Database.UpdateAsync(existing);
+                    saved = existing;
                 }
+                else if (byValue != null)
+                {
+                    byValue.Name = shippingRate.Name;
+                    if (byValue.Key == Guid.Empty)
+                    {
+                        byValue.Key = Guid.NewGuid();
+                    }
 
-                return await CreateShippingRate(shippingRate);
+                    await scope.Database.UpdateAsync(byValue);
+                    saved = byValue;
+                }
+                else
+                {
+                    saved = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate)!;
+                    saved.Id = 0;
+                    if (saved.Key == Guid.Empty)
+                    {
+                        saved.Key = Guid.NewGuid();
+                    }
+
+                    await scope.Database.InsertAsync(saved);
+                }
             }
-            catch (Exception ex)
+            catch (System.Data.Common.DbException ex)
             {
-                _logger.LogError(ex, ex.Message);
-                throw;
+                // A concurrent save took the same Key or Stripe ID.
+                _logger.LogWarning(ex, "Shipping rate {ShippingRateKey} ({StripeShippingRateId}) could not be saved", shippingRate.Key, shippingRate.Value);
+                return null;
             }
+
+            var updatedShippingRate = _mapper.Map<UmbCheckoutStripeShipping, ShippingRate>(saved);
+            scope.Notifications.Publish(new OnShippingRateSavedNotification(updatedShippingRate));
+            return updatedShippingRate;
         }
 
         /// <inheritdoc />

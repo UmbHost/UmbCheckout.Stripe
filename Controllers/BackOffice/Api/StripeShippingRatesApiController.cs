@@ -131,7 +131,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             if (ModelState.IsValid)
             {
                 var updatedShippingRate = await _stripeDatabaseService.UpdateShippingRate(shippingRate);
-                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate!);
+                if (updatedShippingRate == null)
+                {
+                    // Refused, e.g. the Stripe ID belongs to another shipping rate.
+                    return BadRequest();
+                }
+
+                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate);
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
 
