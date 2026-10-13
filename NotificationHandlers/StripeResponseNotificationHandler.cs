@@ -30,7 +30,18 @@ namespace UmbCheckout.Stripe.NotificationHandlers
 
                     if (stripeSession.Status == "complete")
                     {
-                        await _sessionService.Clear();
+                        // Clear the basket that was paid for (a basket belongs to one site root culture and currency). This runs while
+                        // routing, before the page (and its culture) is known, so they come from the session's metadata.
+                        if (stripeSession.Metadata != null && stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCurrency, out var currency) && !string.IsNullOrWhiteSpace(currency))
+                        {
+                            stripeSession.Metadata.TryGetValue(Consts.SessionMetadata.BasketCulture, out var culture);
+                            await _sessionService.Clear(string.IsNullOrEmpty(culture) ? null : culture, currency);
+                        }
+                        else
+                        {
+                            // Checkout sessions created before baskets were per currency carry no basket metadata.
+                            await _sessionService.Clear(stripeSession.Currency?.ToUpperInvariant());
+                        }
                     }
                 }
             }

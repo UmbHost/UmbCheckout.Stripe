@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using UmbCheckout.Core.Interfaces;
+using UmbCheckout.Shared.Extensions;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
@@ -78,6 +79,16 @@ namespace UmbCheckout.Stripe.Services
 
             return built;
         }
+
+        /// <summary>
+        /// Which basket a checkout session pays for (its site root culture and currency), stored on the session so the success page
+        /// can clear that basket: it runs while routing, before the page's culture is known.
+        /// </summary>
+        internal static Dictionary<string, string> BasketMetadata(Basket basket) => new()
+        {
+            [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
+            [Consts.SessionMetadata.BasketCurrency] = basket.CurrencyCode?.Trim().ToUpperInvariant() ?? basket.LineItems.SingleCurrency() ?? string.Empty
+        };
 
         /// <summary>The shipping options to send, or null when none applies: Stripe rejects an empty shipping_options list.</summary>
         internal static List<SessionShippingOptionOptions>? ShippingOptionsToSend(List<SessionShippingOptionOptions>? shippingOptions)
@@ -395,7 +406,8 @@ namespace UmbCheckout.Stripe.Services
                         },
                         Mode = Shared.Consts.SessionMode,
                         SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
-                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty
+                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty,
+                        Metadata = BasketMetadata(basket)
                     };
 
                     scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
