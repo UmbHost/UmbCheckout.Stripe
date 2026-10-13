@@ -36,6 +36,9 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             _logger = logger;
         }
 
+        /// <summary>The request's token, passed to every service so a shopper who leaves stops the work.</summary>
+        private CancellationToken RequestAborted => HttpContext?.RequestAborted ?? CancellationToken.None;
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(BasketAdd basketAdd, Guid? redirectGuid = null)
@@ -48,7 +51,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var price = await _pricingService.GetPriceAsync(product);
+                var price = await _pricingService.GetPriceAsync(product, RequestAborted);
                 if (price == null)
                 {
                     TempData[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] = basketAdd.Key;
@@ -64,7 +67,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                         Price = price.Price,
                         CurrencyCode = price.CurrencyCode,
                         Quantity = basketAdd.Quantity
-                    });
+                    }, RequestAborted);
                 }
                 catch (ArgumentException ex)
                 {
@@ -87,6 +90,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 return RedirectToCurrentUmbracoPage();
             }
+            catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+            {
+                // The shopper left: nobody is waiting for a response, and it isn't an error.
+                return new EmptyResult();
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Adding {ProductKey} to the basket failed", basketAdd.Key);
@@ -100,7 +108,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Reduce(key);
+                await _basketService.Reduce(key, RequestAborted);
                 if (Cancelled())
                 {
                     return redirectGuid.HasValue ? RedirectToUmbracoPage(redirectGuid.Value) : RedirectToCurrentUmbracoPage();
@@ -115,6 +123,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
                 return RedirectToCurrentUmbracoPage();
             }
+            catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+            {
+                // The shopper left: nobody is waiting for a response, and it isn't an error.
+                return new EmptyResult();
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Reducing {ProductKey} in the basket failed", key);
@@ -128,7 +141,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Remove(key);
+                await _basketService.Remove(key, RequestAborted);
                 if (Cancelled())
                 {
                     return redirectGuid.HasValue ? RedirectToUmbracoPage(redirectGuid.Value) : RedirectToCurrentUmbracoPage();
@@ -142,6 +155,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 return RedirectToCurrentUmbracoPage();
+            }
+            catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+            {
+                // The shopper left: nobody is waiting for a response, and it isn't an error.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -160,7 +178,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 Basket basket;
                 using (UmbCheckoutHooks.SuppressLoaded())
                 {
-                    basket = await _basketService.Get();
+                    basket = await _basketService.Get(RequestAborted);
                 }
 
                 if (!basket.LineItems.Any())
@@ -170,10 +188,10 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                 }
 
                 // Checkout charges current published prices; if anything changed the customer sees it before paying.
-                var repricing = await _basketPricingService.RepriceAsync(basket);
+                var repricing = await _basketPricingService.RepriceAsync(basket, RequestAborted);
                 if (repricing.Changes.Count > 0)
                 {
-                    await _umbCheckoutSessionService.Update(repricing.Basket);
+                    await _umbCheckoutSessionService.Update(repricing.Basket, RequestAborted);
                     if (Cancelled())
                     {
                         return RedirectToCurrentUmbracoPage();
@@ -183,19 +201,19 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket, HttpContext?.RequestAborted ?? default);
+                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket, RequestAborted);
 
                 // The success page clears this basket only when it returns from this checkout session. Bookkeeping, not a
                 // shopper's change, so a site's Saving handlers can't refuse it (or the paid basket would never clear).
                 repricing.Basket.CheckoutSessionId = stripeSession.Id;
                 using (UmbCheckoutHooks.SuppressSaving())
                 {
-                    await _umbCheckoutSessionService.Update(repricing.Basket);
+                    await _umbCheckoutSessionService.Update(repricing.Basket, RequestAborted);
                 }
 
                 return Redirect(stripeSession.Url);
             }
-            catch (OperationCanceledException) when (HttpContext?.RequestAborted.IsCancellationRequested == true)
+            catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
             {
                 // The shopper left: nobody is waiting for a response, and it isn't an error.
                 return new EmptyResult();
@@ -224,9 +242,14 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         {
             try
             {
-                await _basketService.Clear();
+                await _basketService.Clear(RequestAborted);
                 Cancelled();
                 return RedirectToCurrentUmbracoPage();
+            }
+            catch (OperationCanceledException) when (RequestAborted.IsCancellationRequested)
+            {
+                // The shopper left: nobody is waiting for a response, and it isn't an error.
+                return new EmptyResult();
             }
             catch (Exception ex)
             {

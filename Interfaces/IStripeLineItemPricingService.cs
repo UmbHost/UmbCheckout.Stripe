@@ -10,5 +10,9 @@ namespace UmbCheckout.Stripe.Interfaces
     {
         /// <summary>The product's rounded price and currency, or null (logged) when it cannot be sold.</summary>
         Task<LineItemPrice?> GetPriceAsync(IPublishedContent product);
+
+        /// <summary>The product's rounded price and currency, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before this overload existed ignore the token.</remarks>
+        Task<LineItemPrice?> GetPriceAsync(IPublishedContent product, CancellationToken cancellationToken) => GetPriceAsync(product);
     }
 }

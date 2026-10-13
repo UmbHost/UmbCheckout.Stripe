@@ -20,7 +20,7 @@ namespace UmbCheckout.Stripe.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
         {
             // The currency checkout charges (product's site root, then Configuration); currencyNodeKey no longer applies here.
-            var currencyCode = await _currencyService.GetCurrencyForContentAsync(product);
+            var currencyCode = await _currencyService.GetCurrencyForContentAsync(product, HttpContext?.RequestAborted ?? CancellationToken.None);
 
             var model = new StripeAddToBasketButtonViewModel
             {

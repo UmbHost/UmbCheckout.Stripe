@@ -72,7 +72,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
             Session stripeSession;
             try
             {
-                stripeSession = await _stripeSessionService.GetSessionAsync(sessionId);
+                stripeSession = await _stripeSessionService.GetSessionAsync(sessionId, cancellationToken);
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
@@ -105,14 +105,14 @@ namespace UmbCheckout.Stripe.NotificationHandlers
                 culture = string.IsNullOrEmpty(culture) ? null : culture;
 
                 // Only the basket this checkout session paid for: not one started after paying, nor a stale or shared link.
-                var current = await _sessionService.Get(culture, currency);
+                var current = await _sessionService.Get(culture, currency, cancellationToken);
                 if (!string.Equals(current.Basket.CheckoutSessionId, sessionId, StringComparison.Ordinal))
                 {
                     _logger.LogInformation("The current {Culture} {Currency} basket was not paid for by checkout session {CheckoutSessionId}; it is kept", culture, currency, sessionId);
                     return;
                 }
 
-                await _sessionService.Clear(culture, currency);
+                await _sessionService.Clear(culture, currency, cancellationToken);
                 _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId}", culture, currency, sessionId);
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)

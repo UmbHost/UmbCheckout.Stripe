@@ -65,7 +65,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 return StatusResult(ShippingRateOperationStatus.DuplicateValue);
             }
 
-            var created = await _database.CreateShippingRateAsync(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value });
+            var created = await _database.CreateShippingRateAsync(new ShippingRate { Key = model.Id ?? Guid.NewGuid(), Name = model.Name, Value = model.Value }, HttpContext?.RequestAborted ?? default);
             return created is null
                 ? UmbCheckoutCancellation.Result(HttpContext) ?? StatusResult(ShippingRateOperationStatus.SaveFailed)
                 : CreatedAtId<StripeShippingRatesApiController>(controller => nameof(controller.GetShippingRateById), created.Key);
@@ -112,7 +112,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                var rates = await _stripe.GetShippingRates();
+                var rates = await _stripe.GetShippingRates(HttpContext?.RequestAborted ?? default);
                 return Ok(rates.Data.Select(StripeShippingRateResponseModel.From));
             }
             catch (global::Stripe.StripeException ex)
@@ -132,7 +132,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                return Ok(StripeShippingRateResponseModel.From(await _stripe.GetShippingRate(stripeId)));
+                return Ok(StripeShippingRateResponseModel.From(await _stripe.GetShippingRate(stripeId, HttpContext?.RequestAborted ?? default)));
             }
             catch (global::Stripe.StripeException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
             {

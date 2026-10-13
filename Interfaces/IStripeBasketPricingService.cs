@@ -19,5 +19,9 @@ namespace UmbCheckout.Stripe.Interfaces
         /// now sold in another currency.
         /// </summary>
         Task<BasketRepricing> RepriceAsync(Basket basket);
+
+        /// <summary>Re-prices <paramref name="basket"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
+        /// <remarks>Implementations written before this overload existed ignore the token.</remarks>
+        Task<BasketRepricing> RepriceAsync(Basket basket, CancellationToken cancellationToken) => RepriceAsync(basket);
     }
 }

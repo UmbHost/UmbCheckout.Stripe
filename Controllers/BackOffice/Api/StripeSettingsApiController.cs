@@ -59,7 +59,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                 ShippingAllowedCountries = model.ShippingAllowedCountries,
                 EnableAbandonedCartRecovery = model.EnableAbandonedCartRecovery,
                 AllowPromotionalCodesOnRecoveredCarts = model.AllowPromotionalCodesOnRecoveredCarts
-            });
+            }, HttpContext?.RequestAborted ?? default);
 
             return updated
                 ? Ok()

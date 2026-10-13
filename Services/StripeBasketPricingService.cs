@@ -20,7 +20,10 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        public async Task<BasketRepricing> RepriceAsync(Basket basket)
+        public Task<BasketRepricing> RepriceAsync(Basket basket) => RepriceAsync(basket, CancellationToken.None);
+
+        /// <inheritdoc />
+        public async Task<BasketRepricing> RepriceAsync(Basket basket, CancellationToken cancellationToken)
         {
             var lines = new List<LineItem>();
             var changes = new List<RepricedLine>();
@@ -28,7 +31,7 @@ namespace UmbCheckout.Stripe.Services
             foreach (var line in basket.LineItems)
             {
                 var product = await _contentCache.GetByIdAsync(line.Key);
-                var current = product == null ? null : await _pricingService.GetPriceAsync(product);
+                var current = product == null ? null : await _pricingService.GetPriceAsync(product, cancellationToken);
                 var currency = basket.CurrencyCode ?? line.CurrencyCode;
 
                 if (current == null || !string.Equals(current.CurrencyCode, currency, StringComparison.OrdinalIgnoreCase))

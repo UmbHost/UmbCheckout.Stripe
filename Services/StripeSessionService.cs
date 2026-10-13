@@ -98,7 +98,7 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 await _eventAggregator.PublishAsync(new OnProviderGetSessionStartedNotification(id), cancellationToken);
 
-                var service = new SessionService(await _stripeClientFactory.CreateAsync());
+                var service = new SessionService(await _stripeClientFactory.CreateAsync(cancellationToken));
                 var session = await service.GetAsync(id, cancellationToken: cancellationToken);
 
                 scope.Notifications.Publish(new OnProviderGetSessionNotification(id));
@@ -124,7 +124,7 @@ namespace UmbCheckout.Stripe.Services
                 var stripeClient = _stripeClientFactory.CreateAsync().GetAwaiter().GetResult();
 
                 var service = new SessionService(stripeClient);
-                var session = service.Create(CreateSessionOptions(basket).Result);
+                var session = service.Create(CreateSessionOptions(basket, CancellationToken.None).Result);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
@@ -150,10 +150,10 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 await _eventAggregator.PublishAsync(new OnProviderCreateSessionStartedNotification(basket), cancellationToken);
 
-                var stripeClient = await _stripeClientFactory.CreateAsync();
+                var stripeClient = await _stripeClientFactory.CreateAsync(cancellationToken);
 
                 var service = new SessionService(stripeClient);
-                var session = await service.CreateAsync(await CreateSessionOptions(basket), cancellationToken: cancellationToken);
+                var session = await service.CreateAsync(await CreateSessionOptions(basket, cancellationToken), cancellationToken: cancellationToken);
                 ReportLiveMode(session);
 
                 scope.Notifications.Publish(new OnProviderSessionCreatedNotification(basket));
@@ -202,7 +202,7 @@ namespace UmbCheckout.Stripe.Services
                 using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
                 await _eventAggregator.PublishAsync(new OnProviderClearSessionStartedNotification(id), cancellationToken);
 
-                var service = new SessionService(await _stripeClientFactory.CreateAsync());
+                var service = new SessionService(await _stripeClientFactory.CreateAsync(cancellationToken));
                 await service.ExpireAsync(id, cancellationToken: cancellationToken);
 
                 scope.Notifications.Publish(new OnProviderSessionClearedNotification(id));
@@ -219,12 +219,12 @@ namespace UmbCheckout.Stripe.Services
         /// </summary>
         /// <param name="basket">The Basket to the converted</param>
         /// <returns>The Stripe SessionCreateOptions</returns>
-        private async Task<SessionCreateOptions> CreateSessionOptions(Basket basket)
+        private async Task<SessionCreateOptions> CreateSessionOptions(Basket basket, CancellationToken cancellationToken)
         {
             using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
             {
-                var configuration = await _configurationService.GetConfigurationAsync();
-                var stripeSettings = await _stripeSettingsService.GetStripeSettingsAsync();
+                var configuration = await _configurationService.GetConfigurationAsync(cancellationToken);
+                var stripeSettings = await _stripeSettingsService.GetStripeSettingsAsync(cancellationToken);
                 Uri? successUri = null;
                 Uri? cancelUri = null;
                 if (configuration != null)
@@ -380,7 +380,7 @@ namespace UmbCheckout.Stripe.Services
                 if (configuration is { EnableShipping: true })
                 {
                     // Stripe rejects an empty shipping_options list (sent as an empty string): only set it when a rate applies.
-                    var shippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
+                    var shippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket, cancellationToken);
                     if (shippingOptions.Count > 0)
                     {
                         options.ShippingOptions = shippingOptions;
