@@ -20,7 +20,13 @@ namespace UmbCheckout.Stripe.Composers
         public void Compose(IUmbracoBuilder builder)
         {
             builder.Services.AddTransient<IStripePaidCheckoutSessions, StripePaidCheckoutSessions>();
-            builder.Services.Replace(ServiceDescriptor.Transient<IPaidCheckoutSessions>(sp => sp.GetRequiredService<IStripePaidCheckoutSessions>()));
+            // Only Core's default is replaced: a store the site registered itself is kept (the package stays extendable).
+            var registered = builder.Services.Where(d => d.ServiceType == typeof(IPaidCheckoutSessions)).ToList();
+            if (registered.TrueForAll(d => d.ImplementationType == typeof(NoPaidCheckoutSessions) || d.ImplementationInstance is NoPaidCheckoutSessions))
+            {
+                registered.ForEach(d => builder.Services.Remove(d));
+                builder.Services.AddTransient<IPaidCheckoutSessions>(sp => sp.GetRequiredService<IStripePaidCheckoutSessions>());
+            }
 
             builder.AddNotificationAsyncHandler<OnCheckoutSessionCompletedNotification, RecordPaidCheckoutSessionHandler>();
             builder.AddNotificationAsyncHandler<OnPaymentSuccessNotification, RecordPaidCheckoutSessionHandler>();
