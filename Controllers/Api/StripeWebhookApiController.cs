@@ -37,7 +37,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
         private readonly IStripeWebhookSecretProvider _secretProvider;
         private readonly IStripeWebhookEventStore _eventStore;
 
-        [Obsolete("Use the constructor that takes an IEventAggregator, an IStripeWebhookSecretProvider and an IStripeWebhookEventStore. This one resolves them from the application's services.")]
+        [Obsolete("Use the constructor that takes an IEventAggregator, an IStripeWebhookSecretProvider and an IStripeWebhookEventStore. Scheduled for removal in 17.1.")]
         public StripeWebhookApiController(ILogger<StripeWebhookApiController> logger, ICoreScopeProvider coreScopeProvider, IOptionsMonitor<StripeSettings> stripeSettings, IStripeSettingsService stripeSettingsService)
             : this(logger,
                 StaticServiceProvider.Instance.GetRequiredService<IEventAggregator>(),

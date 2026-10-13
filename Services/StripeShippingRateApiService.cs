@@ -19,6 +19,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Use GetShippingRates(CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         public Task<StripeList<ShippingRate>> GetShippingRates() => GetShippingRates(CancellationToken.None);
 
         /// <inheritdoc />
@@ -30,6 +31,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Use GetShippingRate(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         public Task<ShippingRate> GetShippingRate(string id) => GetShippingRate(id, CancellationToken.None);
 
         /// <inheritdoc />

@@ -25,13 +25,13 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         private readonly ISessionService _umbCheckoutSessionService;
         private readonly ILogger<StripeBasketController> _logger;
 
-        [Obsolete("Use the constructor that takes an IStripeLineItemPricingService, an IStripeBasketPricingService and an ISessionService. This one resolves them from the application's services.")]
+        [Obsolete("Use the constructor that takes an IStripeLineItemPricingService, an IStripeBasketPricingService and an ISessionService. Scheduled for removal in 17.1.")]
         public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, ILogger<StripeBasketController> logger)
             : this(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider, basketService, sessionService, StaticServiceProvider.Instance.GetRequiredService<IStripeLineItemPricingService>(), StaticServiceProvider.Instance.GetRequiredService<IStripeBasketPricingService>(), StaticServiceProvider.Instance.GetRequiredService<ISessionService>(), logger)
         {
         }
 
-        [Obsolete("Use the constructor that also takes an IStripeBasketPricingService and an ISessionService. This one resolves them from the application's services.")]
+        [Obsolete("Use the constructor that also takes an IStripeBasketPricingService and an ISessionService. Scheduled for removal in 17.1.")]
         public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, ILogger<StripeBasketController> logger)
             : this(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider, basketService, sessionService, pricingService, StaticServiceProvider.Instance.GetRequiredService<IStripeBasketPricingService>(), StaticServiceProvider.Instance.GetRequiredService<ISessionService>(), logger)
         {

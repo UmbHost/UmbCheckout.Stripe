@@ -21,7 +21,7 @@ namespace UmbCheckout.Stripe.ViewComponents
         private static int _currencyNodeKeyWarned;
 
         /// <summary>Kept for code that constructs the view component itself; it logs nothing.</summary>
-        [Obsolete("Use the constructor that takes an ILogger. Scheduled for removal in a future major version.")]
+        [Obsolete("Use the constructor that takes an ILogger. Scheduled for removal in 17.1.")]
         public StripeAddToBasketButtonViewComponent(ICurrencyService currencyService)
             : this(currencyService, NullLogger<StripeAddToBasketButtonViewComponent>.Instance)
         {

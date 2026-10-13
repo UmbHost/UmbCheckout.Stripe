@@ -22,6 +22,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Use GetPriceAsync(IPublishedContent, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         public Task<LineItemPrice?> GetPriceAsync(IPublishedContent product) => GetPriceAsync(product, CancellationToken.None);
 
         /// <inheritdoc />

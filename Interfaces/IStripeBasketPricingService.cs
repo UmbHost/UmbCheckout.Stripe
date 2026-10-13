@@ -21,10 +21,13 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <see cref="Shared.Consts.MaxLineQuantity"/>), or beyond <see cref="Shared.Consts.MaxLineItems"/> lines. The given basket is
         /// updated in place and returned.
         /// </summary>
+        [Obsolete("Use RepriceAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         Task<BasketRepricing> RepriceAsync(Basket basket);
 
         /// <summary>As <see cref="RepriceAsync(Basket)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
         /// <remarks>Implementations written before the token overloads existed ignore the token.</remarks>
+#pragma warning disable CS0618 // forwards to the old overload so implementations written before the token overload keep working
         Task<BasketRepricing> RepriceAsync(Basket basket, CancellationToken cancellationToken) => RepriceAsync(basket);
+#pragma warning restore CS0618
     }
 }

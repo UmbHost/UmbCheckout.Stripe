@@ -20,6 +20,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
+        [Obsolete("Use RepriceAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
         public Task<BasketRepricing> RepriceAsync(Basket basket) => RepriceAsync(basket, CancellationToken.None);
 
         /// <inheritdoc />

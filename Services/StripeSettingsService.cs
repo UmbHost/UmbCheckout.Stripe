@@ -41,15 +41,7 @@ namespace UmbCheckout.Stripe.Services
         /// <inheritdoc />
         public async Task<UmbCheckoutStripeSettings?> GetStripeSettings()
         {
-            try
-            {
-                return _mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(await ReadAsync());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+            return _mapper.Map<Pocos.UmbCheckoutStripeSettings, UmbCheckoutStripeSettings>(await ReadAsync());
         }
 
         /// <summary>The stored row: cached, or read (and cached unless the read is inside someone else's scope).</summary>
@@ -83,11 +75,6 @@ namespace UmbCheckout.Stripe.Services
                 {
                     return await SaveAsync(stripeSettings);
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
             }
             finally
             {

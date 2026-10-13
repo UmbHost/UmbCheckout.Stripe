@@ -44,7 +44,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "GetShippingRates");
                 throw;
             }
         }
@@ -95,7 +95,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "GetShippingRate");
                 throw;
             }
         }
@@ -225,7 +225,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "DeleteShippingRate");
                 throw;
             }
         }
