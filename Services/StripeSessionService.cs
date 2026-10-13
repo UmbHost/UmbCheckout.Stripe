@@ -8,6 +8,7 @@ using UmbCheckout.Shared.Models;
 using UmbCheckout.Shared.Notifications.PaymentProvider;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Notifications;
 using UmbHost.Licensing.Models;
 using UmbHost.Licensing.Services;
@@ -46,6 +47,35 @@ namespace UmbCheckout.Stripe.Services
             _stripeSettingsService = stripeSettingsService;
             _stripeSettings = stripeSettings.CurrentValue;
             _licenseService = licenseService;
+        }
+
+        /// <summary>
+        /// The Checkout line items for a basket: one currency for the session, each unit amount in that currency's minor unit
+        /// (rounded once by <see cref="StripeCurrency.Round"/>). Lines whose product is no longer published are left out.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The basket is empty or mixes currencies.</exception>
+        /// <exception cref="ArgumentException">The basket's currency is empty (a basket saved before the upgrade) or not one Stripe supports.</exception>
+        internal static List<(Shared.Models.LineItem LineItem, IPublishedContent Product, SessionLineItemOptions Options)> BuildLineItems(IEnumerable<Shared.Models.LineItem> lineItems, Func<Guid, IPublishedContent?> getProduct)
+        {
+            var lines = lineItems.ToList();
+            var currency = StripeLineItemPrice.BasketCurrency(lines);
+            var built = new List<(Shared.Models.LineItem LineItem, IPublishedContent Product, SessionLineItemOptions Options)>();
+            foreach (var lineItem in lines)
+            {
+                var product = getProduct(lineItem.Key);
+                if (product == null)
+                {
+                    continue;
+                }
+
+                built.Add((lineItem, product, new SessionLineItemOptions
+                {
+                    PriceData = StripeLineItemPrice.PriceData(lineItem, currency, product.Name ?? string.Empty),
+                    Quantity = lineItem.Quantity
+                }));
+            }
+
+            return built;
         }
 
         /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
@@ -314,82 +344,59 @@ namespace UmbCheckout.Stripe.Services
                     }
 
                     var stripeLineItems = new List<SessionLineItemOptions>();
-                    foreach (var lineItem in basket.LineItems)
+                    foreach (var (lineItem, product, stripeLineItem) in BuildLineItems(basket.LineItems, key => publishedSnapshot?.Content?.GetById(key)))
                     {
-                        if (publishedSnapshot == null && publishedSnapshot?.Content == null)
+                        if (!string.IsNullOrEmpty(lineItem.Description))
                         {
-                            continue;
+                            stripeLineItem.PriceData.ProductData.Description = lineItem.Description;
+                        }
+                        else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
+                        {
+                            stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
+                        }
+                        else if (product.HasValue(Shared.Consts.PropertyAlias.FallbackDescriptionAlias))
+                        {
+                            stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
                         }
 
-                        var product = publishedSnapshot.Content?.GetById(lineItem.Key);
-                        if (product != null)
+                        var metaData = lineItem.MetaData;
+                        if (metaData.ContainsKey("nodeKey"))
                         {
-                            var stripeLineItem = new SessionLineItemOptions
+                            metaData.Add("nodeKey", product.Key.ToString());
+                        }
+
+                        if (metaData.Any())
+                        {
+                            if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
                             {
-                                PriceData = new SessionLineItemPriceDataOptions
+                                var productMetaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
+
+                                if (productMetaData != null)
                                 {
-                                    Currency = lineItem.CurrencyCode,
-                                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                                    foreach (var pm in productMetaData.Where(pm => metaData.ContainsKey(pm.Key)))
                                     {
-                                        Name = !string.IsNullOrEmpty(lineItem.Name) ? lineItem.Name : product.Name
-                                    },
-                                    UnitAmountDecimal = lineItem.Price * 100
-                                },
-                                Quantity = lineItem.Quantity
-                            };
-
-                            if (!string.IsNullOrEmpty(lineItem.Description))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = lineItem.Description;
-                            }
-                            else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
-                            }
-                            else if (product.HasValue(Shared.Consts.PropertyAlias.FallbackDescriptionAlias))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
-                            }
-
-                            var metaData = lineItem.MetaData;
-                            if (metaData.ContainsKey("nodeKey"))
-                            {
-                                metaData.Add("nodeKey", product.Key.ToString());
-                            }
-
-                            if (metaData.Any())
-                            {
-                                if (product.HasValue(Shared.Consts.PropertyAlias.MetaDataAlias))
-                                {
-                                    var productMetaData = product.Value<Dictionary<string, string>>(Shared.Consts.PropertyAlias.MetaDataAlias);
-
-                                    if (productMetaData != null)
-                                    {
-                                        foreach (var pm in productMetaData.Where(pm => metaData.ContainsKey(pm.Key)))
-                                        {
-                                            metaData.Add(pm.Key, pm.Value);
-                                        }
+                                        metaData.Add(pm.Key, pm.Value);
                                     }
                                 }
-
-                                stripeLineItem.PriceData.ProductData.Metadata = metaData;
                             }
 
-                            if (UmbCheckoutSettings.IsLicensed)
-                            {
-                                if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
-                                {
-                                    var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
-                                    stripeLineItem.DynamicTaxRates = taxRates;
-                                }
-                            }
-
-                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
-
-                            stripeLineItems.Add(stripeLineItem);
-
-                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
+                            stripeLineItem.PriceData.ProductData.Metadata = metaData;
                         }
+
+                        if (UmbCheckoutSettings.IsLicensed)
+                        {
+                            if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
+                            {
+                                var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
+                                stripeLineItem.DynamicTaxRates = taxRates;
+                            }
+                        }
+
+                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
+
+                        stripeLineItems.Add(stripeLineItem);
+
+                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
                     }
 
                     var options = new SessionCreateOptions
