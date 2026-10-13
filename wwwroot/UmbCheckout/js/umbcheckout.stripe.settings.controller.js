@@ -1,4 +1,4 @@
-function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, formHelper, localizationService) {
+function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, formHelper, localizationService, umbCheckoutHelpers) {
     var vm = this;
     vm.saveButtonState = "init";
     vm.createFolderError = "";
@@ -8,8 +8,11 @@ function UmbCheckout($scope, umbCheckoutStripeResources, notificationsService, f
     umbCheckoutStripeResources.getStripeSettings()
         .then(function (response) {
             vm.properties = response.data
-        }
-    );
+        })
+        .catch(function (response) {
+            // Settings section users only (403 for anyone else)
+            umbCheckoutHelpers.requestFailed(response, "umbcheckout_settings_access_denied_message");
+        });
 
     function saveConfiguration() {
         vm.saveButtonState = "busy";

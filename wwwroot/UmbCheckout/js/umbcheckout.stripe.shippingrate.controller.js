@@ -1,4 +1,4 @@
-function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService) {
+function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $routeParams, notificationsService, formHelper, $location, localizationService, umbCheckoutHelpers) {
     var vm = this;
     vm.shippingRateName;
     vm.deleteButtonState = "init";
@@ -50,7 +50,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
     function clickItem(item) {
 
         vm.properties.forEach(function (v) {
-            if (v.alias == "name") v.value = item.displayName;
+            if (v.alias == "name") v.value = item.display_name; // Stripe.net's own (snake_case) JSON name
             if (v.alias == "value") {
                 v.value = item.id
 
@@ -59,6 +59,7 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
                         setStripeShippingRate(response.data)
                     })
+                    .catch(umbCheckoutHelpers.requestFailed);
             };
         });
     }
@@ -91,27 +92,34 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
                                 setStripeShippingRate(response.data)
                             })
+                            .catch(umbCheckoutHelpers.requestFailed);
                     }
                 };
             });
-        }
-    );
+        })
+        .catch(function (response) {
+            // Settings section users only (403 for anyone else)
+            umbCheckoutHelpers.requestFailed(response, "umbcheckout_settings_access_denied_message");
+        });
 
     umbCheckoutStripeResources.getStripeShippingRates()
         .then(function (response) {
-            angular.forEach(response.data, function (value, key) {
+            // A Stripe list: the rates are in data, with Stripe.net's own (snake_case) JSON names
+            var rates = (response.data && response.data.data) || [];
+            angular.forEach(rates, function (value, key) {
 
-                value.name = value.displayName
+                value.name = value.display_name
             });
 
-            vm.stripeShippingRates = response.data
-        }
-    );
+            vm.stripeShippingRates = rates
+        })
+        .catch(umbCheckoutHelpers.requestFailed);
 
     umbCheckoutStripeResources.getStripeSettings()
         .then(function (response) {
 
-            if (response.data.useLiveApiDetails) {
+            // The settings API returns a property list; useLiveApiDetails is one of its properties
+            if (umbCheckoutHelpers.isLiveMode(response.data)) {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/shipping-rates/";
             } else {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/test/shipping-rates/";

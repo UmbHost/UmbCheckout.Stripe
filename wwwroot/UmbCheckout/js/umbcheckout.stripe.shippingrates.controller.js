@@ -1,4 +1,4 @@
-function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location, localizationService) {
+function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location, localizationService, umbCheckoutHelpers) {
     var vm = this;
     vm.shippingRatesName;
     vm.shippingRates = [];
@@ -32,8 +32,11 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
             });
 
             vm.shippingRates = response.data
-        }
-    );
+        })
+        .catch(function (response) {
+            // Settings section users only (403 for anyone else)
+            umbCheckoutHelpers.requestFailed(response, "umbcheckout_settings_access_denied_message");
+        });
 
     localizationService.localize("general_value").then(function (v) {
         vm.options = {
@@ -58,7 +61,8 @@ function UmbCheckout(umbCheckoutResources, umbCheckoutStripeResources, $location
     umbCheckoutStripeResources.getStripeSettings()
         .then(function (response) {
 
-            if (response.data.useLiveApiDetails) {
+            // The settings API returns a property list; useLiveApiDetails is one of its properties
+            if (umbCheckoutHelpers.isLiveMode(response.data)) {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/shipping-rates/";
             } else {
                 vm.stripeShippingRateUrl = "https://dashboard.stripe.com/test/shipping-rates/";
