@@ -79,6 +79,10 @@ namespace UmbCheckout.Stripe.Services
             return built;
         }
 
+        /// <summary>The shipping options to send, or null when none applies: Stripe rejects an empty shipping_options list.</summary>
+        internal static List<SessionShippingOptionOptions>? ShippingOptionsToSend(List<SessionShippingOptionOptions>? shippingOptions)
+            => shippingOptions is { Count: > 0 } ? shippingOptions : null;
+
         /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
         private void ReportLiveMode(Session? session)
         {
@@ -419,7 +423,8 @@ namespace UmbCheckout.Stripe.Services
 
                     if (configuration is { EnableShipping: true })
                     {
-                        options.ShippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
+                        // Only the rates that charge in the basket's currency; none is sent when none applies (Stripe rejects an empty list).
+                        options.ShippingOptions = ShippingOptionsToSend(await _stripeShippingOptionsService.GetShippingOptions(basket));
 
                         options.BillingAddressCollection = "required";
 
