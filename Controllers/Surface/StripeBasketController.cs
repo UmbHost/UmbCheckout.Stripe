@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Core.Models;
-using UmbCheckout.Shared.Extensions;
 using UmbCheckout.Shared.Models;
 using UmbCheckout.Stripe.Interfaces;
 using Umbraco.Cms.Core.Cache;
@@ -43,7 +42,9 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         /// <summary>
         /// Adds a product to the basket. Its price and currency are set by the server (<see cref="IStripeLineItemPricingService"/>);
         /// the posted <see cref="BasketAdd.Key"/> and <see cref="BasketAdd.Quantity"/> are the only values read from the form.
-        /// A product that can't be priced, or is priced in another currency than the basket's lines, is refused with
+        /// The line goes to the basket in its own currency (a basket belongs to one currency). A product that can't be priced here
+        /// (including one sold in another currency than this page's), or a line the basket refuses (a quantity outside
+        /// 1 to <see cref="Shared.Consts.MaxLineQuantity"/>, or a product beyond <see cref="Shared.Consts.MaxLineItems"/>), is refused with
         /// TempData <see cref="Shared.Consts.TempData.UmbCheckoutAddToBasketFailed"/>.
         /// </summary>
         [HttpPost]
@@ -66,23 +67,23 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                // A Checkout session takes one currency: refuse a line that would mix currencies (e.g. a basket saved before the upgrade).
-                var basket = await _basketService.Get();
-                if (!basket.LineItems.AcceptsCurrency(price.CurrencyCode))
+                try
                 {
-                    _logger.LogWarning("Product {ProductKey} is priced in {CurrencyCode} but the basket holds other currencies ({BasketCurrencies}); it was not added", product.Key, price.CurrencyCode, string.Join(", ", basket.LineItems.Select(lineItem => lineItem.CurrencyCode).Distinct()));
+                    await _basketService.Add(new LineItem
+                    {
+                        Key = product.Key,
+                        Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty,
+                        Price = price.Price,
+                        CurrencyCode = price.CurrencyCode,
+                        Quantity = basketAdd.Quantity
+                    });
+                }
+                catch (ArgumentException ex)
+                {
+                    _logger.LogWarning(ex, "Product {ProductKey} (quantity {Quantity}) was not added to the basket", product.Key, basketAdd.Quantity);
                     TempData[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] = basketAdd.Key;
                     return RedirectToCurrentUmbracoPage();
                 }
-
-                await _basketService.Add(new LineItem
-                {
-                    Key = product.Key,
-                    Name = !string.IsNullOrEmpty(product.Name) ? product.Name : string.Empty,
-                    Price = price.Price,
-                    CurrencyCode = price.CurrencyCode,
-                    Quantity = basketAdd.Quantity
-                });
 
                 TempData[Shared.Consts.TempData.UmbCheckoutAddedToBasket] = basketAdd.Key;
 
@@ -102,11 +103,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Reduce(Guid key, Guid? redirectGuid = null)
+        public async Task<IActionResult> Reduce(Guid key, Guid? redirectGuid = null)
         {
             try
             {
-                _basketService.Reduce(key);
+                await _basketService.Reduce(key);
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketReduced] = key;
 
@@ -119,18 +120,18 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Reducing {ProductKey} in the basket failed", key);
                 return StatusCode(500);
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(Guid key, Guid? redirectGuid = null)
+        public async Task<IActionResult> Remove(Guid key, Guid? redirectGuid = null)
         {
             try
             {
-                _basketService.Remove(key);
+                await _basketService.Remove(key);
 
                 TempData[Shared.Consts.TempData.UmbCheckoutBasketRemoved] = key;
 
@@ -143,7 +144,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Removing {ProductKey} from the basket failed", key);
                 return StatusCode(500);
             }
         }
