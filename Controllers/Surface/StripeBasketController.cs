@@ -230,7 +230,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Emptying the basket failed");
                 return StatusCode(500);
             }
         }

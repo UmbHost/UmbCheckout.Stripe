@@ -81,7 +81,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Getting Stripe checkout session {SessionId} failed", id);
                 throw;
             }
         }
@@ -107,7 +107,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Getting Stripe checkout session {SessionId} failed", id);
                 throw;
             }
         }
@@ -133,7 +133,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Creating a Stripe checkout session for a basket of {LineItemCount} lines in {CurrencyCode} failed", basket.LineItems.Count(), basket.CurrencyCode);
                 throw;
             }
         }
@@ -162,7 +162,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Creating a Stripe checkout session for a basket of {LineItemCount} lines in {CurrencyCode} failed", basket.LineItems.Count(), basket.CurrencyCode);
                 throw;
             }
         }
@@ -185,7 +185,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Expiring Stripe checkout session {SessionId} failed", id);
                 throw;
             }
         }
@@ -209,7 +209,7 @@ namespace UmbCheckout.Stripe.Services
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Expiring Stripe checkout session {SessionId} failed", id);
                 throw;
             }
         }
@@ -221,236 +221,228 @@ namespace UmbCheckout.Stripe.Services
         /// <returns>The Stripe SessionCreateOptions</returns>
         private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket)
         {
-            try
+            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
             {
-                using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
+                var configuration = await _configurationService.GetConfigurationAsync();
+                var stripeSettings = await _stripeSettingsService.GetStripeSettingsAsync();
+                Uri? successUri = null;
+                Uri? cancelUri = null;
+                if (configuration != null)
                 {
-                    var configuration = await _configurationService.GetConfigurationAsync();
-                    var stripeSettings = await _stripeSettingsService.GetStripeSettingsAsync();
-                    Uri? successUri = null;
-                    Uri? cancelUri = null;
-                    if (configuration != null)
+                    var pickedSuccessPage = configuration.SuccessPageUrl.FirstOrDefault();
+                    if (pickedSuccessPage != null && pickedSuccessPage.Udi.StartsWith("umb://document/"))
                     {
-                        var pickedSuccessPage = configuration.SuccessPageUrl.FirstOrDefault();
-                        if (pickedSuccessPage != null && pickedSuccessPage.Udi.StartsWith("umb://document/"))
+                        var guidString = pickedSuccessPage.Udi.Replace("umb://document/", "");
+                        if (Guid.TryParse(guidString, out var guid))
                         {
-                            var guidString = pickedSuccessPage.Udi.Replace("umb://document/", "");
-                            if (Guid.TryParse(guidString, out var guid))
+                            var successPage = _contentCache.GetById(guid);
+                            if (successPage != null)
                             {
-                                var successPage = _contentCache.GetById(guid);
-                                if (successPage != null)
+                                var url = successPage.Url(mode: UrlMode.Absolute);
+                                var isValidSuccessUrl = Uri.TryCreate(url, UriKind.Absolute, out successUri)
+                                                        && (successUri.Scheme == Uri.UriSchemeHttp || successUri.Scheme == Uri.UriSchemeHttps);
+                                if (!isValidSuccessUrl)
                                 {
-                                    var url = successPage.Url(mode: UrlMode.Absolute);
-                                    var isValidSuccessUrl = Uri.TryCreate(url, UriKind.Absolute, out successUri)
-                                                            && (successUri.Scheme == Uri.UriSchemeHttp || successUri.Scheme == Uri.UriSchemeHttps);
-                                    if (!isValidSuccessUrl)
+                                    var request = _httpContextAccessor.HttpContext?.Request;
+                                    if (request != null)
                                     {
-                                        var request = _httpContextAccessor.HttpContext?.Request;
-                                        if (request != null)
-                                        {
-                                            successUri =
-                                                new Uri($"{request.Scheme}://{request.Host.Value}/{pickedSuccessPage.Url.Trim('/')}");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        successUri = new Uri(url);
+                                        successUri =
+                                            new Uri($"{request.Scheme}://{request.Host.Value}/{pickedSuccessPage.Url.Trim('/')}");
                                     }
                                 }
-                            }
-                        }
-
-                        var pickedCancelPage = configuration.CancelPageUrl.FirstOrDefault();
-                        if (pickedCancelPage != null && pickedCancelPage.Udi.StartsWith("umb://document/"))
-                        {
-                            var guidString = pickedCancelPage.Udi.Replace("umb://document/", "");
-                            if (Guid.TryParse(guidString, out var guid))
-                            {
-                                var cancelPage = _contentCache.GetById(guid);
-                                if (cancelPage != null)
+                                else
                                 {
-                                    var url = cancelPage.Url(mode: UrlMode.Absolute);
-                                    var isValidCancelUrl = Uri.TryCreate(url, UriKind.Absolute, out cancelUri)
-                                                            && (cancelUri.Scheme == Uri.UriSchemeHttp || cancelUri.Scheme == Uri.UriSchemeHttps);
-                                    if (!isValidCancelUrl)
-                                    {
-                                        var request = _httpContextAccessor.HttpContext?.Request;
-                                        if (request != null)
-                                        {
-                                            cancelUri =
-                                                new Uri($"{request.Scheme}://{request.Host.Value}/{pickedCancelPage.Url.Trim('/')}");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        cancelUri = new Uri(url);
-                                    }
+                                    successUri = new Uri(url);
                                 }
                             }
                         }
                     }
 
-                    var stripeLineItems = new List<SessionLineItemOptions>();
-                    var currency = StripeLineItemPrice.BasketCurrency(basket.LineItems);
-                    foreach (var lineItem in basket.LineItems)
+                    var pickedCancelPage = configuration.CancelPageUrl.FirstOrDefault();
+                    if (pickedCancelPage != null && pickedCancelPage.Udi.StartsWith("umb://document/"))
                     {
-                        var product = _contentCache.GetById(lineItem.Key);
-                        if (product != null)
+                        var guidString = pickedCancelPage.Udi.Replace("umb://document/", "");
+                        if (Guid.TryParse(guidString, out var guid))
                         {
-                            var stripeLineItem = new SessionLineItemOptions
+                            var cancelPage = _contentCache.GetById(guid);
+                            if (cancelPage != null)
                             {
-                                PriceData = StripeLineItemPrice.PriceData(lineItem, currency, product.Name),
-                                Quantity = lineItem.Quantity
-                            };
-
-                            if (!string.IsNullOrEmpty(lineItem.Description))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = lineItem.Description;
-                            }
-                            else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
-                            }
-                            else if (product.HasValue(Shared.Consts.PropertyAlias.FallbackDescriptionAlias))
-                            {
-                                stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
-                            }
-
-                            // Read through the property itself: the friendly HasValue/Value extensions need Umbraco's static service provider.
-                            var metaDataProperty = product.GetProperty(Shared.Consts.PropertyAlias.MetaDataAlias);
-                            var productMetaData = metaDataProperty?.HasValue() == true ? metaDataProperty.GetValue() as Dictionary<string, string> : null;
-                            stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
-
-                            if (UmbCheckoutSettings.IsLicensed)
-                            {
-                                if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
+                                var url = cancelPage.Url(mode: UrlMode.Absolute);
+                                var isValidCancelUrl = Uri.TryCreate(url, UriKind.Absolute, out cancelUri)
+                                                        && (cancelUri.Scheme == Uri.UriSchemeHttp || cancelUri.Scheme == Uri.UriSchemeHttps);
+                                if (!isValidCancelUrl)
                                 {
-                                    var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
-                                    stripeLineItem.DynamicTaxRates = taxRates;
+                                    var request = _httpContextAccessor.HttpContext?.Request;
+                                    if (request != null)
+                                    {
+                                        cancelUri =
+                                            new Uri($"{request.Scheme}://{request.Host.Value}/{pickedCancelPage.Url.Trim('/')}");
+                                    }
+                                }
+                                else
+                                {
+                                    cancelUri = new Uri(url);
                                 }
                             }
-
-                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
-
-                            stripeLineItems.Add(stripeLineItem);
-
-                            scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
                         }
                     }
+                }
 
-                    var options = new SessionCreateOptions
+                var stripeLineItems = new List<SessionLineItemOptions>();
+                var currency = StripeLineItemPrice.BasketCurrency(basket.LineItems);
+                foreach (var lineItem in basket.LineItems)
+                {
+                    var product = _contentCache.GetById(lineItem.Key);
+                    if (product != null)
                     {
-                        LineItems = stripeLineItems,
-                        PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+                        var stripeLineItem = new SessionLineItemOptions
                         {
-                            Enabled = true,
-                        },
-                        Mode = Shared.Consts.SessionMode,
-                        SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
-                        CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty,
-                        // Which basket this session pays for: the success handler runs before the page's culture is known.
-                        Metadata = new Dictionary<string, string>
+                            PriceData = StripeLineItemPrice.PriceData(lineItem, currency, product.Name),
+                            Quantity = lineItem.Quantity
+                        };
+
+                        if (!string.IsNullOrEmpty(lineItem.Description))
                         {
-                            [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
-                            [Consts.SessionMetadata.BasketCurrency] = basket.CurrencyCode ?? currency.ToUpperInvariant()
+                            stripeLineItem.PriceData.ProductData.Description = lineItem.Description;
                         }
+                        else if (product.HasValue(Shared.Consts.PropertyAlias.DescriptionAlias))
+                        {
+                            stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.DescriptionAlias);
+                        }
+                        else if (product.HasValue(Shared.Consts.PropertyAlias.FallbackDescriptionAlias))
+                        {
+                            stripeLineItem.PriceData.ProductData.Description = product.Value<string>(Shared.Consts.PropertyAlias.FallbackDescriptionAlias);
+                        }
+
+                        // Read through the property itself: the friendly HasValue/Value extensions need Umbraco's static service provider.
+                        var metaDataProperty = product.GetProperty(Shared.Consts.PropertyAlias.MetaDataAlias);
+                        var productMetaData = metaDataProperty?.HasValue() == true ? metaDataProperty.GetValue() as Dictionary<string, string> : null;
+                        stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
+
+                        if (UmbCheckoutSettings.IsLicensed)
+                        {
+                            if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
+                            {
+                                var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
+                                stripeLineItem.DynamicTaxRates = taxRates;
+                            }
+                        }
+
+                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
+
+                        stripeLineItems.Add(stripeLineItem);
+
+                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
+                    }
+                }
+
+                var options = new SessionCreateOptions
+                {
+                    LineItems = stripeLineItems,
+                    PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+                    {
+                        Enabled = true,
+                    },
+                    Mode = Shared.Consts.SessionMode,
+                    SuccessUrl = successUri != null ? string.Concat(successUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=true") : string.Empty,
+                    CancelUrl = cancelUri != null ? string.Concat(cancelUri.ToString(), "?session_id={CHECKOUT_SESSION_ID}&success=false") : string.Empty,
+                    // Which basket this session pays for: the success handler runs before the page's culture is known.
+                    Metadata = new Dictionary<string, string>
+                    {
+                        [Consts.SessionMetadata.BasketCulture] = basket.SiteRootCulture ?? string.Empty,
+                        [Consts.SessionMetadata.BasketCurrency] = basket.CurrencyCode ?? currency.ToUpperInvariant()
+                    }
+                };
+
+                scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
+
+                if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
+                {
+                    options.ClientReferenceId = basket.CustomerReferenceId;
+                }
+
+                if (basket.Customer != null)
+                {
+                    if (!string.IsNullOrEmpty(basket.Customer.EmailAddress))
+                    {
+                        options.CustomerEmail = basket.Customer.EmailAddress;
+                    }
+                }
+
+                if (stripeSettings != null)
+                {
+                    options.PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+                    {
+                        Enabled = stripeSettings.CollectPhoneNumber
                     };
+                }
 
-                    scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
-
-                    if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
+                if (configuration is { EnableShipping: true })
+                {
+                    // Stripe rejects an empty shipping_options list (sent as an empty string): only set it when a rate applies.
+                    var shippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
+                    if (shippingOptions.Count > 0)
                     {
-                        options.ClientReferenceId = basket.CustomerReferenceId;
+                        options.ShippingOptions = shippingOptions;
                     }
 
-                    if (basket.Customer != null)
-                    {
-                        if (!string.IsNullOrEmpty(basket.Customer.EmailAddress))
-                        {
-                            options.CustomerEmail = basket.Customer.EmailAddress;
-                        }
-                    }
+                    options.BillingAddressCollection = "required";
 
                     if (stripeSettings != null)
                     {
-                        options.PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+                        if (!string.IsNullOrEmpty(stripeSettings.ShippingAllowedCountries))
                         {
-                            Enabled = stripeSettings.CollectPhoneNumber
-                        };
-                    }
+                            var allowedCountries = stripeSettings.ShippingAllowedCountries.Split(",");
 
-                    if (configuration is { EnableShipping: true })
-                    {
-                        // Stripe rejects an empty shipping_options list (sent as an empty string): only set it when a rate applies.
-                        var shippingOptions = await _stripeShippingOptionsService.GetShippingOptions(basket);
-                        if (shippingOptions.Count > 0)
-                        {
-                            options.ShippingOptions = shippingOptions;
-                        }
-
-                        options.BillingAddressCollection = "required";
-
-                        if (stripeSettings != null)
-                        {
-                            if (!string.IsNullOrEmpty(stripeSettings.ShippingAllowedCountries))
+                            if (allowedCountries.Any())
                             {
-                                var allowedCountries = stripeSettings.ShippingAllowedCountries.Split(",");
-
-                                if (allowedCountries.Any())
+                                options.ShippingAddressCollection = new SessionShippingAddressCollectionOptions
                                 {
-                                    options.ShippingAddressCollection = new SessionShippingAddressCollectionOptions
-                                    {
-                                        AllowedCountries = allowedCountries.ToList()
-                                    };
-                                }
+                                    AllowedCountries = allowedCountries.ToList()
+                                };
                             }
                         }
                     }
-
-                    if (stripeSettings is { CollectPromotionalEmailsConsent: true })
-                    {
-                        options.ConsentCollection = new SessionConsentCollectionOptions
-                        {
-                            Promotions = "auto",
-                        };
-
-                        if (stripeSettings is { EnableAbandonedCartRecovery: true })
-                        {
-                            var afterExpirationOptions = new SessionAfterExpirationOptions
-                            {
-                                Recovery = new SessionAfterExpirationRecoveryOptions
-                                {
-                                    Enabled = stripeSettings.EnableAbandonedCartRecovery
-                                }
-                            };
-
-                            if (stripeSettings is { AllowPromotionalCodesOnRecoveredCarts: true })
-                            {
-                                afterExpirationOptions.Recovery.AllowPromotionCodes =
-                                    stripeSettings.AllowPromotionalCodesOnRecoveredCarts;
-                            }
-
-                            options.AfterExpiration = afterExpirationOptions;
-                        }
-                    }
-
-                    if (stripeSettings is { AllowPromotionalCodes: true })
-                    {
-                        options.AllowPromotionCodes = true;
-                    }
-
-                    scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
-
-                    return options;
                 }
 
-                return null;
+                if (stripeSettings is { CollectPromotionalEmailsConsent: true })
+                {
+                    options.ConsentCollection = new SessionConsentCollectionOptions
+                    {
+                        Promotions = "auto",
+                    };
+
+                    if (stripeSettings is { EnableAbandonedCartRecovery: true })
+                    {
+                        var afterExpirationOptions = new SessionAfterExpirationOptions
+                        {
+                            Recovery = new SessionAfterExpirationRecoveryOptions
+                            {
+                                Enabled = stripeSettings.EnableAbandonedCartRecovery
+                            }
+                        };
+
+                        if (stripeSettings is { AllowPromotionalCodesOnRecoveredCarts: true })
+                        {
+                            afterExpirationOptions.Recovery.AllowPromotionCodes =
+                                stripeSettings.AllowPromotionalCodesOnRecoveredCarts;
+                        }
+
+                        options.AfterExpiration = afterExpirationOptions;
+                    }
+                }
+
+                if (stripeSettings is { AllowPromotionalCodes: true })
+                {
+                    options.AllowPromotionCodes = true;
+                }
+
+                scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
+
+                return options;
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogError(ex, ex.Message);
-                throw;
-            }
+
+            return null;
         }
     }
 }
