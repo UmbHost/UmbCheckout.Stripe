@@ -219,7 +219,7 @@ namespace UmbCheckout.Stripe.Services
         /// </summary>
         /// <param name="basket">The Basket to the converted</param>
         /// <returns>The Stripe SessionCreateOptions</returns>
-        private async Task<SessionCreateOptions?> CreateSessionOptions(Basket basket)
+        private async Task<SessionCreateOptions> CreateSessionOptions(Basket basket)
         {
             using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
             {
@@ -441,8 +441,6 @@ namespace UmbCheckout.Stripe.Services
 
                 return options;
             }
-
-            return null;
         }
     }
 }
