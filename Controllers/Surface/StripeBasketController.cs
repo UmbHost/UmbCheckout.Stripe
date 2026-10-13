@@ -21,21 +21,31 @@ namespace UmbCheckout.Stripe.Controllers.Surface
         private readonly IBasketService _basketService;
         private readonly IStripeSessionService _sessionService;
         private readonly IStripeLineItemPricingService _pricingService;
+        private readonly IStripeBasketPricingService _basketPricingService;
+        private readonly ISessionService _umbCheckoutSessionService;
         private readonly ILogger<StripeBasketController> _logger;
 
-        [Obsolete("Use the constructor that takes an IStripeLineItemPricingService. This one resolves it from the application's services.")]
+        [Obsolete("Use the constructor that takes an IStripeLineItemPricingService, an IStripeBasketPricingService and an ISessionService. This one resolves them from the application's services.")]
         public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, ILogger<StripeBasketController> logger)
-            : this(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider, basketService, sessionService, StaticServiceProvider.Instance.GetRequiredService<IStripeLineItemPricingService>(), logger)
+            : this(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider, basketService, sessionService, StaticServiceProvider.Instance.GetRequiredService<IStripeLineItemPricingService>(), StaticServiceProvider.Instance.GetRequiredService<IStripeBasketPricingService>(), StaticServiceProvider.Instance.GetRequiredService<ISessionService>(), logger)
+        {
+        }
+
+        [Obsolete("Use the constructor that also takes an IStripeBasketPricingService and an ISessionService. This one resolves them from the application's services.")]
+        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, ILogger<StripeBasketController> logger)
+            : this(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider, basketService, sessionService, pricingService, StaticServiceProvider.Instance.GetRequiredService<IStripeBasketPricingService>(), StaticServiceProvider.Instance.GetRequiredService<ISessionService>(), logger)
         {
         }
 
         [ActivatorUtilitiesConstructor]
-        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, ILogger<StripeBasketController> logger)
+        public StripeBasketController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IBasketService basketService, IStripeSessionService sessionService, IStripeLineItemPricingService pricingService, IStripeBasketPricingService basketPricingService, ISessionService umbCheckoutSessionService, ILogger<StripeBasketController> logger)
             : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _basketService = basketService;
             _sessionService = sessionService;
             _pricingService = pricingService;
+            _basketPricingService = basketPricingService;
+            _umbCheckoutSessionService = umbCheckoutSessionService;
             _logger = logger;
         }
 
@@ -149,6 +159,11 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
         }
 
+        /// <summary>
+        /// Sends the basket to Stripe Checkout at current published prices. When re-pricing changed a price or removed a product,
+        /// the customer returns to the basket with TempData <see cref="Shared.Consts.TempData.UmbCheckoutBasketRepriced"/> naming
+        /// them, and no Stripe session is created until they check out again.
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout()
@@ -162,12 +177,21 @@ namespace UmbCheckout.Stripe.Controllers.Surface
                     return RedirectToCurrentUmbracoPage();
                 }
 
-                var stripeSession = await _sessionService.CreateSessionAsync(basket);
+                // Checkout charges current published prices; if anything changed the customer sees it before paying.
+                var repricing = await _basketPricingService.RepriceAsync(basket);
+                if (repricing.Changes.Count > 0)
+                {
+                    await _umbCheckoutSessionService.Update(repricing.Basket);
+                    TempData[Shared.Consts.TempData.UmbCheckoutBasketRepriced] = string.Join(", ", repricing.Changes.Select(change => change.Name).Distinct());
+                    return RedirectToCurrentUmbracoPage();
+                }
+
+                var stripeSession = await _sessionService.CreateSessionAsync(repricing.Basket);
                 return Redirect(stripeSession.Url);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Checkout failed");
                 return StatusCode(500);
             }
         }
@@ -182,7 +206,7 @@ namespace UmbCheckout.Stripe.Controllers.Surface
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Emptying the basket failed");
                 return StatusCode(500);
             }
         }

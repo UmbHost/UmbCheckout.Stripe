@@ -43,12 +43,26 @@ namespace UmbCheckout.Stripe.ViewComponents
             string? checkoutButtonCssClass = null,
             string? productNameAlias = null,
             string? productAnchorLinkCssClass = null,
-            string checkoutButtonText = "Checkout")
+            string checkoutButtonText = "Checkout",
+            string addToBasketFailedText = "That item could not be added to your basket.",
+            string pricesChangedText = "Your basket was updated to current prices before checkout; please check it and continue:")
         {
             var basket = await _basketService.Get();
 
-            // The subtotal is shown in the currency the lines are charged in; the configured chain only applies to an empty basket.
-            var currencyCode = basket.LineItems.SingleCurrency() ?? await _currencyService.GetCurrencyAsync(currencyNodeKey);
+            // The subtotal is shown in the basket's own currency (what it is charged in); the configured chain only applies to an
+            // empty basket saved before baskets were per currency.
+            var currencyCode = basket.CurrencyCode ?? basket.LineItems.SingleCurrency() ?? await _currencyService.GetCurrencyAsync(currencyNodeKey);
+
+            var notices = new List<string>();
+            if (TempData?[Shared.Consts.TempData.UmbCheckoutAddToBasketFailed] != null)
+            {
+                notices.Add(addToBasketFailedText);
+            }
+
+            if (TempData?[Shared.Consts.TempData.UmbCheckoutBasketRepriced] is string changedProducts)
+            {
+                notices.Add($"{pricesChangedText} {changedProducts}");
+            }
 
             var model = new StripeBasketViewModel
             {
@@ -76,7 +90,8 @@ namespace UmbCheckout.Stripe.ViewComponents
                 SubTotal = await _basketService.SubTotal(),
                 TotalItems = await _basketService.TotalItems(),
                 ProductNameAlias = productNameAlias,
-                ProductAnchorLinkCssClass = productAnchorLinkCssClass
+                ProductAnchorLinkCssClass = productAnchorLinkCssClass,
+                Notices = notices
             };
 
             return View("~/Views/Partials/UmbCheckout/_StripeBasket.cshtml", model);
