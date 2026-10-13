@@ -17,7 +17,7 @@
       },
       "Stripe.net": {
         "type": "Direct",
-        "requested": "[50.3.0, )",
+        "requested": "[50.3.0, 51.0.0)",
         "resolved": "50.3.0",
         "contentHash": "pdx7D+1PX2v78oI0nN9AlVTWACkRJtDPKA4yXdRa1cJV7N5k02UhdwSa6ASX6cpSqL3+3H1YfmP9Jyh7EcJMnA==",
         "dependencies": {
@@ -2379,7 +2379,7 @@
       },
       "Stripe.net": {
         "type": "Direct",
-        "requested": "[50.3.0, )",
+        "requested": "[50.3.0, 51.0.0)",
         "resolved": "50.3.0",
         "contentHash": "pdx7D+1PX2v78oI0nN9AlVTWACkRJtDPKA4yXdRa1cJV7N5k02UhdwSa6ASX6cpSqL3+3H1YfmP9Jyh7EcJMnA==",
         "dependencies": {
