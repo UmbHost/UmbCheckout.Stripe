@@ -3,16 +3,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using UmbCheckout.Stripe.Helpers;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [PluginController(Shared.Consts.PackageName)]
+    // Settings section users only (the screens live in the Settings tree), as v17
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;
@@ -66,7 +71,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                // No key, a Stripe error, or Stripe unreachable: a problem response the screen shows, not a 500
+                var problem = StripeApiErrorResult.For(ex, _logger, HttpContext?.RequestAborted.IsCancellationRequested == true);
+                if (problem != null)
+                {
+                    return problem;
+                }
+
+                _logger.LogError(ex, "Failed to get the Stripe shipping rates");
                 throw;
             }
         }
@@ -104,7 +116,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                // No key, a Stripe error, or Stripe unreachable: a problem response the screen shows, not a 500
+                var problem = StripeApiErrorResult.For(ex, _logger, HttpContext?.RequestAborted.IsCancellationRequested == true);
+                if (problem != null)
+                {
+                    return problem;
+                }
+
+                _logger.LogError(ex, "Failed to get the Stripe shipping rate");
                 throw;
             }
         }

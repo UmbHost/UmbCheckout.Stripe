@@ -50,7 +50,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stripe.net" Version="50.3.0" />
+    <!-- Stripe.net majors move to a new Stripe API version and usually break; a site can upgrade within 50.x -->
+    <PackageReference Include="Stripe.net" Version="[50.3.0, 51)" />
     <!-- UmbHost.Licensing: see Directory.Build.targets -->
   </ItemGroup>
 
