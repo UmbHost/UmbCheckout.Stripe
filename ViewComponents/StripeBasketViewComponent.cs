@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UmbCheckout.Core.Interfaces;
 using UmbCheckout.Core.ViewModels;
+using UmbCheckout.Shared.Extensions;
 using UmbCheckout.Stripe.ViewModels;
 
 namespace UmbCheckout.Stripe.ViewComponents
@@ -46,7 +47,8 @@ namespace UmbCheckout.Stripe.ViewComponents
         {
             var basket = await _basketService.Get();
 
-            var currencyCode = await _currencyService.GetCurrencyAsync(currencyNodeKey);
+            // The subtotal is shown in the currency the lines are charged in; the configured chain only applies to an empty basket.
+            var currencyCode = basket.LineItems.SingleCurrency() ?? await _currencyService.GetCurrencyAsync(currencyNodeKey);
 
             var model = new StripeBasketViewModel
             {
