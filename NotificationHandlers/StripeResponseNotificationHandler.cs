@@ -156,30 +156,41 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         }
 
         /// <summary>
-        /// A checkout session created before baskets were per culture and currency carries no basket metadata, and its basket
-        /// records no checkout session (it may still be under the culture-only key). Its basket is the routed page's culture's
-        /// basket in the session's currency, cleared when that basket hasn't been sent to a newer checkout and the session is
-        /// recent enough to be this return (a stale link to an old session clears nothing).
+        /// A checkout session without basket metadata (created before baskets were per culture and currency) is matched to the
+        /// routed page's culture's basket in the session's currency. A basket that records this checkout session is the paid one
+        /// and is cleared at any age. A basket that records no checkout session (it may still be under the culture-only key) is
+        /// cleared only while the session is recent enough to be this return, so a stale link to an old session clears nothing.
+        /// A basket sent to another checkout session is kept.
         /// </summary>
         private async Task ClearPreUpgradeBasketAsync(IPublishedRequestBuilder request, Session stripeSession)
         {
             var currency = stripeSession.Currency?.ToUpperInvariant();
-            if (string.IsNullOrEmpty(currency) || stripeSession.Created < DateTime.UtcNow - CheckoutSessionLifetime)
+            if (string.IsNullOrEmpty(currency))
             {
-                _logger.LogInformation("Checkout session {CheckoutSessionId} has no basket details and is not recent; the basket is kept", stripeSession.Id);
+                _logger.LogInformation("Checkout session {CheckoutSessionId} has no basket details or currency; the basket is kept", stripeSession.Id);
                 return;
             }
 
             var culture = _routedPageCulture(request);
             var current = await _sessionService.Get(culture, currency);
-            if (!string.IsNullOrEmpty(current.Basket.CheckoutSessionId))
+            var recorded = current.Basket.CheckoutSessionId;
+            if (!string.Equals(recorded, stripeSession.Id, StringComparison.Ordinal))
             {
-                _logger.LogInformation("The current {Culture} {Currency} basket was sent to another checkout session; it is kept", culture, currency);
-                return;
+                if (!string.IsNullOrEmpty(recorded))
+                {
+                    _logger.LogInformation("The current {Culture} {Currency} basket was sent to another checkout session; it is kept", culture, currency);
+                    return;
+                }
+
+                if (stripeSession.Created < DateTime.UtcNow - CheckoutSessionLifetime)
+                {
+                    _logger.LogInformation("Checkout session {CheckoutSessionId} has no basket details and is not recent; the basket is kept", stripeSession.Id);
+                    return;
+                }
             }
 
             await _sessionService.Clear(culture, currency);
-            _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId} (created before basket details were recorded)", culture, currency, stripeSession.Id);
+            _logger.LogInformation("Cleared the {Culture} {Currency} basket paid for by checkout session {CheckoutSessionId} (no basket details on the session)", culture, currency, stripeSession.Id);
         }
     }
 }
