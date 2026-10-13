@@ -132,48 +132,48 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     new()
                     {
                         Alias = "collectPhoneNumber",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumber, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumberLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumber, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPhoneNumberLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPhoneNumber.ToString() : "false",
                         View = "boolean"
                     },
                     new()
                     {
                         Alias = "allowPromotionalCodes",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodes, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodes, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodes.ToString() : "false",
                         View = "boolean"
                     },
                     new()
                     {
                         Alias = "collectPromotionalEmailsConsent",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsent, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsentLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsent, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.CollectPromotionalEmailsConsentLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.CollectPromotionalEmailsConsent.ToString() : "false",
                         View = "boolean"
                     },
                     new()
                     {
                         Alias = "shippingAllowedCountries",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountries, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.ShippingAllowedCountriesLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null && !string.IsNullOrEmpty(stripeSettingsDb.ShippingAllowedCountries) ? stripeSettingsDb.ShippingAllowedCountries : "",
                         View = "textbox"
                     },
                     new()
                     {
                         Alias = "enableAbandonedCartRecovery",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecovery, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecoveryLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecovery, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.EnableAbandonedCartRecoveryLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.EnableAbandonedCartRecovery.ToString() : "false",
                         View = "boolean"
                     },
                     new()
                     {
                         Alias = "allowPromotionalCodesOnRecoveredCarts",
-                        Description = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCarts, CultureInfo.CurrentUICulture),
-                        Label = _localizedTextService.Localize(Shared.Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCartsLabel, CultureInfo.CurrentUICulture),
+                        Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCarts, CultureInfo.CurrentUICulture),
+                        Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Shared.Consts.LocalizationKeys.AllowPromotionalCodesOnRecoveredCartsLabel, CultureInfo.CurrentUICulture),
                         Value = stripeSettingsDb != null ? stripeSettingsDb.AllowPromotionalCodesOnRecoveredCarts.ToString() : "false",
                         View = "boolean"
                     }
