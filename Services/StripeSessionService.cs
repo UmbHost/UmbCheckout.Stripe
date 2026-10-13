@@ -267,7 +267,6 @@ namespace UmbCheckout.Stripe.Services
         /// <returns>The Stripe SessionCreateOptions</returns>
         private async Task<SessionCreateOptions> CreateSessionOptions(Basket basket, UmbCheckoutConfiguration? configuration, UmbCheckoutStripeSettings? stripeSettings, CancellationToken cancellationToken)
         {
-            using var scope = _coreScopeProvider.CreateCoreScope(autoComplete: true);
             {
                 Uri? successUri = null;
                 Uri? cancelUri = null;
@@ -372,11 +371,11 @@ namespace UmbCheckout.Stripe.Services
                             }
                         }
 
-                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
+                        await _eventAggregator.PublishAsync(new OnProviderSessionOptionsLineItemAdding(stripeLineItem), cancellationToken);
 
                         stripeLineItems.Add(stripeLineItem);
 
-                        scope.Notifications.Publish(new OnProviderSessionOptionsLineItemAdded(stripeLineItem));
+                        await _eventAggregator.PublishAsync(new OnProviderSessionOptionsLineItemAdded(stripeLineItem), cancellationToken);
                     }
                 }
 
@@ -398,7 +397,8 @@ namespace UmbCheckout.Stripe.Services
                     }
                 };
 
-                scope.Notifications.Publish(new OnProviderSessionOptionsStarted(options));
+                // Published now, not with a scope (which queues them until it ends, after Stripe has the options): handlers change the session.
+                await _eventAggregator.PublishAsync(new OnProviderSessionOptionsStarted(options), cancellationToken);
 
                 if (!string.IsNullOrEmpty(basket.CustomerReferenceId))
                 {
@@ -481,7 +481,7 @@ namespace UmbCheckout.Stripe.Services
                     options.AllowPromotionCodes = true;
                 }
 
-                scope.Notifications.Publish(new OnProviderSessionOptionsCreated(options));
+                await _eventAggregator.PublishAsync(new OnProviderSessionOptionsCreated(options), cancellationToken);
 
                 return options;
             }
