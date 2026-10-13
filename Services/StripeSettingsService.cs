@@ -51,7 +51,6 @@ namespace UmbCheckout.Stripe.Services
             return settings;
         }
 
-        /// <summary>The stored Stripe settings, without publishing Loaded.</summary>
         /// <summary>The stored settings (cached), without publishing Loaded: a fresh model each time, mapped from the cached row.</summary>
         private async Task<UmbCheckoutStripeSettings?> ReadAsync(CancellationToken cancellationToken)
         {
