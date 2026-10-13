@@ -25,15 +25,6 @@
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
       },
-      "UmbHost.Licensing": {
-        "type": "Direct",
-        "requested": "[1.4.0, )",
-        "resolved": "1.4.0",
-        "contentHash": "n6y+8QPhP+bE/RVi01RYEL9/c+PlkwDnvzjvJmdrYNo7NZP7dXkq8Is0EAaf3JnRKjL0ZKpP8IgctCz8GkWAuA==",
-        "dependencies": {
-          "Umbraco.Cms.Web.BackOffice": "[10.8.1, 11.0.0)"
-        }
-      },
       "Umbraco.Cms.Web.BackOffice": {
         "type": "Direct",
         "requested": "[10.8.8, 11.0.0)",
@@ -2342,7 +2333,7 @@
         "dependencies": {
           "Schema.NET": "[12.0.0, )",
           "UmbCheckout.Shared": "[1.0.0, )",
-          "UmbHost.Licensing": "[1.4.0, )",
+          "UmbHost.Licensing": "[1.5.0, )",
           "Umbraco.Cms.Web.BackOffice": "[10.8.8, 11.0.0)",
           "Umbraco.Cms.Web.Common": "[10.8.8, 11.0.0)"
         }
@@ -2353,6 +2344,12 @@
           "Umbraco.Cms.Core": "[10.8.8, 11.0.0)",
           "Umbraco.Cms.Infrastructure": "[10.8.8, 11.0.0)",
           "Umbraco.Cms.Web.Common": "[10.8.8, 11.0.0)"
+        }
+      },
+      "umbhost.licensing": {
+        "type": "Project",
+        "dependencies": {
+          "Umbraco.Cms.Web.BackOffice": "[10.8.1, 11.0.0)"
         }
       }
     },
@@ -2379,15 +2376,6 @@
         "dependencies": {
           "Newtonsoft.Json": "13.0.3",
           "System.Configuration.ConfigurationManager": "8.0.0"
-        }
-      },
-      "UmbHost.Licensing": {
-        "type": "Direct",
-        "requested": "[1.4.0, )",
-        "resolved": "1.4.0",
-        "contentHash": "n6y+8QPhP+bE/RVi01RYEL9/c+PlkwDnvzjvJmdrYNo7NZP7dXkq8Is0EAaf3JnRKjL0ZKpP8IgctCz8GkWAuA==",
-        "dependencies": {
-          "Umbraco.Cms.Web.BackOffice": "[13.0.0, 14.0.0)"
         }
       },
       "Umbraco.Cms.Web.BackOffice": {
@@ -4579,7 +4567,7 @@
         "dependencies": {
           "Schema.NET": "[12.0.0, )",
           "UmbCheckout.Shared": "[1.0.0, )",
-          "UmbHost.Licensing": "[1.4.0, )",
+          "UmbHost.Licensing": "[1.5.0, )",
           "Umbraco.Cms.Web.BackOffice": "[13.5.3, 14.0.0)",
           "Umbraco.Cms.Web.Common": "[13.5.3, 14.0.0)"
         }
@@ -4590,6 +4578,12 @@
           "Umbraco.Cms.Core": "[13.5.3, 14.0.0)",
           "Umbraco.Cms.Infrastructure": "[13.5.3, 14.0.0)",
           "Umbraco.Cms.Web.Common": "[13.5.3, 14.0.0)"
+        }
+      },
+      "umbhost.licensing": {
+        "type": "Project",
+        "dependencies": {
+          "Umbraco.Cms.Web.BackOffice": "[13.0.0, 14.0.0)"
         }
       }
     }
