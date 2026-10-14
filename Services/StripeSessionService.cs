@@ -51,7 +51,7 @@ namespace UmbCheckout.Stripe.Services
             _licenseService = licenseService;
         }
 
-        /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
+        /// <summary>A live checkout session is reported to the licensing service.</summary>
         private void ReportLiveMode(Session session)
         {
             if (session.Livemode)
@@ -368,15 +368,6 @@ namespace UmbCheckout.Stripe.Services
                         var metaDataProperty = product.GetProperty(Shared.Consts.PropertyAlias.MetaDataAlias);
                         var productMetaData = metaDataProperty?.HasValue() == true ? metaDataProperty.GetValue() as Dictionary<string, string> : null;
                         stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
-
-                        if (UmbCheckoutSettings.IsLicensed)
-                        {
-                            if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
-                            {
-                                var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
-                                stripeLineItem.DynamicTaxRates = taxRates;
-                            }
-                        }
 
                         await _eventAggregator.PublishAsync(new OnProviderSessionOptionsLineItemAdding(stripeLineItem), cancellationToken);
 

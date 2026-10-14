@@ -4,7 +4,7 @@ namespace UmbCheckout.Stripe.Helpers
     public static class CheckoutMetadata
     {
         /// <summary>
-        /// The line's own values, then the product's values for keys the line doesn't set, then the product's node key.
+        /// The line's own values, then the product's values for keys the line doesn't set, then the product's node key, which replaces any "nodeKey" value from either.
         /// Returns a new dictionary: the basket line is never changed, and duplicate keys never throw.
         /// </summary>
         public static Dictionary<string, string> ForLine(IReadOnlyDictionary<string, string> lineMetaData, IReadOnlyDictionary<string, string>? productMetaData, Guid productKey)
@@ -18,7 +18,8 @@ namespace UmbCheckout.Stripe.Helpers
                 }
             }
 
-            metaData.TryAdd("nodeKey", productKey.ToString());
+            // The real product key always wins: a value under this name in the line's or the product's metadata must not stand in for it.
+            metaData["nodeKey"] = productKey.ToString();
             return metaData;
         }
     }
