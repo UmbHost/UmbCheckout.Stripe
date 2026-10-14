@@ -129,7 +129,8 @@ namespace UmbCheckout.Stripe.Services
                 }
                 else
                 {
-                    saved = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate)!;
+                    saved = _mapper.Map<ShippingRate, UmbCheckoutStripeShipping>(shippingRate)
+                        ?? throw new InvalidOperationException("The shipping rate could not be mapped to its database row.");
                     saved.Id = 0;
                     if (saved.Key == Guid.Empty)
                     {

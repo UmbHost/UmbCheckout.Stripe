@@ -83,7 +83,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            string signature = Request.Headers["Stripe-Signature"];
+            string? signature = Request.Headers["Stripe-Signature"];
             if (string.IsNullOrEmpty(signature))
             {
                 _logger.LogWarning("Rejected a Stripe webhook without a signature");

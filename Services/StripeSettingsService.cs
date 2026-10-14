@@ -27,7 +27,7 @@ namespace UmbCheckout.Stripe.Services
         private readonly SettingsCache<Pocos.UmbCheckoutStripeSettings> _cache;
         private readonly IScopeAccessor? _scopeAccessor;
 
-        public StripeSettingsService(IScopeProvider scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, ICoreScopeProvider coreScopeProvider, LicenseService licenseService,
+        public StripeSettingsService(IScopeProvider scopeProvider, ILogger<StripeSettingsService> logger, IUmbracoMapper mapper, ICoreScopeProvider coreScopeProvider, LicenseService? licenseService,
             SettingsCache<Pocos.UmbCheckoutStripeSettings> cache, IScopeAccessor? scopeAccessor = null)
         {
             _scopeProvider = scopeProvider;

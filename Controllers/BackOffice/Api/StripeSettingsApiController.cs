@@ -27,7 +27,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         private readonly ILocalizedTextService _localizedTextService;
         private readonly ILogger<StripeSettingsApiController> _logger;
 
-        public StripeSettingsApiController(ILogger<StripeSettingsApiController> logger, LicenseService licenseService, ILocalizedTextService localizedTextService, IStripeSettingsService stripeSettingsService)
+        public StripeSettingsApiController(ILogger<StripeSettingsApiController> logger, LicenseService? licenseService, ILocalizedTextService localizedTextService, IStripeSettingsService stripeSettingsService)
         {
             _logger = logger;
             _localizedTextService = localizedTextService;

@@ -89,7 +89,12 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRate = key.HasValue ? await _stripeDatabaseService.GetShippingRate(key.Value) : new ShippingRate();
-                var shippingRateProperties = await GetShippingRateProperties(shippingRate!);
+                if (shippingRate is null)
+                {
+                    return NotFound();
+                }
+
+                var shippingRateProperties = await GetShippingRateProperties(shippingRate);
 
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
@@ -200,7 +205,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Alias = "name",
                         Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateDescription, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Name : string.Empty,
+                        Value = shippingRate.Name,
                         View = "textbox",
                         Validation = new Validation
                         {
@@ -212,7 +217,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Alias = "value",
                         Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdDescription, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Value : string.Empty,
+                        Value = shippingRate.Value,
                         View = "textbox",
                         Validation = new Validation
                         {
@@ -221,7 +226,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     }
                 };
 
-                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate!.Key, Properties = backOfficeProperties});
+                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate.Key, Properties = backOfficeProperties});
             }
             catch (Exception ex)
             {
