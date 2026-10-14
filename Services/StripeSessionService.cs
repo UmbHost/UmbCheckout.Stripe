@@ -98,7 +98,7 @@ namespace UmbCheckout.Stripe.Services
         internal static List<SessionShippingOptionOptions>? ShippingOptionsToSend(List<SessionShippingOptionOptions>? shippingOptions)
             => shippingOptions is { Count: > 0 } ? shippingOptions : null;
 
-        /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
+        /// <summary>A live checkout session is reported to the licensing service.</summary>
         private void ReportLiveMode(Session? session)
         {
             if (session != null && (session.Livemode || session.Id?.StartsWith("cs_live_", StringComparison.Ordinal) == true))

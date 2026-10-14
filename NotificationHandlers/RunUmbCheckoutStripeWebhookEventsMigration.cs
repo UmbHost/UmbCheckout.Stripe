@@ -10,7 +10,7 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 
 namespace UmbCheckout.Stripe.NotificationHandlers
 {
-    /// <summary>The Stripe webhook event table: part of the open package, so it is created on every site (not licence-gated).</summary>
+    /// <summary>The Stripe webhook event table: created on every site.</summary>
     internal class RunUmbCheckoutStripeWebhookEventsMigration : INotificationHandler<UmbracoApplicationStartingNotification>
     {
         private readonly IMigrationPlanExecutor _migrationPlanExecutor;

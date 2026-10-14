@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,6 @@ using UmbCheckout.Stripe.Models;
 using UmbCheckout.Stripe.Notifications.Webhooks;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Scoping;
-using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace UmbCheckout.Stripe.Controllers.Api
@@ -20,8 +20,12 @@ namespace UmbCheckout.Stripe.Controllers.Api
     /// Each event is handled once: Stripe redelivers until it gets a 2xx, so a redelivery is acknowledged without running
     /// handlers, and a failed handler answers 500 (and releases the event) so Stripe's retry runs it again. Handlers should be
     /// safe to repeat: they re-run after a failure, or after a crash once the claim's lease expires.
+    /// A plain controller; the route is spelt out because Stripe endpoints already use it, and it is anonymous because
+    /// Stripe signs its requests rather than logging in.
     /// </summary>
-    public class StripeWebhookApiController : UmbracoApiController
+    [AllowAnonymous]
+    [Route("umbraco/api/stripewebhookapi")]
+    public class StripeWebhookApiController : ControllerBase
     {
         /// <summary>API versions already warned about, so a mismatched endpoint logs once per version rather than per event.</summary>
         private static readonly ConcurrentDictionary<string, bool> WarnedApiVersions = new();
@@ -56,14 +60,14 @@ namespace UmbCheckout.Stripe.Controllers.Api
             _eventStore = eventStore;
         }
 
-        [HttpPost]
+        [HttpPost("checkoutevents")]
         public async Task<IActionResult> CheckoutEvents()
         {
             var cancellationToken = HttpContext.RequestAborted;
             string json;
             using (var reader = new StreamReader(HttpContext.Request.Body))
             {
-                json = await reader.ReadToEndAsync();
+                json = await reader.ReadToEndAsync(cancellationToken);
             }
 
             var (secret, live) = await _secretProvider.GetAsync(cancellationToken);
