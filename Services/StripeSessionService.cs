@@ -51,7 +51,7 @@ namespace UmbCheckout.Stripe.Services
             _licenseService = licenseService;
         }
 
-        /// <summary>A live checkout session means real payments: development mode (licensed features without a licence) ends.</summary>
+        /// <summary>A live checkout session is reported to the licensing service.</summary>
         private void ReportLiveMode(Session session)
         {
             if (session.Livemode)
