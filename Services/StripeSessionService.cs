@@ -436,15 +436,6 @@ namespace UmbCheckout.Stripe.Services
                         : null;
                     stripeLineItem.PriceData.ProductData.Metadata = CheckoutMetadata.ForLine(lineItem.MetaData, productMetaData, product.Key);
 
-                    if (UmbCheckoutSettings.IsLicensed)
-                    {
-                        if (product.HasValue(Shared.Consts.PropertyAlias.TaxRatesAlias))
-                        {
-                            var taxRates = product.Value<IEnumerable<string>>(Shared.Consts.PropertyAlias.TaxRatesAlias)?.ToList();
-                            stripeLineItem.DynamicTaxRates = taxRates;
-                        }
-                    }
-
                     await _eventAggregator.PublishAsync(new OnProviderSessionOptionsLineItemAdding(stripeLineItem));
 
                     stripeLineItems.Add(stripeLineItem);
