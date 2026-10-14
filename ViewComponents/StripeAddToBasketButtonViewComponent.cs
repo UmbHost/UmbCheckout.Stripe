@@ -39,7 +39,7 @@ namespace UmbCheckout.Stripe.ViewComponents
 
         /// <param name="currencyNodeKey">No longer decides the currency: the button shows the currency checkout charges (the product's site root, then Configuration).
         /// When it names another currency, a warning is logged once per process.</param>
-        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
+        public async Task<IViewComponentResult> InvokeAsync(IPublishedContent? product, string? quantityLabel = "Quantity", bool showQuantity = true, string? inputCssClass = null, string? selectCssClass = null, string? labelCssClass = null, string? formGroupSpacerClass = null, string? variantSelectLabel = null, string buttonText = "Add to Basket", string? buttonCssClass = null, Guid? returnGuid = null, string? productNameAlias = null, Guid? currencyNodeKey = null)
         {
             // The currency checkout charges (the product's site root, then Configuration); a null product renders nothing, as before.
             var cancellationToken = HttpContext?.RequestAborted ?? CancellationToken.None;

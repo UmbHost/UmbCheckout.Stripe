@@ -36,10 +36,10 @@ namespace UmbCheckout.Stripe.Services
         private readonly IStripeShippingOptionsService _stripeShippingOptionsService;
         private readonly StripeSettings _stripeSettings;
         private readonly IStripeSettingsService _stripeSettingsService;
-        private readonly LicenseService _licenseService;
+        private readonly LicenseService? _licenseService;
         private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
 
-        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService licenseService, IStripeSettingsService stripeSettingsService,
+        public StripeSessionService(IPublishedSnapshotAccessor snapshotAccessor, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, IOptionsMonitor<StripeSettings> stripeSettings, LicenseService? licenseService, IStripeSettingsService stripeSettingsService,
             IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
             _stripeClientFactory = stripeClientFactory;
@@ -103,7 +103,7 @@ namespace UmbCheckout.Stripe.Services
         {
             if (session != null && (session.Livemode || session.Id?.StartsWith("cs_live_", StringComparison.Ordinal) == true))
             {
-                _licenseService.ReportLiveModeActivity();
+                _licenseService?.ReportLiveModeActivity();
             }
         }
 
@@ -361,7 +361,7 @@ namespace UmbCheckout.Stripe.Services
                         var guidString = pickedSuccessPage.Udi.Replace("umb://document/", "");
                         if (Guid.TryParse(guidString, out var guid))
                         {
-                            var successPage = publishedSnapshot!.Content!.GetById(guid);
+                            var successPage = publishedSnapshot?.Content?.GetById(guid);
                             if (successPage != null)
                             {
                                 var url = successPage.Url(mode: UrlMode.Absolute);
@@ -390,7 +390,7 @@ namespace UmbCheckout.Stripe.Services
                         var guidString = pickedCancelPage.Udi.Replace("umb://document/", "");
                         if (Guid.TryParse(guidString, out var guid))
                         {
-                            var cancelPage = publishedSnapshot!.Content!.GetById(guid);
+                            var cancelPage = publishedSnapshot?.Content?.GetById(guid);
                             if (cancelPage != null)
                             {
                                 var url = cancelPage.Url(mode: UrlMode.Absolute);
