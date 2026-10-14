@@ -4,7 +4,7 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    /// <summary>Checkout sessions the webhook reported paid (open: created on every site, licensed or not).</summary>
+    /// <summary>Checkout sessions the webhook reported paid (created on every site).</summary>
     internal class AddUmbCheckoutStripePaidSessionsTable : MigrationBase
     {
         public AddUmbCheckoutStripePaidSessionsTable(IMigrationContext context) : base(context)

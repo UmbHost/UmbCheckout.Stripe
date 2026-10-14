@@ -4,7 +4,7 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace UmbCheckout.Stripe.Migrations
 {
-    /// <summary>Handled Stripe webhook event ids (open: created on every site, licensed or not).</summary>
+    /// <summary>Handled Stripe webhook event ids (created on every site).</summary>
     internal class AddUmbCheckoutStripeWebhookEventsTable : MigrationBase
     {
         public AddUmbCheckoutStripeWebhookEventsTable(IMigrationContext context) : base(context)

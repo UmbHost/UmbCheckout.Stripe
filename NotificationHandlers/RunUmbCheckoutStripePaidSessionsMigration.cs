@@ -11,8 +11,8 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 namespace UmbCheckout.Stripe.NotificationHandlers
 {
     /// <summary>
-    /// The paid checkout sessions table: part of the open package, so it is created on every site (not licence-gated). Basket
-    /// reads clear paid baskets on licensed and unlicensed sites alike.
+    /// The paid checkout sessions table: created on every site. Basket
+    /// reads clear paid baskets.
     /// </summary>
     internal class RunUmbCheckoutStripePaidSessionsMigration : INotificationHandler<UmbracoApplicationStartingNotification>
     {

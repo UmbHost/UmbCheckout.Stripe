@@ -10,7 +10,7 @@ namespace UmbCheckout.Stripe.Helpers
     /// <summary>
     /// Turns a failed Stripe call in a backoffice API into a problem response (title, detail, status) that the screens show in a toast,
     /// instead of a 500: no API key for the active mode (400), a Stripe error (Stripe's own message; 404 for a missing object, else 400),
-    /// or Stripe unreachable (502). Used by the open and the add-on Stripe APIs.
+    /// or Stripe unreachable (502). Used by the Stripe backoffice APIs.
     /// </summary>
     public static class StripeApiErrorResult
     {
