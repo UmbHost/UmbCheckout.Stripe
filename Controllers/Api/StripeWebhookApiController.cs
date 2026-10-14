@@ -67,7 +67,7 @@ namespace UmbCheckout.Stripe.Controllers.Api
             string json;
             using (var reader = new StreamReader(HttpContext.Request.Body))
             {
-                json = await reader.ReadToEndAsync(cancellationToken);
+                json = await reader.ReadToEndAsync();
             }
 
             var (secret, live) = await _secretProvider.GetAsync(cancellationToken);
