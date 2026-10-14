@@ -37,7 +37,7 @@ namespace UmbCheckout.Stripe.Services
         private readonly IUmbCheckoutStripeClientFactory _stripeClientFactory;
         private readonly LicenseService? _licenseService;
 
-        public StripeSessionService(IPublishedContentCache contentCache, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, LicenseService licenseService, IStripeSettingsService stripeSettingsService, IUmbCheckoutStripeClientFactory stripeClientFactory)
+        public StripeSessionService(IPublishedContentCache contentCache, ICoreScopeProvider coreScopeProvider, IEventAggregator eventAggregator, ILogger<StripeSessionService> logger, IConfigurationService configurationService, IHttpContextAccessor httpContextAccessor, IStripeShippingOptionsService stripeShippingOptionsService, LicenseService? licenseService, IStripeSettingsService stripeSettingsService, IUmbCheckoutStripeClientFactory stripeClientFactory)
         {
             _contentCache = contentCache;
             _coreScopeProvider = coreScopeProvider;
