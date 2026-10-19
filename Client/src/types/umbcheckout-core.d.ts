@@ -30,6 +30,7 @@ declare module "@umbcheckout/core" {
     validDomains: string;
     validPaths: string;
     addons: Array<UmbCheckoutLicenseAddon>;
+    addOnsInstalled: boolean;
   };
   export type UmbCheckoutLicenseCheckResult = { accepted: boolean; retryAfterSeconds?: number | null };
   export interface UmbCheckoutLicenseContext extends UmbContextMinimal {
@@ -39,7 +40,7 @@ declare module "@umbcheckout/core" {
   }
   export const UMBCHECKOUT_LICENSE_CONTEXT: UmbContextToken<UmbCheckoutLicenseContext>;
 
-  /** <umbcheckout-unlicensed-alert>: v13's red unlicensed alert; renders nothing when licensed. */
+  /** <umbcheckout-unlicensed-alert>: unlicensed, v13's red alert with a paid add-on installed, an info bar without; nothing when licensed. */
   export class UmbCheckoutUnlicensedAlertElement extends UmbLitElement {}
   /** <umbcheckout-made-by>: v13's "Made with ♥ by UmbHost" link; renders nothing when licensed. */
   export class UmbCheckoutMadeByElement extends UmbLitElement {}
