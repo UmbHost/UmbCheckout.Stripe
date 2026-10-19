@@ -17,7 +17,11 @@
                             <umb-icon icon="icon-info"></umb-icon> <span ng-bind-html="vm.shipping_help"></span>
                         </p>
 
-                        <p class="red bold" ng-if="!vm.LicenseState.Valid">
+                        <p class="red bold" ng-if="!vm.LicenseState.Valid && vm.LicenseState.AddOnsInstalled">
+                            <localize key="umbcheckout_unlicensed_warning"></localize>
+                        </p>
+
+                        <p class="alert alert-info" ng-if="!vm.LicenseState.Valid && !vm.LicenseState.AddOnsInstalled">
                             <localize key="umbcheckout_unlicensed_warning"></localize>
                         </p>
 
