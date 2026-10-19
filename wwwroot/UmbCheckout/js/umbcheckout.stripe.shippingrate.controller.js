@@ -66,6 +66,8 @@ function UmbCheckout($scope, umbCheckoutResources, umbCheckoutStripeResources, $
 
     umbCheckoutResources.getLicenseStatus()
         .then(function (response) {
+            // A paid add-on installed: unlicensed shows the red warning; without one, an info bar.
+            vm.LicenseState.AddOnsInstalled = response.data.addOnsInstalled === true;
             if (response.data.status != "Active" && response.data.status != "Development") { // anything else (Invalid, Expired, Suspended, Unlicensed, Domain not licensed) is unlicensed
                 vm.LicenseState.Valid = false;
 
