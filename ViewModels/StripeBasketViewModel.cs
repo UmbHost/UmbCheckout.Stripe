@@ -55,5 +55,8 @@ namespace UmbCheckout.Stripe.ViewModels
         public string? ProductNameAlias { get; set; }
 
         public string? ProductAnchorLinkCssClass { get; set; }
+
+        /// <summary>Messages for the customer (a refused add, prices that changed at checkout).</summary>
+        public List<string> Notices { get; set; } = new();
     }
 }

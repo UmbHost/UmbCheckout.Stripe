@@ -14,7 +14,7 @@ namespace UmbCheckout.Stripe.Webhooks
         IWebhookService webhookService,
         IOptionsMonitor<WebhookSettings> webhookSettings,
         IServerRoleAccessor serverRoleAccessor)
-        : WebhookEventBase<OnShippingRateDeletedNotification>(webhookFiringService, webhookService, webhookSettings,
+        : WebhookEventBase<OnShippingRateSavedNotification>(webhookFiringService, webhookService, webhookSettings,
             serverRoleAccessor)
     {
         public override string Alias => "OnShippingRateSavedWebhook";

@@ -3,6 +3,10 @@
 @using Umbraco.Extensions
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<UmbCheckout.Stripe.ViewModels.StripeBasketViewModel>
 
+@foreach (var notice in Model.Notices)
+{
+    <p class="umbcheckout-notice" role="status">@notice</p>
+}
 <table class="@Model.TableCssClass">
     <thead>
         <tr>

@@ -43,5 +43,13 @@
 		<key alias="collect_phone_number">When enabled the field to collect a phone number is shown on the payment form</key>
 		<key alias="collect_phone_number_label">Collect Phone Number</key>
 		<key alias="viewinstripe">View In Stripe Dashboard</key>
+		<key alias="collect_promotional_emails_consent_label">Collect Promotional Emails Consent</key>
+		<key alias="collect_promotional_emails_consent"><![CDATA[<strong>US only</strong> When enabled a checkbox to collect promotinal emails consent is shown on the payment form]]></key>
+		<key alias="allow_promotional_codes_label">Allow Promotional Codes</key>
+		<key alias="allow_promotional_codes">When enabled a text box for promotional codes is shown on the payment form</key>
+		<key alias="enable_abandoned_cart_recovery_label">Enable Abandoned Cart Recovery</key>
+		<key alias="enable_abandoned_cart_recovery"><![CDATA[<strong>US only</strong> When enabled this will allow you to send cart abandonment emails. Requires "Promotional Emails Consent" to be enabled.]]></key>
+		<key alias="allow_promotional_codes_on_recovered_carts_label">Allow Promotional Codes On Recovered Carts</key>
+		<key alias="allow_promotional_codes_on_recovered_carts"><![CDATA[<strong>US only</strong> When enabled a text box for promotional codes is shown on the payment form when an abandoned cart has been recovered. Requires "Abandoned Cart Recovery" to be enabled..]]></key>
 	</area>
 </language>

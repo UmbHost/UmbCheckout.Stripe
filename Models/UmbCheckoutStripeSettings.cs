@@ -11,5 +11,13 @@
         public string? ShippingAllowedCountries { get; set; } = null;
 
         public bool CollectPhoneNumber { get; set; } = false;
+
+        public bool CollectPromotionalEmailsConsent { get; set; } = false;
+        
+        public bool AllowPromotionalCodes { get; set; } = false;
+
+        public bool EnableAbandonedCartRecovery { get; set; } = false;
+
+        public bool AllowPromotionalCodesOnRecoveredCarts { get; set; } = false;
     }
 }

@@ -2,15 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using UmbCheckout.Stripe.Helpers;
 using UmbCheckout.Stripe.Interfaces;
+using UmbCheckout.Stripe.Money;
 using UmbCheckout.Stripe.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
 {
     [PluginController(Shared.Consts.PackageName)]
+    // Settings section users only (the screens live in the Settings tree), as v17
+    [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class StripeShippingRatesApiController : UmbracoAuthorizedApiController
     {
         private readonly ILogger<StripeShippingRatesApiController> _logger;
@@ -37,7 +44,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "GetShippingRates");
                 throw;
             }
         }
@@ -47,13 +54,31 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                var shippingRates = await _stripeShippingRateApiService.GetShippingRates();
+                var shippingRates = await _stripeShippingRateApiService.GetShippingRates(HttpContext?.RequestAborted ?? CancellationToken.None);
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-                return new JsonResult(shippingRates, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                // The response is serialised as before; each rate gains fixedAmountMoney (the amount in major units).
+                var json = MoneyJson.Serialize(shippingRates, options);
+                if (json?["data"] is JsonArray data && shippingRates?.Data is { } rates)
+                {
+                    for (var i = 0; i < data.Count && i < rates.Count; i++)
+                    {
+                        AddFixedAmountMoney(data[i], rates[i], options);
+                    }
+                }
+
+                return new JsonResult(json, options);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                // No key, a Stripe error, or Stripe unreachable: a problem response the screen shows, not a 500
+                var problem = StripeApiErrorResult.For(ex, _logger, HttpContext?.RequestAborted.IsCancellationRequested == true);
+                if (problem != null)
+                {
+                    return problem;
+                }
+
+                _logger.LogError(ex, "Failed to get the Stripe shipping rates");
                 throw;
             }
         }
@@ -64,13 +89,18 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             try
             {
                 var shippingRate = key.HasValue ? await _stripeDatabaseService.GetShippingRate(key.Value) : new ShippingRate();
-                var shippingRateProperties = await GetShippingRateProperties(shippingRate!);
+                if (shippingRate is null)
+                {
+                    return NotFound();
+                }
+
+                var shippingRateProperties = await GetShippingRateProperties(shippingRate);
 
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "GetShippingRate");
                 throw;
             }
         }
@@ -80,13 +110,25 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
         {
             try
             {
-                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id);
+                var shippingRate = await _stripeShippingRateApiService.GetShippingRate(id, HttpContext?.RequestAborted ?? CancellationToken.None);
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-                return new JsonResult(shippingRate, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                // The response is serialised as before, plus fixedAmountMoney (the amount in major units).
+                var json = MoneyJson.Serialize(shippingRate, options);
+                AddFixedAmountMoney(json, shippingRate, options);
+
+                return new JsonResult(json, options);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                // No key, a Stripe error, or Stripe unreachable: a problem response the screen shows, not a 500
+                var problem = StripeApiErrorResult.For(ex, _logger, HttpContext?.RequestAborted.IsCancellationRequested == true);
+                if (problem != null)
+                {
+                    return problem;
+                }
+
+                _logger.LogError(ex, "Failed to get the Stripe shipping rate");
                 throw;
             }
         }
@@ -113,7 +155,13 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             if (ModelState.IsValid)
             {
                 var updatedShippingRate = await _stripeDatabaseService.UpdateShippingRate(shippingRate);
-                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate!);
+                if (updatedShippingRate == null)
+                {
+                    // Refused, e.g. the Stripe ID belongs to another shipping rate.
+                    return BadRequest();
+                }
+
+                var shippingRateProperties = await GetShippingRateProperties(updatedShippingRate);
                 return new JsonResult(shippingRateProperties, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
 
@@ -138,6 +186,14 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
             return BadRequest();
         }
 
+        private static void AddFixedAmountMoney(JsonNode? item, global::Stripe.ShippingRate? rate, JsonSerializerOptions options)
+        {
+            if (rate?.FixedAmount is { } fixedAmount)
+            {
+                MoneyJson.Add(item, "fixedAmountMoney", fixedAmount.Amount, fixedAmount.Currency, options);
+            }
+        }
+
         private Task<ShippingRateResponse> GetShippingRateProperties(ShippingRate shippingRate)
         {
             try
@@ -149,7 +205,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Alias = "name",
                         Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateDescription, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Name : string.Empty,
+                        Value = shippingRate.Name,
                         View = "textbox",
                         Validation = new Validation
                         {
@@ -161,7 +217,7 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                         Alias = "value",
                         Description = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdDescription, CultureInfo.CurrentUICulture),
                         Label = _localizedTextService.Localize(Consts.LocalizationKeys.Area, Consts.LocalizationKeys.ShippingRateIdLabel, CultureInfo.CurrentUICulture),
-                        Value = shippingRate != null ? shippingRate.Value : string.Empty,
+                        Value = shippingRate.Value,
                         View = "textbox",
                         Validation = new Validation
                         {
@@ -170,11 +226,11 @@ namespace UmbCheckout.Stripe.Controllers.BackOffice.Api
                     }
                 };
 
-                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate!.Key, Properties = backOfficeProperties});
+                return Task.FromResult(new ShippingRateResponse{ Key = shippingRate.Key, Properties = backOfficeProperties});
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Backoffice API {Action} failed", "DeleteShippingRate");
                 throw;
             }
         }
