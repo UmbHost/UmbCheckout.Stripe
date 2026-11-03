@@ -6,6 +6,13 @@
     public static class Consts
     {
         public const string AppSettingsSectionName = "Stripe";
+
+        /// <summary>Checkout session metadata naming the basket a session pays for, so the success page can clear it.</summary>
+        public static class SessionMetadata
+        {
+            public const string BasketCulture = "umbcheckout_culture";
+            public const string BasketCurrency = "umbcheckout_currency";
+        }
         public static class LocalizationKeys
         {
             public const string Stripe = "stripe";

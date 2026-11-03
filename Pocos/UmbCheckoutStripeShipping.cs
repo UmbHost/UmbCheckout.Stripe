@@ -1,29 +1,16 @@
-﻿using NPoco;
-using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
-
 namespace UmbCheckout.Stripe.Pocos
 {
-    [TableName("UmbCheckoutStripeShipping")]
-    [PrimaryKey("Id", AutoIncrement = true)]
-    [ExplicitColumns]
+    /// <summary>A Stripe shipping rate row (table UmbCheckoutStripeShipping, mapped in UmbCheckoutStripeShippingConfiguration)</summary>
     public class UmbCheckoutStripeShipping
     {
-        [PrimaryKeyColumn(AutoIncrement = true, IdentitySeed = 1)]
-        [Column("Id")]
         public long Id { get; set; }
 
-        [Column("Key")]
-        [Index(IndexTypes.UniqueNonClustered, Name = "IX_shippingKey")]
-        [NullSetting(NullSetting = NullSettings.Null)]
-        public Guid Key { get; set; } = Guid.NewGuid();
+        /// <summary>Null on rows created before the Key column existed; assigned on the next save.</summary>
+        public Guid? Key { get; set; } = Guid.NewGuid();
 
-        [Column("Name")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
         public string Name { get; set; } = string.Empty;
 
-        [Column("Value")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
-        [Index(IndexTypes.UniqueNonClustered, Name = "IX_stripeIdShippingRate")]
+        /// <summary>The Stripe shipping rate id</summary>
         public string Value { get; set; } = string.Empty;
     }
 }

@@ -1,4 +1,4 @@
-﻿using UmbCheckout.Stripe.Models;
+using UmbCheckout.Stripe.Models;
 
 namespace UmbCheckout.Stripe.Interfaces
 {
@@ -11,41 +11,41 @@ namespace UmbCheckout.Stripe.Interfaces
         /// Gets the Shipping Rates
         /// </summary>
         /// <returns>An IEnumerable of Shipping Rates</returns>
-        Task<IEnumerable<ShippingRate>> GetShippingRates();
+        Task<IEnumerable<ShippingRate>> GetShippingRatesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets a Shipping Rate
         /// </summary>
         /// <param name="key">Key of the Stripe Shipping Rate</param>
         /// <returns>The Stripe Shipping Rate</returns>
-        Task<ShippingRate?> GetShippingRate(Guid key);
+        Task<ShippingRate?> GetShippingRateAsync(Guid key, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets a Shipping Rate
         /// </summary>
         /// <param name="value">StripeId of the Stripe Shipping Rate</param>
         /// <returns>The Stripe Shipping Rate</returns>
-        Task<ShippingRate?> GetShippingRate(string value);
+        Task<ShippingRate?> GetShippingRateAsync(string value, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a Shipping Rate
         /// </summary>
         /// <param name="shippingRate">The Stripe Shipping Rate</param>
-        /// <returns>The created Stripe Shipping Rate</returns>
-        Task<ShippingRate?> CreateShippingRate(ShippingRate shippingRate);
+        /// <returns>The created Stripe Shipping Rate, or null if one with the same Stripe id already exists</returns>
+        Task<ShippingRate?> CreateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Updates a Shipping Rate
+        /// Updates a Shipping Rate, matched on its Stripe id; creates it when it does not exist
         /// </summary>
         /// <param name="shippingRate">The Stripe Shipping Rate</param>
         /// <returns>The updated Stripe Shipping Rate</returns>
-        Task<ShippingRate?> UpdateShippingRate(ShippingRate shippingRate);
+        Task<ShippingRate?> UpdateShippingRateAsync(ShippingRate shippingRate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a Shipping Rate
         /// </summary>
         /// <param name="key">Key of the Stripe Shipping Rate</param>
         /// <returns>True if deleted</returns>
-        Task<bool> DeleteShippingRate(Guid key);
+        Task<bool> DeleteShippingRateAsync(Guid key, CancellationToken cancellationToken = default);
     }
 }

@@ -1,47 +1,25 @@
-﻿using NPoco;
-using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
-
 namespace UmbCheckout.Stripe.Pocos
 {
-    [TableName("UmbCheckoutStripeSettings")]
-    [PrimaryKey("Id", AutoIncrement = true)]
-    [ExplicitColumns]
+    /// <summary>The Stripe settings row (table UmbCheckoutStripeSettings, mapped in UmbCheckoutStripeSettingsConfiguration)</summary>
     internal class UmbCheckoutStripeSettings
     {
-        [PrimaryKeyColumn(AutoIncrement = true, IdentitySeed = 1)]
-        [Column("Id")]
         public long Id { get; set; }
 
-        [Column("Key")]
-        [NullSetting(NullSetting = NullSettings.Null)]
-        public Guid Key { get; set; } = Guid.NewGuid();
+        /// <summary>Null on rows created before the Key column existed; assigned on the next save.</summary>
+        public Guid? Key { get; set; } = Guid.NewGuid();
 
-        [Column("UseLiveApiDetails")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
-        public bool UseLiveApiDetails { get; set; } = false;
+        public bool UseLiveApiDetails { get; set; }
 
-        [Column("CollectPhoneNumber")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
-        public bool CollectPhoneNumber { get; set; } = false;
+        public bool CollectPhoneNumber { get; set; }
 
-        [Column("CollectPromotionalConsent")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
-        public bool CollectPromotionalConsent { get; set; } = false;
+        public bool CollectPromotionalConsent { get; set; }
 
-        [Column("AllowPromotionalCodes")]
-        [NullSetting(NullSetting = NullSettings.NotNull)]
-        public bool AllowPromotionalCodes { get; set; } = false;
+        public bool AllowPromotionalCodes { get; set; }
 
-        [Column("ShippingAllowedCountries")]
-        [NullSetting(NullSetting = NullSettings.Null)]
-        public string? ShippingAllowedCountries { get; set; } = null;
+        public string? ShippingAllowedCountries { get; set; }
 
-        [Column("EnableAbandonedCartRecovery")]
-        [NullSetting(NullSetting = NullSettings.Null)]
-        public bool EnableAbandonedCartRecovery { get; set; } = false;
+        public bool EnableAbandonedCartRecovery { get; set; }
 
-        [Column("AllowPromotionalCodesOnRecoveredCarts")]
-        [NullSetting(NullSetting = NullSettings.Null)]
-        public bool AllowPromotionalCodesOnRecoveredCarts { get; set; } = false;
+        public bool AllowPromotionalCodesOnRecoveredCarts { get; set; }
     }
 }

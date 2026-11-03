@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using UmbCheckout.Stripe.Interfaces;
 using UmbCheckout.Stripe.Services;
+using UmbCheckout.Stripe.Webhooks;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
-
-#if NET8_0_OR_GREATER
-using UmbCheckout.Stripe.Webhooks;
-#endif
 
 namespace UmbCheckout.Stripe.Composers
 {
@@ -15,12 +13,17 @@ namespace UmbCheckout.Stripe.Composers
         public void Compose(IUmbracoBuilder builder)
         {
             builder.Services.AddTransient<IStripeSessionService, StripeSessionService>();
+            builder.Services.AddTransient<IUmbCheckoutSuccessPageMatcher, UmbCheckoutSuccessPageMatcher>();
+            builder.Services.AddTransient<IStripeWebhookEventStore, StripeWebhookEventStore>();
+            builder.Services.AddTransient<IStripeWebhookSecretProvider, StripeWebhookSecretProvider>();
+            builder.Services.AddTransient<IStripeLineItemPricingService, StripeLineItemPricingService>();
+            builder.Services.AddTransient<IStripeBasketPricingService, StripeBasketPricingService>();
             builder.Services.AddTransient<IStripeShippingRateDatabaseService, StripeShippingRateDatabaseService>();
             builder.Services.AddTransient<IStripeShippingRateApiService, StripeShippingRateApiService>();
-            builder.Services.AddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>();
+            builder.Services.TryAddTransient<IStripeShippingOptionsService, StripeDefaultShippingOptionsService>(); // a site's own calculator wins, whichever composer runs first (#7)
             builder.Services.AddTransient<IStripeSettingsService, StripeSettingsService>();
+            builder.Services.AddTransient<IUmbCheckoutStripeClientFactory, UmbCheckoutStripeClientFactory>();
 
-#if NET8_0_OR_GREATER
             builder.WebhookEvents().Add<OnShippingRateDeletedWebhook>();
             builder.WebhookEvents().Add<OnShippingRateSavedWebhook>();
             builder.WebhookEvents().Add<OnChargeFailedWebhook>();
@@ -33,7 +36,6 @@ namespace UmbCheckout.Stripe.Composers
             builder.WebhookEvents().Add<OnPaymentIntentPaymentFailedWebhook>();
             builder.WebhookEvents().Add<OnPaymentIntentSucceededWebhook>();
             builder.WebhookEvents().Add<OnPaymentSuccessWebhook>();
-#endif
         }
     }
 }
