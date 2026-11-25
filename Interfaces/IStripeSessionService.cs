@@ -15,7 +15,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// <param name="id">Id of the Stripe Session</param>
         /// <param name="options">Optional Get Options</param>
         /// <returns>The Stripe Session</returns>
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null);
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
-        [Obsolete("Use GetSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use GetSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         Task<Session> GetSessionAsync(string id);
 
         /// <summary>As <see cref="GetSessionAsync(string)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
@@ -37,7 +37,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// </summary>
         /// <param name="basket">The basket to be stored in the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         Session CreateSession(Basket basket);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// </summary>
         /// <param name="basket">The basket to be stored in the Stripe Session</param>
         /// <returns>The Stripe Session</returns>
-        [Obsolete("Use CreateSessionAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use CreateSessionAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         Task<Session> CreateSessionAsync(Basket basket);
 
         /// <summary>As <see cref="CreateSessionAsync(Basket)"/>, stopping when <paramref name="cancellationToken"/> is cancelled. Once the request is sent, Stripe may still create the session.</summary>
@@ -58,14 +58,14 @@ namespace UmbCheckout.Stripe.Interfaces
         /// Clears a Stripe Session
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         void ClearSession(string id);
 
         /// <summary>
         /// Clears a Stripe Session asynchronously
         /// </summary>
         /// <param name="id">Id of the Stripe Session</param>
-        [Obsolete("Use ClearSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use ClearSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         Task ClearSessionAsync(string id);
 
         /// <summary>As <see cref="ClearSessionAsync(string)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>

@@ -108,7 +108,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         public Session GetSession(string id, UmbCheckoutSessionGetOptions? options = null)
         {
             try
@@ -148,7 +148,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Use GetSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use GetSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         public Task<Session> GetSessionAsync(string id) => GetSessionAsync(id, CancellationToken.None);
 
         /// <inheritdoc />
@@ -185,7 +185,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         public Session CreateSession(Basket basket)
         {
             try
@@ -224,7 +224,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Use CreateSessionAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use CreateSessionAsync(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         public Task<Session> CreateSessionAsync(Basket basket) => CreateSessionAsync(basket, CancellationToken.None);
 
         /// <inheritdoc />
@@ -268,7 +268,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.1.")]
+        [Obsolete("Blocks a thread on a Stripe call; use the async method with a CancellationToken. Scheduled for removal in 17.3.")]
         public void ClearSession(string id)
         {
             try
@@ -304,7 +304,7 @@ namespace UmbCheckout.Stripe.Services
         }
 
         /// <inheritdoc />
-        [Obsolete("Use ClearSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use ClearSessionAsync(string, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         public Task ClearSessionAsync(string id) => ClearSessionAsync(id, CancellationToken.None);
 
         /// <inheritdoc />

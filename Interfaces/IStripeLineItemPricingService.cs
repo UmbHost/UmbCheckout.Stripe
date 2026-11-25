@@ -12,7 +12,7 @@ namespace UmbCheckout.Stripe.Interfaces
         /// The product's rounded price and currency, or null (logged) when it cannot be sold here: no valid price, no supported
         /// currency, or a currency other than the current page's (its basket would not be the one shown on this page).
         /// </summary>
-        [Obsolete("Use GetPriceAsync(IPublishedContent, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+        [Obsolete("Use GetPriceAsync(IPublishedContent, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
         Task<LineItemPrice?> GetPriceAsync(IPublishedContent product);
 
         /// <summary>As <see cref="GetPriceAsync(IPublishedContent)"/>, stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
