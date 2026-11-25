@@ -33,7 +33,7 @@ namespace UmbCheckout.Stripe.NotificationHandlers
         private readonly ILogger<StripeResponseNotificationHandler> _logger;
         private readonly Func<IPublishedRequestBuilder, string?> _routedPageCulture;
 
-        [Obsolete("Use the constructor that takes an IUmbCheckoutSuccessPageMatcher and a logger. Scheduled for removal in 17.1.")]
+        [Obsolete("Use the constructor that takes an IUmbCheckoutSuccessPageMatcher and a logger. Scheduled for removal in 17.3.")]
         public StripeResponseNotificationHandler(IStripeSessionService stripeSessionService, ISessionService sessionService)
             : this(stripeSessionService, sessionService,
                 StaticServiceProvider.Instance.GetRequiredService<IUmbCheckoutSuccessPageMatcher>(),
