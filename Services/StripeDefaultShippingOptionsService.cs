@@ -22,7 +22,7 @@ public class StripeDefaultShippingOptionsService : IStripeShippingOptionsService
     private readonly IStripeShippingRateApiService _shippingRateApiService;
     private readonly ILogger<StripeDefaultShippingOptionsService> _logger;
 
-    [Obsolete("Use the constructor that takes an IStripeShippingRateApiService and a logger. Scheduled for removal in 17.1.")]
+    [Obsolete("Use the constructor that takes an IStripeShippingRateApiService and a logger. Scheduled for removal in 17.3.")]
     public StripeDefaultShippingOptionsService(IStripeShippingRateDatabaseService stripeDatabaseService)
         : this(stripeDatabaseService, StaticServiceProvider.Instance.GetRequiredService<IStripeShippingRateApiService>(), StaticServiceProvider.Instance.GetRequiredService<ILogger<StripeDefaultShippingOptionsService>>())
     {
@@ -37,7 +37,7 @@ public class StripeDefaultShippingOptionsService : IStripeShippingOptionsService
     }
 
     /// <summary>The configured shipping rates that are active and charge in the basket's currency (at most five).</summary>
-    [Obsolete("Use GetShippingOptions(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.1.")]
+    [Obsolete("Use GetShippingOptions(Basket, CancellationToken) (the overload with a CancellationToken). Scheduled for removal in 17.3.")]
     public Task<List<SessionShippingOptionOptions>> GetShippingOptions(Basket basket) => GetShippingOptions(basket, CancellationToken.None);
 
     /// <summary>The configured shipping rates that are active and charge in the basket's currency (at most five), stopping when <paramref name="cancellationToken"/> is cancelled.</summary>
